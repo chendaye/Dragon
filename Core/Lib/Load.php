@@ -40,8 +40,10 @@ class Load
     {
         //加载公共函数
         self::requireFile();
+
         // 注册系统自动加载
         spl_autoload_register($autoload ?: 'Core\\Lib\\Load::autoload', true, true);
+
         // 注册框架核心命名空间映射
         self::addNamespace([
             'Core'    => CORE,
@@ -52,14 +54,17 @@ class Load
             'Core\\Lib\\Observe'   => LIB. 'Observe' . SP,
             'Core\\Lib\\Registry'   => LIB. 'Registry' . SP,
         ]);
+
         // 加载类库映射文件
         if (is_file(RUNTIME . 'classmap' . EXT)) {
-            self::addClassMap(insulate_include(RUNTIME. 'classmap' . EXT));
+            self::addClassMap(self::insulate_include(RUNTIME. 'classmap' . EXT));
         }
+
         // Composer自动加载支持
         if (is_dir(VENDOR . 'composer')) {
             self::Composer();
         }
+
         // 自动加载extend目录
         self::$fallback_dirs_psr4[] = rtrim(EXTEND, SP);
     }
@@ -70,48 +75,28 @@ class Load
      */
     static public function autoload($class)
     {
-        // 检测命名空间别名
-        if (!empty(self::$alias)) {
-            $namespace = dirname($class);   //返回目录部分
-            if (isset(self::$alias[$namespace])) {
-                $original = self::$alias[$namespace] . '\\' . basename($class); //文件名部分
-                if (class_exists($original)) {
-                    return class_alias($original, $class, false);
-                }
-            }
-        }
         //根据类名查找文件
         if ($file = self::findFile($class)) {
             // Win环境严格区分大小写
-            if (IS_WIN && pathinfo($file, PATHINFO_FILENAME) != pathinfo(realpath($file), PATHINFO_FILENAME)) {
-                return false;
-            }
+            if (IS_WIN && pathinfo($file, PATHINFO_FILENAME) != pathinfo(realpath($file), PATHINFO_FILENAME)) return false;
             //加载文件
-            if(is_file($file)){
-                self::insulate_include($file);
-            }else{
-                echo $file;
-            }
+            if(is_file($file)) self::insulate_require($file);
             return true;
         }
     }
     /**
      * 查找文件
-     * @param $class
+     * @param $class string 类名
      * @return bool
      */
     static private  function findFile($class)
     {
-        //如果类名有指定的文件路径，直接返回该路径
-        if (!empty(self::$map[$class])) {
-            return self::$map[$class];
-        }
-        // 查找 PSR-4，逻辑上把命名空间分隔符替换为目录分隔符，得到部分文件路径
-        $psr4_path = strtr($class, '\\', SP) . EXT;
-        $first = $class[0];
-        //
-        if (isset(self::$prefix_lengths_psr4[$first])) {
-            foreach (self::$prefix_lengths_psr4[$first] as $prefix => $length) {
+        if (!empty(self::$map[$class])) return self::$map[$class];  //如果类名有指定的文件路径，直接返回该路径；类名直接对应文件路径
+        $psr4_path = strtr($class, '\\', SP) . EXT; //命名空间转化为路径形式
+        $index = $class[0];     //命名空间的第一个字母作为，二级数组的以为索引， self::$prefix_lengths_psr4[$prefix[0]][$prefix] = $length;
+        if (isset(self::$prefix_lengths_psr4[$index])) {
+            //$index 对应一个父空间
+            foreach (self::$prefix_lengths_psr4[$index] as $prefix => $length) {
                 //strpos()函数查找字符串在另一字符串中第一次出现的位置
                 if (strpos($class, $prefix) === 0) {
                     foreach (self::$prefix_dirs_psr4[$prefix] as $dir) {
@@ -139,8 +124,8 @@ class Load
             $psr0_path = strtr($class, '_', SP) . EXT;
         }
         //通过拼接目录前缀和命名空间表示的目录，得到文件路径
-        if (isset(self::$prefixes_psr0[$first])) {
-            foreach (self::$prefixes_psr0[$first] as $prefix => $dirs) {
+        if (isset(self::$prefixes_psr0[$index])) {
+            foreach (self::$prefixes_psr0[$index] as $prefix => $dirs) {
                 if (strpos($class, $prefix) === 0) {
                     foreach ($dirs as $dir) {
                         if (is_file($file = $dir . SP . $psr0_path)) {
@@ -250,20 +235,7 @@ class Load
             self::$prefixes_psr0[$first][$prefix] = array_merge(self::$prefixes_psr0[$first][$prefix],(array) $paths );
         }
     }
-    /**
-     * 注册命名空间别名
-     * @param $namespace
-     * @param string $original
-     */
-    public static function addalias($namespace, $original = '')
-    {   //批量注册别名
-        if (is_array($namespace)) {
-            self::$alias = array_merge(self::$alias, $namespace);
-            //单独注册别名
-        } else {
-            self::$alias[$namespace] = $original;
-        }
-    }
+
     /**
      * 注册composer自动延迟加载
      */
@@ -579,5 +551,17 @@ class Load
                 }
             }
         }
+    }
+
+    /**
+     * 测试
+     */
+    static public function test(){
+        E([
+            self::$fallback_dirs_psr0,
+            self::$fallback_dirs_psr4,
+            self::$prefix_dirs_psr4,
+            self::$prefix_lengths_psr4
+        ]);
     }
 }

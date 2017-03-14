@@ -64,9 +64,10 @@ require LIB."Load.php";
 
 //错误调试
 \Core\Lib\Error::registry();
-//$a = new \Core\Lib\Db\Query();
-E(new aaa());
-dump($a);exit;
+
+
+\Core\Lib\Load::test();
+exit;
 //启动框架
 \Core\Lib\Dragon::engine();
 ?>
