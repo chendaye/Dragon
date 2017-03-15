@@ -46,6 +46,8 @@ define('MODEL',APP.'Module'.SP.'Model'.SP);
 define('VIEW', APP.'Module'.SP.'View'.SP);
 //运行时目录
 define('RUNTIME', APP.'Runtime'.SP);
+//配置
+define('CONFIG', APP.'Config'.SP);
 //模板缓存目录
 define('TPL', APP.'Runtime'.SP.'TemplatesCache'.SP);
 
@@ -65,7 +67,13 @@ require LIB."Load.php";
 //错误调试
 \Core\Lib\Error::registry();
 
+$t = require CONFIG.'Map.php';
+\Core\Lib\Load::addNamespace($t);
 
+\Core\Lib\Load::addNamespace([
+    'Command'=>COMMAND.SP.'Back'.SP,
+]);
+\Core\Lib\Load::addNamespace('Command',COMMAND.SP.'Front'.SP);
 \Core\Lib\Load::test();
 exit;
 //启动框架

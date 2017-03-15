@@ -19,17 +19,19 @@ namespace Core\Lib;
 class Load
 {
     static protected  $instance = [];
+
     // 类名映射
     static protected  $map = [];
-    // 命名空间别名
-    static protected  $alias = [];
+
     // PSR-4
-    static private  $prefix_lengths_psr4 = [];
-    static private  $prefix_dirs_psr4    = [];  //命名空间
-    static private  $fallback_dirs_psr4  = [];   //命名空间上级目录
+    static private  $space_lengths_psr4 = [];   //以首字母为索引，保存所有空间的长度，反斜杠结尾
+    static private  $space_dirs_psr4    = [];  //每一个命名空间，对应一个或者多个具体目录，如此，一个空间可以匹配一组目录
+    static private  $dirs_psr4  = [];   //直接目录
+
     // PSR-0
-    static private  $prefixes_psr0     = [];    //命名空间
-    static private  $fallback_dirs_psr0 = [];    //命名空间上级目录
+    static private  $space_psr0     = [];    //以首字母为索引，保存所有命名空间及其对应的若干目录
+    static private  $dirs_psr0 = [];    //直接目录
+
     // 自动加载的文件
     static private  $loaded = [];
     /**
@@ -40,11 +42,9 @@ class Load
     {
         //加载公共函数
         self::requireFile();
-
         // 注册系统自动加载
         spl_autoload_register($autoload ?: 'Core\\Lib\\Load::autoload', true, true);
-
-        // 注册框架核心命名空间映射
+        // 注册框架核心命名空间映射，长度 路径
         self::addNamespace([
             'Core'    => CORE,
             'Core\\Lib' => LIB,
@@ -54,19 +54,16 @@ class Load
             'Core\\Lib\\Observe'   => LIB. 'Observe' . SP,
             'Core\\Lib\\Registry'   => LIB. 'Registry' . SP,
         ]);
-
         // 加载类库映射文件
         if (is_file(RUNTIME . 'classmap' . EXT)) {
             self::addClassMap(self::insulate_include(RUNTIME. 'classmap' . EXT));
         }
-
         // Composer自动加载支持
         if (is_dir(VENDOR . 'composer')) {
             self::Composer();
         }
-
         // 自动加载extend目录
-        self::$fallback_dirs_psr4[] = rtrim(EXTEND, SP);
+        self::$dirs_psr4[] = rtrim(EXTEND, SP);
     }
     /**
      *  自动加载
@@ -88,19 +85,35 @@ class Load
      * 查找文件
      * @param $class string 类名
      * @return bool
+     *
+     * $space_dirs_psr4  命名空间=>路径
+     * [Core\Lib\Db\Connector\] => Array（[0] => /var/www/Dragon/Core/Lib/Db/Connector）
+     * $space_lengths_psr4   一个字母（目录）的命名空间  命名空间=>长度
+     *  [W] => Array（ [Whoops\] => 7，[Webmozart\Assert\] => 17）
+     *
+     * $dirs_psr4
+     *
+     * 1, Core\Lib\Log -> Core/Lib/Log.php
+     * 2, Core\Lib\Log -> 以 C 开头的命名空间数组  -> 遍历数组，查找C开头的数组中有没有，与之匹配的命名空间，获取其长度
+     * 3,如果以 C 开头的命名空间数组中有此命名空间，则去查找此命名空间对应得真实路径； 用长度截取类文件名Log.php；拼接得到最终文件名
      */
     static private  function findFile($class)
     {
-        if (!empty(self::$map[$class])) return self::$map[$class];  //如果类名有指定的文件路径，直接返回该路径；类名直接对应文件路径
-        $psr4_path = strtr($class, '\\', SP) . EXT; //命名空间转化为路径形式
-        $index = $class[0];     //命名空间的第一个字母作为，二级数组的以为索引， self::$prefix_lengths_psr4[$prefix[0]][$prefix] = $length;
-        if (isset(self::$prefix_lengths_psr4[$index])) {
+        //命名空间直接映射目录
+        if (!empty(self::$map[$class])) return self::$map[$class];
+        //类文件名
+        $psr4_path = strtr($class, '\\', SP) . EXT;
+        //空间首字母长度数组
+        $index = $class[0];
+        $len = self::$space_lengths_psr4[$index];
+        if (isset($len)) {
             //$index 对应一个父空间
-            foreach (self::$prefix_lengths_psr4[$index] as $prefix => $length) {
-                //strpos()函数查找字符串在另一字符串中第一次出现的位置
-                if (strpos($class, $prefix) === 0) {
-                    foreach (self::$prefix_dirs_psr4[$prefix] as $dir) {
-                        //substr()函数返回字符串的一部分
+            foreach ($len as $space => $length) {
+                //查找长度数组中有没有与当前空间匹配的$class 截取 0-$length
+                if (strpos($class, $space) === 0) {
+                    foreach (self::$space_dirs_psr4[$space] as $dir) {
+                        //截除长度数组中第一个匹配到的空间，并拼接上该空间对应得路径，
+                        //一个空间就代表着多个具体的目录，把类名中的空间直接替换成对应的目录，得到完整的文件目录
                         if (is_file($file = $dir . SP . substr($psr4_path, $length))) {
                             return $file;
                         }
@@ -108,25 +121,28 @@ class Load
                 }
             }
         }
-        //查找 PSR-4 命名空间上级目录
-        foreach (self::$fallback_dirs_psr4 as $dir) {
-            //命名空间拼上级目录得到完整的文件路径
+
+        //查找直接注册的目录
+        foreach (self::$dirs_psr4 as $dir) {
             if (is_file($file = $dir . SP . $psr4_path)) {
                 return $file;
             }
         }
-        // 查找 PSR-0,'_'在PRS0中是目录分隔符,strrpos — 计算指定字符串在目标字符串中最后一次出现的位置
+
+        // 反斜杠最后出现的位置
         if (false !== $pos = strrpos($class, '\\')) {
-            // 如果命名空间中有‘\’,找到目录部分的位置； \namespace\package\Class_Name -> /namespace/package/Class_Name -> /namespace/package/Class/Name
+            // \namespace\package\Class_Name -> /namespace/package/Class_Name -> /namespace/package/Class/Name
             $psr0_path = substr($psr4_path, 0, $pos + 1). strtr(substr($psr4_path, $pos + 1), '_', SP);
         } else {
-            // PEAR-like class name
+            //没有反斜杠，直接把'-'替换为反斜杠
             $psr0_path = strtr($class, '_', SP) . EXT;
         }
+
         //通过拼接目录前缀和命名空间表示的目录，得到文件路径
-        if (isset(self::$prefixes_psr0[$index])) {
-            foreach (self::$prefixes_psr0[$index] as $prefix => $dirs) {
-                if (strpos($class, $prefix) === 0) {
+        $prs0_space = self::$space_psr0[$index];    //prs0 首字母空间数组
+        if (isset($prs0_space)) {
+            foreach ($prs0_space as $space => $dirs) {  //一个空间下面有多个目录
+                if (strpos($class, $space) === 0) {
                     foreach ($dirs as $dir) {
                         if (is_file($file = $dir . SP . $psr0_path)) {
                             return $file;
@@ -135,8 +151,8 @@ class Load
                 }
             }
         }
-        //查找 PSR-0 上级目录路径
-        foreach (self::$fallback_dirs_psr0 as $dir) {
+        //查找 PSR-0 直接映射目录
+        foreach (self::$dirs_psr0 as $dir) {
             if (is_file($file = $dir . SP . $psr0_path)) {
                 return $file;
             }
@@ -158,16 +174,17 @@ class Load
             self::$map[$class] = $map;
         }
     }
-    /**注册命名空间  命名空间 => 路径
-     * @param $namespace
-     * @param string $path
+    /**
+     * 注册命名空间
+     * @param array|string $namespace  可以是命名空间 也可以是  命名空间 => 目录 形式的数组
+     * ([ 'Command'=>COMMAND.SP.'Back'.SP,],'')  ('Command',COMMAND.SP.'Front'.SP)
+     * @param string $path  命名空间对应的数组
      */
     public static function addNamespace($namespace, $path = '')
     {
         if (is_array($namespace)) {
-            // 'Core\\Lib' => LIB,
-            foreach ($namespace as $prefix => $paths) {
-                self::addPsr4($prefix . '\\', rtrim($paths, SP), true);
+            foreach ($namespace as $space => $catalog) {
+                self::addPsr4($space . '\\', rtrim($catalog, SP), true);
             }
         } else {
             self::addPsr4($namespace . '\\', rtrim($path, SP), true);
@@ -175,67 +192,68 @@ class Load
     }
     /**
      * 添加Psr4空间
-     * @param $prefix
+     * @param $space
      * @param $paths
      * @param bool $prepend
      */
-    private static function addPsr4($prefix, $paths, $prepend = false)
+     private static function addPsr4($space, $paths, $prepend = false)
     {
-        if (!$prefix) {
-            //注册根命名空间的路径
+        //$dirs_psr4
+        if (!$space) {
+            //命名空间为空注册空间路径
             if ($prepend) {
-                self::$fallback_dirs_psr4 = array_merge((array) $paths,self::$fallback_dirs_psr4 );
+                self::$dirs_psr4 = array_merge((array) $paths,self::$dirs_psr4 );
             } else {
-                self::$fallback_dirs_psr4 = array_merge( self::$fallback_dirs_psr4,(array) $paths);
+                self::$dirs_psr4 = array_merge( self::$dirs_psr4,(array) $paths);
             }
-        } elseif (!isset(self::$prefix_dirs_psr4[$prefix])) {
+            //$space_dirs_psr4  $space_lengths_psr4
+        } elseif (!isset(self::$space_dirs_psr4[$space])) {
             // 给新的命名空间注册路径
-            $length = strlen($prefix);
-            if ($prefix[$length - 1] !== '\\' ) {   //字符串隐式转化为数组
+            $length = strlen($space);
+            if ($space[$length - 1] !== '\\' ) {   //字符串隐式转化为数组
                 throw new \InvalidArgumentException(" PSR-4 命名空间必须以反斜杠结尾！");
             }
-            self::$prefix_lengths_psr4[$prefix[0]][$prefix] = $length;  //$prefix[0]='\'
-            self::$prefix_dirs_psr4[$prefix] = (array) $paths;  //命名空间对应目录
+            self::$space_lengths_psr4[$space[0]][$space] = $length;  //命名空间首字母数组
+            self::$space_dirs_psr4[$space] = (array) $paths;  //命名空间对应目录
         } elseif ($prepend) {
             // 对已经存在的命名空间指定路径
-            self::$prefix_dirs_psr4[$prefix] = array_merge( (array) $paths,self::$prefix_dirs_psr4[$prefix]);
+            self::$space_dirs_psr4[$space] = array_merge( (array) $paths,self::$space_dirs_psr4[$space]);
         } else {
             // 给已经存在的目录追加路径
-            self::$prefix_dirs_psr4[$prefix] = array_merge( self::$prefix_dirs_psr4[$prefix],(array) $paths);
+            self::$space_dirs_psr4[$space] = array_merge( self::$space_dirs_psr4[$space],(array) $paths);
         }
     }
     /**
      * 添加Ps0空间
-     * @param $prefix array  命名空间前缀
+     * @param $space array  命名空间前缀
      * @param $paths  array 路径
      * @param bool $prepend
      */
-    private static function addPsr0($prefix, $paths, $prepend = false)
+    private static function addPsr0($space, $paths, $prepend = false)
     {
         //命名空间为空
-        if (!$prefix) {
+        if (!$space) {
             if ($prepend) {
                 //psr0数组覆盖合并 path
-                self::$fallback_dirs_psr0 = array_merge((array) $paths,self::$fallback_dirs_psr0 );
+                self::$dirs_psr0 = array_merge((array) $paths,self::$dirs_psr0 );
             } else {
                 //path覆盖合并psr0数组
-                self::$fallback_dirs_psr0 = array_merge( self::$fallback_dirs_psr0,(array) $paths);
+                self::$dirs_psr0 = array_merge( self::$dirs_psr0,(array) $paths);
             }
             return;
         }
-        $first = $prefix[0];    // '\'
+        $first = $space[0];
         //命名空间存在
-        if (!isset(self::$prefixes_psr0[$first][$prefix])) {
-            self::$prefixes_psr0[$first][$prefix] = (array) $paths; //命名空间和路径对应
+        if (!isset(self::$space_psr0[$first][$space])) {
+            self::$space_psr0[$first][$space] = (array) $paths; //命名空间和路径对应
             return;
         }
         if ($prepend) {
-            self::$prefixes_psr0[$first][$prefix] = array_merge((array) $paths, self::$prefixes_psr0[$first][$prefix] );    //命名空间对应路径
+            self::$space_psr0[$first][$space] = array_merge((array) $paths, self::$space_psr0[$first][$space] );    //命名空间对应路径
         } else {
-            self::$prefixes_psr0[$first][$prefix] = array_merge(self::$prefixes_psr0[$first][$prefix],(array) $paths );
+            self::$space_psr0[$first][$space] = array_merge(self::$space_psr0[$first][$space],(array) $paths );
         }
     }
-
     /**
      * 注册composer自动延迟加载
      */
@@ -273,7 +291,6 @@ class Load
             }
         }
     }
-
     /**
      * 导入所需的类库 同java的Import 本函数有缓存功能
      * @param string $class   类库命名空间字符串
@@ -291,9 +308,9 @@ class Load
         }
         if (empty($baseUrl)) {
             list($name, $class) = explode(SP, $class, 2);
-            if (isset(self::$prefix_dirs_psr4[$name . '\\'])) {
+            if (isset(self::$space_dirs_psr4[$name . '\\'])) {
                 // 注册的命名空间
-                $baseUrl = self::$prefix_dirs_psr4[$name . '\\'];
+                $baseUrl = self::$space_dirs_psr4[$name . '\\'];
             } elseif ('@' == $name) {
                 //加载当前模块应用类库
                 $baseUrl = App::$modulePath;
@@ -552,16 +569,16 @@ class Load
             }
         }
     }
-
     /**
      * 测试
      */
     static public function test(){
         E([
-            self::$fallback_dirs_psr0,
-            self::$fallback_dirs_psr4,
-            self::$prefix_dirs_psr4,
-            self::$prefix_lengths_psr4
+            '$dirs_psr0'=>self::$dirs_psr0,
+            '$space_psr0'=>self::$space_psr0,
+            '$dirs_psr4'=>self::$dirs_psr4,
+            '$space_dirs_psr4'=>self::$space_dirs_psr4,
+            '$space_lengths_psr4'=>self::$space_lengths_psr4,
         ]);
     }
 }
