@@ -25,6 +25,6 @@ class Login extends Command {
         $data = $instance->login();
         //$data = ControllerFactory::action();
         View::view($data);
-    }  
+    }
 }
 ?>
