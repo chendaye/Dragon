@@ -17,9 +17,5 @@ return [
     'Command'=>COMMAND,
     'Command\\Back'=>COMMAND.SP.'Back'.SP,
     'Command\\Front'=>COMMAND.SP.'Front'.SP,
-<<<<<<< HEAD
-=======
-  
->>>>>>> 182e2b620ce0b915f25570c1a229789e5e3203e5
 ]
 ?>
