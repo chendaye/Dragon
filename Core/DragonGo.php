@@ -29,6 +29,8 @@ define('VENDOR', DRAGON.'vendor'.SP);
 //扩展类库目录
 define('EXTEND', DRAGON.'Extend'.SP);
 
+//模块目录
+define('MODULE', APP.'Module'.SP);
 //业务逻辑类目录
 define('CONTROLLER', APP.'Module'.SP.'Controller'.SP);
 //命令类目录
@@ -70,16 +72,21 @@ $t = require CONFIG.'Map.php';
 \Core\Lib\Load::addNamespace($t);
 
 $t = require CONFIG.'Map.php';
+
 \Core\Lib\Load::addNamespace($t);
 
 \Core\Lib\Load::addNamespace([
     'Command'=>COMMAND.SP.'Back'.SP,
 ]);
+
 \Core\Lib\Load::addNamespace('Command',COMMAND.SP.'Front'.SP);
+\Core\Lib\Load::addNamespace('Command',COMMAND.SP.'Back'.SP);
+\Core\Lib\Load::addNamespace('',COMMAND.SP.'Back'.SP);
 
 //\Core\Lib\Load::test();
+$catlog = \Core\Lib\Load::dirTree(MODULE);
 
-E(dirtree(COMMAND));
+E($catlog);
 
 exit;
 //启动框架

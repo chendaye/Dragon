@@ -29,23 +29,4 @@ function E($var, $exit=false){
 }
 
 
-function dirtree($path) {
-    $handle = opendir($path);
-    $itemArray=array();
-    while (false !== ($file = readdir($handle))) {
-        if (($file=='.')||($file=='..')){
-        }elseif (is_dir($path.$file)) {
-            try {
-                $dirtmparr=dirtree($path.$file.'/');
-            } catch (Exception $e) {
-                $dirtmparr=null;
-            };
-            $itemArray[$file]=$dirtmparr;
-        }else{
-            array_push($itemArray, $file);
-        }
-    }
-    return $itemArray;
-}
-
 ?>
