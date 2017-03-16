@@ -8,6 +8,7 @@
 // +----------------------------------------------------------------------
 // | Author: liu21st <liu21st@gmail.com>
 // +----------------------------------------------------------------------
+
 namespace Core\Lib;
 /**
  * PSR-0 \namespace\package\Class_Name => /path/to/project/lib/vendor/namespace/package/Class/Name.php
@@ -168,8 +169,8 @@ class Load
     }
     /**
      * 注册命名空间
+     * 要么接受一个数组，要么两个字符串([ 'Command'=>COMMAND.SP.'Back'.SP,],'')  ('Command',COMMAND.SP.'Front'.SP)
      * @param array|string $namespace  可以是命名空间 也可以是  命名空间 => 目录 形式的数组
-     * ([ 'Command'=>COMMAND.SP.'Back'.SP,],'')  ('Command',COMMAND.SP.'Front'.SP)
      * @param string $path  命名空间对应的数组
      */
     public static function addNamespace($namespace, $path = '')
@@ -561,6 +562,25 @@ class Load
                 }
             }
         }
+    }
+
+    static public function dirTree($path) {
+        $handle = opendir($path);
+        $itemArray=array();
+        while (false !== ($file = readdir($handle))) {
+            if (($file=='.')||($file=='..')){
+            }elseif (is_dir($path.$file)) {
+                try {
+                    $dirtmparr=self::dirTree($path.$file.'/');
+                } catch (Exception $e) {
+                    $dirtmparr=null;
+                };
+                $itemArray[$file]=$dirtmparr;
+            }else{
+                array_push($itemArray, $file);
+            }
+        }
+        return $itemArray;
     }
     /**
      * 测试
