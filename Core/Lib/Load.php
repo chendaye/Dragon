@@ -564,39 +564,56 @@ class Load
         }
     }
 
-    static public function builed($path){
-        $dirtree = self::dirTree($path);
-        if(empty($dirtree)){
-            throw new \Exception("{$path} 是空目录！");
+    /**
+     * 创建模块映射目录
+     * @param $path
+     * @return array
+     * @throws \Exception
+     */
+    static public function build($path){
+        $tree = self::dirTree($path);
+        if($tree === false) {
+            throw new \Exception("读取目录:{$path} 失败，请手动创建目录映射文件！");
+        }else{
+            if(empty($tree)) throw new \Exception("{$path} 是空目录！");
+            $container = array();
+            self::makePath($tree,$path,$container);
+            return array_unique($container);
         }
-       return self::makePath($dirtree);
     }
 
     /**
-     * 前一层的输出作为后一层的输入
-     * 递归是普通的函数调用
-     * @param $path
+     *  前一层的输出作为后一层的输入；或者使用变量的引用；各自有不同的使用场景
+     * 前者适合取最终结果，后者适合保存每一层递归的值
+     * 递归是普通的函数调用；递归会创建同样的而是用场景
+     * 每一层递归函数的作用 -> 正常流程编写 -> 同样的问题场景 -> 递归
      * @param $catlog
-     * @return array
+     * @param string $path
+     * @param $container
      */
-    static private function makePath($catlog, $path = ''){
-        $content = [];
+    static private function makePath($catlog, $path = '',&$container){
         foreach ($catlog as $key => $val){
-            if(!is_numeric($key)){
-                $new_path = $path.$key.SP;
-                $ret = self::makePath($val,$new_path);     //获取键名拼接目录
-                $content[$new_path] = $ret;
+            if(is_array($val)){
+                $container[] = $path;  //当前级目录
+                $new_path = $path.$key.SP;  //获取键名拼接目录
+                if(empty($val))$container[] = $new_path;  //空目录
+                self::makePath($val,$new_path,$container);
+            }else{
+                if(!empty($path))$container[] = $path;
             }
         }
-        return $content;
     }
+
     /**
      * 获取目录结构
      * @param string $path  目标目录
-     * @return array   目录结构
+     * @return bool|array   目录结构
      */
     static public function dirTree($path) {
         $handle = opendir($path);
+        if($handle === false){
+            return false;
+        }
         $construct = [];
         //循环遍历目录下的项目
         while (false !== ($file = readdir($handle))) {

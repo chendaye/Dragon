@@ -84,9 +84,10 @@ $t = require CONFIG.'Map.php';
 \Core\Lib\Load::addNamespace('',COMMAND.SP.'Back'.SP);
 
 //\Core\Lib\Load::test();
-$catlog = \Core\Lib\Load::dirTree(MODULE);
 
-E(\Core\Lib\Load::builed(MODULE),true);
+$catlog = \Core\Lib\Load::build(MODULE);
+//E(\Core\Lib\Load::dirTree(MODULE));
+E($catlog);
 
 exit;
 //启动框架
