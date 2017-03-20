@@ -120,8 +120,8 @@ class Load
         $psr4_path = strtr($class, '\\', SP) . EXT;
         //空间首字母长度数组
         $index = $class[0];
-        $len = self::$space_lengths_psr4[$index];
-        if (isset($len)) {
+        if (isset(self::$space_lengths_psr4[$index])) {
+            $len = self::$space_lengths_psr4[$index];
             //$index 对应一个父空间
             foreach ($len as $space => $length) {
                 //查找长度数组中有没有与当前空间匹配的$class 截取 0-$length
@@ -151,8 +151,8 @@ class Load
             $psr0_path = strtr($class, '_', SP) . EXT;
         }
         //通过拼接目录前缀和命名空间表示的目录，得到文件路径
-        $prs0_space = self::$space_psr0[$index];    //prs0 首字母空间数组
-        if (isset($prs0_space)) {
+        if (isset(self::$space_psr0[$index])) {
+            $prs0_space = self::$space_psr0[$index];    //prs0 首字母空间数组
             foreach ($prs0_space as $space => $dirs) {  //一个空间下面有多个目录
                 if (strpos($class, $space) === 0) {
                     foreach ($dirs as $dir) {

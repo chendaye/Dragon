@@ -83,10 +83,18 @@ $psr4->PSR4();
 $cache = new \Cache\Cache();
 $cache->cache();
 
-$type = pathinfo('/var/www/Dragon/test.json', PATHINFO_EXTENSION);
+$type = pathinfo('/var/www/Dragon/test.php', PATHINFO_EXTENSION);
 E($type);
 
-E(\Core\Lib\Conf::parse('chendaye',json_encode(123),'json'));
+E(\Core\Lib\Conf::analysis(json_encode(123),'json'));
+
+\Core\Lib\Conf::cfgFile('Config.php', '');
+\Core\Lib\Conf::Test();
+
+$a = \Core\Lib\Conf::get('PAGINATE');
+E($a);
+\Core\Lib\Conf::reset(true);
+\Core\Lib\Conf::Test();
 exit;
 //启动框架
 \Core\Lib\Dragon::engine();
