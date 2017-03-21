@@ -76,16 +76,17 @@ class Log{
     }
 
     /**
-     * 检查日志的写入权限
+     * 检查日志的写入权限,通过客户端的IP确定是否有写入日志的权限
      * @param $config
      * @return bool
      */
     static public function check($config){
-        if(self::$power && !empty($config['allow']) && !in_array(self::$power, $config['allow'])){
+        if(self::$power && !empty($config['KEY']) && !in_array(self::$power, $config['KEY'])){
             return false;   //禁止写入
         }
         return true;
     }
+
     static public function save(){
         //日志信息是否为空
        if(empty(self::$info)) return false;
@@ -104,7 +105,9 @@ class Log{
                 }
             }
         }
-
+        $result = self::$drive->save($log);
+        if($result) self::$info = [];   //日志写入后，清空缓存数据
+        return $result;
     }
 }
 ?>
