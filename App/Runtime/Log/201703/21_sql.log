@@ -1,0 +1,12 @@
+[RecordTime2017-03-21T18:33:53+08:00:] Server:192.168.0.53 Remote:192.168.0.53 Method:GET URI:/Dragon/Login/login 
+[sql:]select * from admin[sql:]delete from admin where id=2
+                                
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+[RecordTime2017-03-21T18:33:54+08:00:] Server:192.168.0.53 Remote:192.168.0.53 Method:GET URI:/Dragon/Login/login 
+[sql:]select * from admin[sql:]delete from admin where id=2
+                                
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+[RecordTime2017-03-21T18:33:54+08:00:] Server:192.168.0.53 Remote:192.168.0.53 Method:GET URI:/Dragon/Login/login 
+[sql:]select * from admin[sql:]delete from admin where id=2
+                                
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

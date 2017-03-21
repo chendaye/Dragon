@@ -63,16 +63,16 @@ class File implements Drives {
             if(in_array($level, $this->configure['APART_LEVEL'])){
                 //独立记录的日志
                 $log_name = $path.SP.date('d').'_'.$level.'.log';  //当天独立记录的日志信息
-                $apart_info = "[{$now}:] {$runinfo['server']} {$runinfo['remote']} {$runinfo['req_method']} {$runinfo['req_uri']} \r\n{$level_info}
+                $apart_info = "[RecordTime{$now}:] Server:{$runinfo['server']} Remote:{$runinfo['remote']} Method:{$runinfo['req_method']} URI:{$runinfo['req_uri']} \r\n{$level_info}
                                 \r\n+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\r\n";
-                error_log($apart_info, 3, $log_name);   //日志写入文件
+                error_log($apart_info, 3, $log_name);   //日志单独写入一个文件
             }else{
                 $runinfo['info'] .= $level_info;    //运行信息，拼接当前级别信息
             }
         }
-        $total_info = "[{$now}:] {$runinfo['server']} {$runinfo['remote']} {$runinfo['req_method']} {$runinfo['req_uri']} \r\n{$runinfo['info']}
+        $total_info = "[RecordTime{$now}:] Server:{$runinfo['server']} Remote:{$runinfo['remote']} Method:{$runinfo['req_method']} URI:{$runinfo['req_uri']} \r\n{$runinfo['info']}
                                 \r\n+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\r\n";
-        error_log($total_info, 3, $log_path);   //记录完整日志信息
+        error_log($total_info, 3, $log_path);   //所有级别的日志信息记录完整日志信息
     }
 
     /**

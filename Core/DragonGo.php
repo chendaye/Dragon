@@ -111,7 +111,7 @@ $configure = [
     'TIME_FORMAT'     => 'c',   //ISO-8601 标准的日期（例如 2013-05-05T16:34:42+00:00）
     'SIZE'            => 1024*2048,
     'PATH'            => LOG,
-    'APART_LEVEL'     => ['log']     //分开独立记录的日志级别
+    'APART_LEVEL'     => ['sql']     //分开独立记录的日志级别
 ];
 
 $log = [
