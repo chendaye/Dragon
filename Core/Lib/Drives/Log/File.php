@@ -10,22 +10,30 @@
 // +----------------------------------------------------------------------
 // | One letter one dream!
 // +----------------------------------------------------------------------
-
 namespace Core\Lib\Drives\Log;
 use Core\Lib\Conf;
-
-class File{
-    public $path;
-
+class File implements Drives {
+    //默认配置参数
+    private $configure = [
+        'TIME_FORMAT' => 'c',   //ISO-8601 标准的日期（例如 2013-05-05T16:34:42+00:00）
+        'SIZE'        => 1024*2048,
+        'PATH'    => LOG,
+        'APART_LEVEL'       => []
+    ];
     /**
-     * 初始化路径
+     * 初始化配置信息
      * File constructor.
+     * @param array $config
      */
-    public function __construct()
-    {
-        $this->path = Conf::get('config','OPTION')['log_path'];
+    public function __construct($config = []){
+        if(is_array($config)){
+            $this->configure = array_merge($this->configure, $config);  //配置文件优先级更高
+        }
     }
-
+    public function save(array $content){
+        $now = date($this->configure['TIME_FORMAT']);
+        $log_path = $this->configure['PATH'].date('Ym').SP.date('d').'.log'; //以月为单位创建文件夹，天为单位创建日志文件
+    }
     /**
      * @param $msg  mixed 日志内容
      * @param string $name  日志文件名
@@ -41,10 +49,6 @@ class File{
         //把日志内容写入文件
         $file_path = $path.'/'.$name.'.php';
         return file_put_contents($file_path, $msg, FILE_APPEND);    //以追加的形式写入
-    }
-
-    public function save($log){
-
     }
 }
 ?>

@@ -11,33 +11,19 @@
 // | One letter one dream!
 // +----------------------------------------------------------------------
 
-namespace Core\Lib\Drives\Config;
+namespace Core\Lib\Drives\Log;
 
 /**
- * xml解析
- * Class Xml
+ * 日志驱动接口
+ * Interface Drives
  * @package Core\Lib\Drives\Config
  */
-class Xml implements Drives {
+interface Drives{
     /**
-     * 解析xml内容
-     * @param $content
-     * @return array
+     * 保存日志内容内容
+     * @param array $content 日志内容
+     * @return mixed
      */
-    public function resolve($content)
-    {
-        if (is_file($content)) {
-            $msg= simplexml_load_file($content);
-        } else {
-            $msg = simplexml_load_string($content);
-        }
-        $result = (array) $msg; //把结果转化为数组
-        foreach ($result as $key => $val) {
-            if (is_object($val)) {
-                $result[$key] = (array) $val;   //对象转化为数组
-            }
-        }
-        return $result;
-    }
+    public function save(array $content);
 }
 ?>

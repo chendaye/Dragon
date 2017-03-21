@@ -53,7 +53,6 @@ class Conf{
             $type = pathinfo($filename, PATHINFO_EXTENSION);
             if($type == 'php'){
                 $configure = Load::insulate_require(CONFIG.$filename);
-                $configure = (new Collection())->arrayKeyToCase($configure,CASE_UPPER);  //键名转化为大写
             }elseif($type == 'yaml' && function_exists('yaml_parse_file')){
                 $configure = yaml_parse_file(CONFIG.$filename);
             }else{
@@ -85,9 +84,8 @@ class Conf{
             $type = pathinfo($conf, PATHINFO_EXTENSION);    //获取配置文件扩展名
         }
         $driver = 'Core\\Lib\\Drives\\Config\\'.ucwords($type);
-        $action = strtolower($type);
         $instance = new $driver();
-        return $instance->$action($conf);
+        return $instance->resolve($conf);
     }
 
     /**
@@ -99,8 +97,12 @@ class Conf{
     static public function set($name, $value = null, $range){
         $range = $range?:self::$range;
         if(!isset(self::$config[$range])) self::$config[$range] = []; //配置数组
-        if(empty($name)) self::$config[$range] = $value;
-        $name = strtoupper($name);  //转化成大写
+        if(is_array($value)) (new Collection())->keyToCase($value);  //配置键名转化为大写
+        if(empty($name)) {
+            self::$config[$range] = $value;
+            return;
+        }
+        $name = strtoupper($name);  //配置名转化成大写
         //单个设置
         if(is_string($value) || is_numeric($value) || is_bool($value)){
             if(!strpos($name, '.')){
@@ -156,6 +158,5 @@ class Conf{
             if(isset(self::$config[$range])) self::$config[$range] = [];
         }
     }
-
 }
 ?>

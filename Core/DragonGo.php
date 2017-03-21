@@ -51,6 +51,8 @@ define('RUNTIME', APP.'Runtime'.SP);
 define('CONFIG', APP.'Config'.SP);
 //模板缓存目录
 define('TPL', APP.'Runtime'.SP.'TemplatesCache'.SP);
+//日志目录
+define('LOG', APP.'Runtime'.SP.'Log'.SP);
 
 // 环境检测
 define('IS_CML', php_sapi_name() == 'cli' ? true : false);
@@ -89,14 +91,44 @@ E($type);
 E(\Core\Lib\Conf::analysis(json_encode(123),'json'));
 
 \Core\Lib\Conf::cfgFile('Config.php', '');
+\Core\Lib\Conf::test();
 
 
 $a = \Core\Lib\Conf::get('PAGINATE');
 E($a);
-
+ini_set('date.timezone','Asia/Shanghai');
+E(date('c'));
 
 E(\Core\Lib\Conf::get('Log'));
 var_dump(\Core\Lib\Log::save());
+\Core\Lib\Log::savee();
+E(2097152/1024);
+
+$arr = array(
+    'A' => 'A',
+    'b' => 'B',
+    'C' => array(
+        'e' => 'f',
+        'G' => array(
+            'H' => 'i',
+            'j' => 'o',
+        ),
+        'abc'=>array(
+            'RPG' => [1,2,3],
+        ),
+    ),
+);
+
+function array_case(&$array, $case=CASE_LOWER) {
+    $array = array_change_key_case($array, $case);
+    foreach ($array as $key => $value) {
+        if ( is_array($value) ) {
+            array_case($array[$key], $case);
+        }
+    }
+}
+array_case($arr,CASE_LOWER);
+E($arr);
 exit;
 //启动框架
 \Core\Lib\Dragon::engine();

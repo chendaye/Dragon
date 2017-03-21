@@ -18,13 +18,13 @@ namespace Core\Lib\Drives\Config;
  * Class Ini
  * @package Core\Lib\Drives\Config
  */
-class Ini{
+class Ini implements Drives{
     /**
      * 解析init配置文件
      * @param $content
      * @return array
      */
-    public function ini($content)
+    public function resolve($content)
     {
         if (is_file($content)) {
             return parse_ini_file($content, true);
