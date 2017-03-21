@@ -10,15 +10,17 @@
 // +----------------------------------------------------------------------
 // | One letter one dream!
 // +----------------------------------------------------------------------
+
 namespace Core\Lib\Drives\Log;
 use Core\Lib\Conf;
+
 class File implements Drives {
     //默认配置参数
     private $configure = [
-        'TIME_FORMAT' => 'c',   //ISO-8601 标准的日期（例如 2013-05-05T16:34:42+00:00）
-        'SIZE'        => 1024*2048,
-        'PATH'    => LOG,
-        'APART_LEVEL'       => []
+        'TIME_FORMAT'     => 'c',   //ISO-8601 标准的日期（例如 2013-05-05T16:34:42+00:00）
+        'SIZE'            => 1024*2048,
+        'PATH'            => LOG,
+        'APART_LEVEL'     => []
     ];
     /**
      * 初始化配置信息
@@ -33,6 +35,9 @@ class File implements Drives {
     public function save(array $content){
         $now = date($this->configure['TIME_FORMAT']);
         $log_path = $this->configure['PATH'].date('Ym').SP.date('d').'.log'; //以月为单位创建文件夹，天为单位创建日志文件
+        $path = dirname($log_path);
+        !is_dir($path) && mkdir($path, 0755, true); //创建目录，权限0755
+
     }
     /**
      * @param $msg  mixed 日志内容

@@ -91,7 +91,7 @@ E($type);
 E(\Core\Lib\Conf::analysis(json_encode(123),'json'));
 
 \Core\Lib\Conf::cfgFile('Config.php', '');
-\Core\Lib\Conf::test();
+
 
 
 $a = \Core\Lib\Conf::get('PAGINATE');
@@ -104,31 +104,10 @@ var_dump(\Core\Lib\Log::save());
 \Core\Lib\Log::savee();
 E(2097152/1024);
 
-$arr = array(
-    'A' => 'A',
-    'b' => 'B',
-    'C' => array(
-        'e' => 'f',
-        'G' => array(
-            'H' => 'i',
-            'j' => 'o',
-        ),
-        'abc'=>array(
-            'RPG' => [1,2,3],
-        ),
-    ),
-);
 
-function array_case(&$array, $case=CASE_LOWER) {
-    $array = array_change_key_case($array, $case);
-    foreach ($array as $key => $value) {
-        if ( is_array($value) ) {
-            array_case($array[$key], $case);
-        }
-    }
-}
-array_case($arr,CASE_LOWER);
-E($arr);
+
+$a = new \Core\Lib\Drives\Log\File();
+$a->save([]);
 exit;
 //启动框架
 \Core\Lib\Dragon::engine();

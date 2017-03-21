@@ -381,7 +381,7 @@ class Collection implements \ArrayAccess ,\Countable ,\IteratorAggregate ,\JsonS
         $array = array_change_key_case($array, $case);
         foreach ($array as $key => $value) {
             if ( is_array($value) ) {
-                array_case($array[$key], $case);
+                self::keyToCase($array[$key], $case);
             }
         }
     }
