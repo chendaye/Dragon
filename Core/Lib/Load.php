@@ -249,7 +249,7 @@ class Load
             self::$space_psr0[$first_str][$space] = array_merge(self::$space_psr0[$first_str][$space],(array) $paths );
         }
     }
-    
+
     /**
      * 注册composer自动延迟加载
      */

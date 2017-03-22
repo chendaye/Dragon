@@ -18,6 +18,6 @@ return [
     'Command'=>COMMAND,
     'Command\\Back'=>COMMAND.SP.'Back'.SP,
     'Command\\Front'=>COMMAND.SP.'Front'.SP,
-
+  
 ]
 ?>

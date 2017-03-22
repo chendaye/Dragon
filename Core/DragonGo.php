@@ -10,19 +10,10 @@
 // +----------------------------------------------------------------------
 // | One letter one dream!
 // +----------------------------------------------------------------------
-<<<<<<< HEAD
-=======
-
-
->>>>>>> origin/dev
 //框架运行起始时间
 define('DRAGON_START_TIME', microtime(true));
 //起始内存使用情况
 define('DRAGON_START_MEMORY', memory_get_usage());
-<<<<<<< HEAD
-=======
-
->>>>>>> origin/dev
 //获取框架根核心目录
 define('CORE', __DIR__.SP);
 //框架跟目录
@@ -35,10 +26,6 @@ define('COM', CORE.'Common'.SP);
 define('VENDOR', DRAGON.'vendor'.SP);
 //扩展类库目录
 define('EXTEND', DRAGON.'Extend'.SP);
-<<<<<<< HEAD
-=======
-
->>>>>>> origin/dev
 //业务逻辑类目录
 define('CONTROLLER', APP.'Module'.SP.'Controller'.SP);
 //命令类目录
@@ -59,7 +46,6 @@ define('RUNTIME', APP.'Runtime'.SP);
 define('CONFIG', APP.'Config'.SP);
 //模板缓存目录
 define('TPL', APP.'Runtime'.SP.'TemplatesCache'.SP);
-<<<<<<< HEAD
 // 环境检测
 define('IS_CML', php_sapi_name() == 'cli' ? true : false);
 define('IS_WIN', strpos(php_uname() , 'WIN') !== false);
@@ -73,38 +59,12 @@ require LIB."Load.php";
 \Core\Lib\Error::registry();
 $t = require CONFIG.'Map.php';
 \Core\Lib\Load::addNamespace($t);
-=======
-
-// 环境检测
-define('IS_CML', php_sapi_name() == 'cli' ? true : false);
-define('IS_WIN', strpos(php_uname() , 'WIN') !== false);
-
-//常量
-const EXT = '.php';   //类文件后缀
-
-//框架基础类
-require LIB."Load.php";
-
-//自动加载
-\Core\Lib\Load::register();
-
-//错误调试
-\Core\Lib\Error::registry();
-
-$t = require CONFIG.'Map.php';
-\Core\Lib\Load::addNamespace($t);
-
->>>>>>> origin/dev
 \Core\Lib\Load::addNamespace([
     'Command'=>COMMAND.SP.'Back'.SP,
 ]);
 \Core\Lib\Load::addNamespace('Command',COMMAND.SP.'Front'.SP);
-<<<<<<< HEAD
 //\Core\Lib\Load::test();
 E(dirtree(COMMAND));
-=======
-\Core\Lib\Load::test();
->>>>>>> origin/dev
 exit;
 //启动框架
 \Core\Lib\Dragon::engine();
