@@ -8,10 +8,6 @@
 // +----------------------------------------------------------------------
 // | Author: liu21st <liu21st@gmail.com>
 // +----------------------------------------------------------------------
-<<<<<<< HEAD
-=======
-
->>>>>>> origin/dev
 namespace Core\Lib;
 /**
  * PSR-0 \namespace\package\Class_Name => /path/to/project/lib/vendor/namespace/package/Class/Name.php
@@ -22,30 +18,15 @@ namespace Core\Lib;
 class Load
 {
     static protected  $instance = [];
-<<<<<<< HEAD
     // 类名映射
     static protected  $map = [];
-=======
-
-    // 类名映射
-    static protected  $map = [];
-
->>>>>>> origin/dev
     // PSR-4
     static private  $space_lengths_psr4 = [];   //以首字母为索引，保存所有空间的长度，反斜杠结尾
     static private  $space_dirs_psr4    = [];  //每一个命名空间，对应一个或者多个具体目录，如此，一个空间可以匹配一组目录
     static private  $dirs_psr4  = [];   //直接目录
-<<<<<<< HEAD
     // PSR-0
     static private  $space_psr0     = [];    //以首字母为索引，保存所有命名空间及其对应的若干目录
     static private  $dirs_psr0 = [];    //直接目录
-=======
-
-    // PSR-0
-    static private  $space_psr0     = [];    //以首字母为索引，保存所有命名空间及其对应的若干目录
-    static private  $dirs_psr0 = [];    //直接目录
-
->>>>>>> origin/dev
     // 自动加载的文件
     static private  $loaded = [];
     /**
@@ -135,20 +116,12 @@ class Load
                 }
             }
         }
-<<<<<<< HEAD
-=======
-
->>>>>>> origin/dev
         //查找直接注册的目录
         foreach (self::$dirs_psr4 as $dir) {
             if (is_file($file = $dir . SP . $psr4_path)) {
                 return $file;
             }
         }
-<<<<<<< HEAD
-=======
-
->>>>>>> origin/dev
         // 反斜杠最后出现的位置
         if (false !== $pos = strrpos($class, '\\')) {
             // \namespace\package\Class_Name -> /namespace/package/Class_Name -> /namespace/package/Class/Name
@@ -157,10 +130,6 @@ class Load
             //没有反斜杠，直接把'-'替换为反斜杠
             $psr0_path = strtr($class, '_', SP) . EXT;
         }
-<<<<<<< HEAD
-=======
-
->>>>>>> origin/dev
         //通过拼接目录前缀和命名空间表示的目录，得到文件路径
         $prs0_space = self::$space_psr0[$index];    //prs0 首字母空间数组
         if (isset($prs0_space)) {
@@ -213,7 +182,6 @@ class Load
             self::addPsr4($namespace . '\\', rtrim($path, SP), true);
         }
     }
-<<<<<<< HEAD
 
     /**
      * 添加Psr4空间
@@ -247,38 +215,6 @@ class Load
         if($prepend){
             self::$space_dirs_psr4[$space] = array_merge( (array) $paths,self::$space_dirs_psr4[$space]);
         }else{
-=======
-    /**
-     * 添加Psr4空间
-     * @param $space
-     * @param $paths
-     * @param bool $prepend
-     */
-     private static function addPsr4($space, $paths, $prepend = false)
-    {
-        //$dirs_psr4
-        if (!$space) {
-            //命名空间为空注册空间路径
-            if ($prepend) {
-                self::$dirs_psr4 = array_merge((array) $paths,self::$dirs_psr4 );
-            } else {
-                self::$dirs_psr4 = array_merge( self::$dirs_psr4,(array) $paths);
-            }
-            //$space_dirs_psr4  $space_lengths_psr4
-        } elseif (!isset(self::$space_dirs_psr4[$space])) {
-            // 给新的命名空间注册路径
-            $length = strlen($space);
-            if ($space[$length - 1] !== '\\' ) {   //字符串隐式转化为数组
-                throw new \InvalidArgumentException(" PSR-4 命名空间必须以反斜杠结尾！");
-            }
-            self::$space_lengths_psr4[$space[0]][$space] = $length;  //命名空间首字母数组
-            self::$space_dirs_psr4[$space] = (array) $paths;  //命名空间对应目录
-        } elseif ($prepend) {
-            // 对已经存在的命名空间指定路径
-            self::$space_dirs_psr4[$space] = array_merge( (array) $paths,self::$space_dirs_psr4[$space]);
-        } else {
-            // 给已经存在的目录追加路径
->>>>>>> origin/dev
             self::$space_dirs_psr4[$space] = array_merge( self::$space_dirs_psr4[$space],(array) $paths);
         }
     }
@@ -290,26 +226,15 @@ class Load
      */
     private static function addPsr0($space, $paths, $prepend = false)
     {
-<<<<<<< HEAD
         //若给定的空间参数为空，把路径追加到路径数组中，注册路径
         if (!$space) {
             if ($prepend) {
                 self::$dirs_psr0 = array_merge((array) $paths,self::$dirs_psr0 );
             } else {
-=======
-        //命名空间为空
-        if (!$space) {
-            if ($prepend) {
-                //psr0数组覆盖合并 path
-                self::$dirs_psr0 = array_merge((array) $paths,self::$dirs_psr0 );
-            } else {
-                //path覆盖合并psr0数组
->>>>>>> origin/dev
                 self::$dirs_psr0 = array_merge( self::$dirs_psr0,(array) $paths);
             }
             return;
         }
-<<<<<<< HEAD
 
         //如果给定的空间参数不为空，但是空间映射数组中没有注册，注册
         $first_str = $space[0];
@@ -322,20 +247,9 @@ class Load
             self::$space_psr0[$first_str][$space] = array_merge((array) $paths, self::$space_psr0[$first_str][$space] );    //命名空间对应路径
         } else {
             self::$space_psr0[$first_str][$space] = array_merge(self::$space_psr0[$first_str][$space],(array) $paths );
-=======
-        $first = $space[0];
-        //命名空间存在
-        if (!isset(self::$space_psr0[$first][$space])) {
-            self::$space_psr0[$first][$space] = (array) $paths; //命名空间和路径对应
-            return;
-        }
-        if ($prepend) {
-            self::$space_psr0[$first][$space] = array_merge((array) $paths, self::$space_psr0[$first][$space] );    //命名空间对应路径
-        } else {
-            self::$space_psr0[$first][$space] = array_merge(self::$space_psr0[$first][$space],(array) $paths );
->>>>>>> origin/dev
         }
     }
+    
     /**
      * 注册composer自动延迟加载
      */
