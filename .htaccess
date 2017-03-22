@@ -1,0 +1,82 @@
+
+# <IfModule mod_rewrite.c>
+#   Options +FollowSymlinks
+#   RewriteEngine On
+#   #RewriteBase /Dragon/
+#   RewriteCond %{REQUEST_FILENAME} !-d
+#   RewriteCond %{REQUEST_FILENAME} !-f
+#   RewriteRule ^(.*)$ index.php?/$1 [QSA,PT,L]
+# </IfModule>
+ <IfModule mod_rewrite.c>
+   Options +FollowSymlinks -Multiviews
+   RewriteEngine On
+
+   RewriteCond %{REQUEST_FILENAME} !-d
+   RewriteCond %{REQUEST_FILENAME} !-f
+   RewriteRule ^(.*)$ index.php?/$1 [QSA,PT,L]
+   #RewriteRule ^(.*)$ Dragon/index.php?/$1 [QSA,PT,L]
+ </IfModule>
+#^(.*)$  :  . 表示出了 /n外的任意字符  *：次或多次
+#（）：是一个部分，可以供以后使用
+#？ ：0次或者次
+#################################如果放在根目录下面就采用这种写法########################################
+# Options +FollowSymlinks
+#   RewriteEngine On
+#   #RewriteBase /Dragon
+#   RewriteCond %{REQUEST_FILENAME} !-d
+#   RewriteCond %{REQUEST_FILENAME} !-f
+#   RewriteRule ^(.*)$ /Dragon/index.php?/$1 [QSA,PT,L]
+##########################################################################################################
+
+#
+#通俗的讲就是:（默认的基准目录就是.htaccess所在目录）
+#当.htaccess文件在   / 目录下面的时候
+#RewriteBase /folder/
+#RewriteRule a\.html b.html      ==   RewriteRule a\.html /folder/b.html
+#基准目录 www/forder/                  基准目录     www/
+#
+#当.htaccess文件在 www/forder/ 下面的时候
+#RewriteRule a\.html b.html
+#基准目录 www/forder/
+
+
+
+#   当更换URI包含查询字符串，的默认行为RewriteRule是丢弃现有的查询字符串，并与新生成的更换。使用[QSA]标志导致查询字符串被组合。
+#   使用[QSA]标志，一个请求/pages/123?one=two会被映射到/page.php?page=123&one=two。如果没有[QSA]标志，
+#   同样的请求将被映射到 /page.php?page=123-那就是，现有的查询字符串将被丢弃。
+
+#   在[L]标志导致mod_rewrite停止处理规则集。在大多数上下文中，这意味着如果规则匹配，则不会处理其他规则。这相当于 last命令在Perl，或break在命令C.使用此标志，以表明当前的规则应在不考虑进一步的规定立即生效。
+#   如果您使用的是RewriteRule在任何 .htaccess文件或 <Directory>部分，它有规则如何处理一些了解是很重要的。这种简化形式是，一旦处理了规则，重写的请求就被交给URL解析引擎来做它可能用它。这可能是作为重写的请求的处理，所述.htaccess文件或 <Directory>部分可以被再次遇到，因此规则集可以从开始再运行。最常见的情况是，如果其中一个规则导致重定向（内部或外部）导致请求过程重新开始，则会发生这种情况。
+#   因此重要的是，如果你使用的是RewriteRule在这些背景中的一个指令，您采取明确的步骤，以避免循环规则，而不是在[L]标志只算终止一系列规则的执行，如下图所示。
+#   替代标志[END]可以用于不仅终止当前轮的重写处理，而且防止在每个目录（htaccess）上下文中发生任何后续的重写处理。这不适用于由外部重定向导致的新请求。
+#   这里给出的例子将重写的任何请求 index.php，给原请求作为查询字符串参数index.php，但是，RewriteCond可以确保该请求是否已经为index.php，在RewriteRule将被跳过。
+
+#默认情况下，RewriteRule中的目标（或替换字符串）被假定为文件路径。使用[PT]标志使其被视为URI。
+#也就是说，使用[PT]标志导致的结果RewriteRule将被传递回通过URL映射，使基于位置的映射，如Alias，Redirect或ScriptAlias例如，可能有机会生效。
+#如果，例如，你有一个 Alias 用于/图标，并有RewriteRule指向那里，你应该使用[PT]标志，以确保 Alias评估。
+#别名“/图标” “在/ usr /本地/ Apache /图标” 重写规则“/pics/(.+)\.jpg$” “/icons/$1.gif” [ PT ]
+#在这种情况下省略[PT]标志将导致忽略别名，导致返回“找不到文件”错误。
+#该PT标志意味着L标志：将改写为了请求传递给下一个处理阶段停止。
+#注意，该PT标志在每个目录的上下文暗示如 <Directory>部分或.htaccess文件。规避，唯一的办法就是重写-。
+
+#重写规则，可以写在Virtual Host 设定中，也可以用在.htaccess 里面，差别是，没差别
+
+#我们都知道，使用伪静态相对来说，对搜索引擎比较友好，而我在Dreamhost的空间上启用REWRITE的伪静态功能的时候，
+#首页可以访问，而访问内页的时候，就提示：“No input file specified.”。
+#百度搜索了一下，发现还有其它空间商也有此问题，原因在于空间所使用的PHP是fast_cgi模式，
+#而在某些情况下， 不能正确识别path_info所造成的错误，就是Wordpress也有一样的问题，还好找到了解决方案！
+#我们首先来看一下Wordpress及Typecho等程序默认的.htaccess里面的规则：
+#RewriteEngine On
+#RewriteBase /
+#RewriteCond %{REQUEST_FILENAME} !-f
+#RewriteCond %{REQUEST_FILENAME} !-d
+#RewriteRule ^(.*)$ /index.php/$1 [L]
+#
+#而提示是说：“No input file specified.”，也就是说没有得到有效的文件路径。在Google中找到了解决方案，就是修改一下伪静态规则，如下：
+#RewriteEngine On
+#RewriteBase /
+#RewriteCond %{REQUEST_FILENAME} !-f
+#RewriteCond %{REQUEST_FILENAME} !-d
+#RewriteRule ^(.*)$ /index.php?/$1 [L]
+# ? 匹配前面的子表达式零次或一次
+#在正则结果“$1”前面多加了一个“?”号，问题也就随之解决了。
