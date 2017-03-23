@@ -15,10 +15,16 @@ namespace Core\Lib\Drives\Log;
 
 use Core\Lib\DragonException;
 
+/**
+ * Socket 日志驱动
+ * Class Socket
+ * @package Core\Lib\Drives\Log
+ */
 class Socket implements Drives {
     //SocketLog 服务器端口
     public $port = 116;
 
+    //客户端参数
     static $args = [];
 
     //Socket 配置
@@ -54,39 +60,98 @@ class Socket implements Drives {
         }
     }
 
-    public function save(array $content)
-    {
-        // TODO: Implement save() method.
+    /**
+     * 发送日志到客户端
+     * @param array $content
+     * @return bool
+     */
+    public function save(array $content){
+        if(!$this->check()) return false;   //不强制发送日志
+        $msg = $this->request_info();   //运行时信息
+
+        //基本信息
+        $trace[] = [
+            'TYPE' => 'group',
+            'MSG'  => $msg,
+            'CSS'  => $this->style['page'],
+        ];
+        foreach ($content as $level => $value){
+            $trace[] = [
+                'TYPE' => 'groupCollapsed',
+                'MSG'  => '['.$level.']',
+                'CSS'  => isset($this->style[$level])?$this->style[$level]:'',
+            ];
+            foreach ($value as $item){
+                if(!is_string($item)){
+                    $item = var_export($item, true);    //格式化输出
+                }
+                $trace[] = [
+                    'TYPE' => 'log',
+                    'MSG'  => $item,
+                    'CSS'  => '',
+                ];
+            }
+            $trace[] = [
+                'TYPE' => 'groupEnd',
+                'MSG'  => '',
+                'CSS'  => '',
+            ];
+        }
+        //显示加载的文件
+        if($this->configure['SHOW_INCLUDES']){
+            $trace[] = [
+                'TYPE' => 'groupCollapsed',
+                'MSG'  => '[file]',
+                'CSS'  => '',
+            ];
+            $trace[] = [
+                'TYPE' => 'log',
+                'MSG'  => implode("\n", get_included_files()),
+                'CSS'  => '',
+            ];
+            $trace[] = [
+                'TYPE' => 'groupEnd',
+                'MSG'  => '',
+                'CSS'  => '',
+            ];
+        }
+        $trace[] = [
+            'TYPE' => 'groupEnd',
+            'MSG'  => '',
+            'CSS'  => '',
+        ];
+        $tabid = $this->getClientArg('tabid');
+        $client_id = $this->getClientArg('client_id')?:'';
+
+        //发送日志到客户端ID
+        if(!empty($this->forcePushClientId)){
+            foreach ($this->forcePushClientId as $force_id){
+                $client_id = $force_id;
+                $this->sendToClient($tabid, $client_id, $trace, $force_id);     //强制发送
+            }
+        }else{
+            $this->sendToClient($tabid, $client_id, $trace, '');
+        }
+        return true;
     }
 
     /**
-     * 获取运行时信息
-     * @return array
+     * 向指定的客户端发送日志
+     * @param $tabid
+     * @param $client_id
+     * @param $log
+     * @param $force_client_id
      */
-    public function request_info(){
-        //当前访问信息
-        if(isset($_SERVER['HTTP_HOST'])){
-            $uri = $_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'];   //当前URI
-        }else{
-            $uri = "cmd:".implode(' ', $_SERVER['argv']);
-        }
-        $runtime = number_format(microtime(true) - DRAGON_START_TIME, 10);  //框架运行时间
-        $reqs = $runtime>0?number_format(1/$runtime, 2):'∞';     //吞吐率 =  请求数/请求时间  每秒钟处理的请求
-        $time_info = '[运行时间：'.number_format($runtime, 6).'s] [吞吐率：'.$reqs.'req/s]'; //运行时间吞吐率
-
-        $memory_consume = number_format((memory_get_usage() - DRAGON_START_MEMORY)/1024, 2);    //消耗内存
-        $memory_info = '[内存消耗： '.$memory_consume.'kb]';
-
-        $load_consume = '[文件加载数：'.count(get_included_files()).']';
-
-        //运行信息
-        return [
-            'info' => '[Runinfo:]'.$uri.$time_info.$memory_info.$load_consume."\r\n",
-            'server' => isset($_SERVER['SERVER_ADDR'])?$_SERVER['REMOTE_ADDR']:'',   //本机IP
-            'remote' => isset($_SERVER['REMOTE_ADDR'])?$_SERVER['REMOTE_ADDR']:'',    //主机IP
-            'req_method' => isset($_SERVER['REQUEST_METHOD'])?$_SERVER['REQUEST_METHOD']:'CLI',
-            'req_uri' => isset($_SERVER['REQUEST_URI'])?$_SERVER['REQUEST_URI']:'',
+    protected function sendToClient($tabid, $client_id, $log, $force_client_id){
+        $info = [
+            'tabid'           => $tabid,
+            'client_id'       => $client_id,
+            'log'             => $log,
+            'force_client_id' => $force_client_id,
         ];
+        $msg = @json_encode($info); //json格式，屏蔽错误
+        $address = '/'.$client_id;  //将client_id 作为地址，sever端通过地址判断向谁发送日志
+        $this->inform($this->configure['HOST'], $msg, $address);    //发送日志
     }
 
     /**
@@ -116,24 +181,51 @@ class Socket implements Drives {
     }
 
     /**
+     * 获取运行时信息
+     * @return array
+     */
+    public function request_info(){
+        //当前访问信息
+        if(isset($_SERVER['HTTP_HOST'])){
+            $uri = $_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'];   //当前URI
+        }else{
+            $uri = "cmd:".implode(' ', $_SERVER['argv']);
+        }
+        $runtime = number_format(microtime(true) - DRAGON_START_TIME, 10);  //框架运行时间
+        $reqs = $runtime>0?number_format(1/$runtime, 2):'∞';     //吞吐率 =  请求数/请求时间  每秒钟处理的请求
+        $time_info = '[运行时间：'.number_format($runtime, 6).'s] [吞吐率：'.$reqs.'req/s]'; //运行时间吞吐率
+
+        $memory_consume = number_format((memory_get_usage() - DRAGON_START_MEMORY)/1024, 2);    //消耗内存
+        $memory_info = '[内存消耗： '.$memory_consume.'kb]';
+
+        $load_consume = '[文件加载数：'.count(get_included_files()).']';
+
+        $msg = '[Runinfo:]'.$uri.$time_info.$memory_info.$load_consume."\r\n";
+        //运行信息
+       return $msg;
+    }
+
+
+
+    /**
      * 初始化用户客户端信息参数
-     * @return null
+     * @return null|void
      */
     protected function initArg(){
         $key = 'HTTP_USER_AGENT';   //用户操作系统，浏览器信息
-        if(!empty($_SERVER['HTTP_SOCKETLOG'])){
-            $key = 'HTTP_SOCKETLOG';
-        }
-        if(!isset($_SERVER[$key])) return null; //参数不存在，返回空
+        if(!empty($_SERVER['HTTP_SOCKETLOG'])) $key = 'HTTP_SOCKETLOG';
+        //参数不存在，返回空
+        if(!isset($_SERVER[$key])) return null;
 
         //初始化参数
         if (!preg_match('/SocketLog\((.*?)\)/', $_SERVER[$key], $match)) {
             self::$args = ['tabid' => null];
             return null;    //没匹配到返回空
         }
-        parse_str($match[1], self::$args);    //把参数解析成数组，赋给$args
-
+        //把参数解析成数组，赋给$args
+        parse_str($match[1], self::$args);
     }
+
     /**
      * 获取客户端信息参数
      * @param string $name  参数名
@@ -145,38 +237,21 @@ class Socket implements Drives {
     }
 
     /**
-     * 向指定的客户端发送日志
-     * @param $tabid
-     * @param $client_id
-     * @param $log
-     * @param $force_client_id
-     */
-    protected function sendToClient($tabid, $client_id, $log, $force_client_id){
-        $info = [
-            'tabid'           => $tabid,
-            'client_id'       => $client_id,
-            'log'             => $log,
-            'force_client_id' => $force_client_id,
-        ];
-        $msg = @json_encode($info); //json格式，屏蔽错误
-        $address = '/'.$client_id;  //将client_id 作为地址，sever端通过地址判断向谁发送日志
-        $this->inform($this->configure['HOST'], $msg, $address);    //发送日志
-    }
-    /**
-     * 是否强制记录日志，授权数组和强制数组
+     * 是否强制发送记录日志，授权数组和强制数组；客户端ID有授权或者强制推送或者授权表为空
      * @return bool
      */
     protected function check(){
         $tabid = $this->getClientArg('tabid');
         //检查是否强制记录日志
         if(!$tabid && !$this->configure['FORCE_TO_CLIENT_ID']) return false;
+        //授权表非空
         if(!empty($this->configure['ALLOW_CLIENT_ID'])){
-            //有授权的客户端ID，与强制推送的客户端ID，交集
+            //有授权列表，看是否要强制推送
             $this->forcePushClientId = array_intersect($this->configure['ALLOW_CLIENT_ID'], $this->configure['FORCE_TO_CLIENT_ID']);
             //强制推送客户端ID不为空
             if(!$tabid && count($this->forcePushClientId)) return true;
 
-            //客户端ID不再授权之列
+            //客户端ID没有授权
             $client_id = $this->getClientArg('client_id');
             if(!in_array($client_id, $this->configure['ALLOW_CLIENT_ID'])) return false;
         }else{
@@ -185,5 +260,15 @@ class Socket implements Drives {
         return true;
     }
 
+    public function Test(){
+        E(self::$args);
+        E($this->configure);
+        E($this->check());
+        E($this->getClientArg('tabid'));
+        E($this->request_info());
+        //E($this->inform('192.168.0.10', 'qwerdfgsdfgsdfgsgdfg','\Dragon\index.php'));
+//        $this->configure['HOST'] = '192.168.0.10';
+//        $this->sendToClient($tabid='', '192.168.0.10', json_encode('ppppp'), '192.168.0.10');
+    }
 }
 ?>
