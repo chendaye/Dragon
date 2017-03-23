@@ -564,23 +564,56 @@ class Load
         }
     }
 
-    static public function dirTree($path) {
-        $handle = opendir($path);
-        $itemArray=array();
-        while (false !== ($file = readdir($handle))) {
-            if (($file=='.')||($file=='..')){
-            }elseif (is_dir($path.$file)) {
-                try {
-                    $dirtmparr=self::dirTree($path.$file.'/');
-                } catch (Exception $e) {
-                    $dirtmparr=null;
-                };
-                $itemArray[$file]=$dirtmparr;
-            }else{
-                array_push($itemArray, $file);
+    static public function builed($path){
+        $dirtree = self::dirTree($path);
+        if(empty($dirtree)){
+            throw new \Exception("{$path} 是空目录！");
+        }
+       return self::makePath($dirtree);
+    }
+
+    /**
+     * 前一层的输出作为后一层的输入
+     * 递归是普通的函数调用
+     * @param $path
+     * @param $catlog
+     * @return array
+     */
+    static private function makePath($catlog, $path = ''){
+        $content = [];
+        foreach ($catlog as $key => $val){
+            if(!is_numeric($key)){
+                $new_path = $path.$key.SP;
+                $ret = self::makePath($val,$new_path);     //获取键名拼接目录
+                $content[$new_path] = $ret;
             }
         }
-        return $itemArray;
+        return $content;
+    }
+    /**
+     * 获取目录结构
+     * @param string $path  目标目录
+     * @return array   目录结构
+     */
+    static public function dirTree($path) {
+        $handle = opendir($path);
+        $construct = [];
+        //循环遍历目录下的项目
+        while (false !== ($file = readdir($handle))) {
+            if (($file=='.')||($file=='..')){
+
+            }else if (is_dir($path.$file)) {
+                try {
+                    $dirtmparr=self::dirTree($path.$file.'/');  //是目录就递归（调用函数获取目录的结构）
+                } catch (\Exception $e) {
+                    $dirtmparr=null;
+                };
+                $construct[$file]=$dirtmparr;   //把结果放入数组
+            }else{
+                array_push($construct, $file);  //是文件直接压如数组
+            }
+        }
+        return $construct;
     }
     /**
      * 测试

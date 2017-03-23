@@ -86,7 +86,7 @@ $t = require CONFIG.'Map.php';
 //\Core\Lib\Load::test();
 $catlog = \Core\Lib\Load::dirTree(MODULE);
 
-E($catlog);
+E(\Core\Lib\Load::builed(MODULE),true);
 
 exit;
 //启动框架
