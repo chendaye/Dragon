@@ -15,7 +15,7 @@ return [
     // | 命名空间映射注册 PSR-4 PSR-0
     // +----------------------------------------------------------------------
     'Command'=>COMMAND,
-    'Command\\Back'=>COMMAND.SP.'Back'.SP,
-    'Command\\Front'=>COMMAND.SP.'Front'.SP,
+    'Command\\Back'=>COMMAND.'Back'.SP,
+    'Command\\Front'=>COMMAND.'Front'.SP,
 ]
 ?>

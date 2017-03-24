@@ -19,17 +19,25 @@ namespace Core\Lib;
 class Load
 {
     static protected  $instance = [];
+
     // 类名映射
     static protected  $map = [];
+
     // PSR-4
     static private  $space_lengths_psr4 = [];   //以首字母为索引，保存所有空间的长度，反斜杠结尾
     static private  $space_dirs_psr4    = [];  //每一个命名空间，对应一个或者多个具体目录，如此，一个空间可以匹配一组目录
     static private  $dirs_psr4  = [];   //直接目录
+
     // PSR-0
     static private  $space_psr0     = [];    //以首字母为索引，保存所有命名空间及其对应的若干目录
     static private  $dirs_psr0 = [];    //直接目录
+
+    //模块映射 PSR-4
+    static private $module_map = [];
+
     // 自动加载的文件
     static private  $loaded = [];
+
     /**
      * 注册自动加载机制
      * @param string $autoload
@@ -38,9 +46,11 @@ class Load
     {
         //加载公共函数
         self::requireFile();
+
         // 注册系统自动加载
         spl_autoload_register($autoload ?: 'Core\\Lib\\Load::autoload', true, true);
-        // 注册框架核心命名空间映射，长度 路径
+
+        // 注册框架核心命名空间映射
         self::addNamespace([
             'Core'    => CORE,
             'Core\\Lib' => LIB,
@@ -50,14 +60,23 @@ class Load
             'Core\\Lib\\Observe'   => LIB. 'Observe' . SP,
             'Core\\Lib\\Registry'   => LIB. 'Registry' . SP,
         ]);
+
+        //框架应用映射注册
+        if(empty(self::$module_map)){
+            self::build(MODULE, true);  //生成模块映射
+        }
+        self::addNamespace(self::$module_map);  //注册
+
         // 加载类库映射文件
         if (is_file(RUNTIME . 'classmap' . EXT)) {
             self::addClassMap(self::insulate_include(RUNTIME. 'classmap' . EXT));
         }
+
         // Composer自动加载支持
         if (is_dir(VENDOR . 'composer')) {
             self::Composer();
         }
+
         // 自动加载extend目录
         self::$dirs_psr4[] = rtrim(EXTEND, SP);
     }
@@ -542,6 +561,7 @@ class Load
     {
         return require $file;
     }
+    
     /**
      * 递归加载目录下所有PHP文件
      * @param string $path
@@ -566,19 +586,36 @@ class Load
 
     /**
      * 创建模块映射目录
-     * @param $path
+     * @param string $path  目标目录
+     * @param bool $prepend     是否用框架默认映射覆盖自定义映射
      * @return array
      * @throws \Exception
      */
-    static public function build($path){
+    static public function build($path, $prepend = false){
         $tree = self::dirTree($path);
-        if($tree === false) {
-            throw new \Exception("读取目录:{$path} 失败，请手动创建目录映射文件！");
-        }else{
+        //生成框架默认用映射
+        $default_psr4 = [];     //默认映射
+        if($tree !== false) {
             if(empty($tree)) throw new \Exception("{$path} 是空目录！");
             $container = array();
             self::makePath($tree,$path,$container);
-            return array_unique($container);
+            $space_path = array_unique($container);
+            $length = strlen($path);
+            //建立模块命名空间目录映射
+            foreach ($space_path as $key => $item){
+                $namespace = substr(strtr($item, SP, '\\'), $length);
+                if($namespace !== false)$default_psr4[rtrim($namespace, '\\')] = $item;
+            }
+        }
+        $mapfile = CONFIG.'Map'.EXT;
+        $customize = [];    //自定义映射
+        if(is_file($mapfile)){
+            $customize = self::insulate_require($mapfile);
+        }
+        if($prepend){
+            self::$module_map = array_merge($customize, $default_psr4); //框架默认优先级更高
+        }else{
+            self::$module_map = array_merge($default_psr4, $customize); //自定义优先级更高
         }
     }
 
@@ -631,17 +668,5 @@ class Load
             }
         }
         return $construct;
-    }
-    /**
-     * 测试
-     */
-    static public function test(){
-        E([
-            '$dirs_psr0'=>self::$dirs_psr0,
-            '$space_psr0'=>self::$space_psr0,
-            '$dirs_psr4'=>self::$dirs_psr4,
-            '$space_dirs_psr4'=>self::$space_dirs_psr4,
-            '$space_lengths_psr4'=>self::$space_lengths_psr4,
-        ]);
     }
 }

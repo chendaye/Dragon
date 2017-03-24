@@ -68,27 +68,16 @@ require LIB."Load.php";
 //错误调试
 \Core\Lib\Error::registry();
 
-$t = require CONFIG.'Map.php';
-\Core\Lib\Load::addNamespace($t);
-
-$t = require CONFIG.'Map.php';
-
-\Core\Lib\Load::addNamespace($t);
-
-\Core\Lib\Load::addNamespace([
-    'Command'=>COMMAND.SP.'Back'.SP,
-]);
-
-\Core\Lib\Load::addNamespace('Command',COMMAND.SP.'Front'.SP);
-\Core\Lib\Load::addNamespace('Command',COMMAND.SP.'Back'.SP);
-\Core\Lib\Load::addNamespace('',COMMAND.SP.'Back'.SP);
-
-//\Core\Lib\Load::test();
-
-$catlog = \Core\Lib\Load::build(MODULE);
-//E(\Core\Lib\Load::dirTree(MODULE));
-E($catlog);
-
+$psr4 = new \Command\Back\PSR4();
+$psr4->PSR4();
+$psr4 = new \Command\Front\PSR4();
+$psr4->PSR4();
+$psr4 = new \Controller\Back\PSR4();
+$psr4->PSR4();
+$psr4 = new \Model\PSR4();
+$psr4->PSR4();
+$psr4 = new \Observer\Event\PSR4();
+$psr4->PSR4();
 exit;
 //启动框架
 \Core\Lib\Dragon::engine();
