@@ -32,25 +32,30 @@ class Session{
         return self::$prefix;
     }
 
+    /**
+     * session配置初始化
+     * @param array $config
+     */
     static public function init(array $config = []){
         if(empty($config)) $config = Conf::get('SESSION');  //去取session配置
         Log::log('[SESSION] INIT '.var_export($config), 'info');    //记录日志信息
 
+        //默认session已经开启
         $start = false;
         //session跨页传送
         if(isset($config['USE_TRANS_SID'])){
             ini_set('session.use_trans_sid', $config['USE_TRANS_SID']?1:0);
         }
         //自动启动session;PHP_SESSION_ACTIVE 如果会话被启用，并且存在一个
-        if(!empty($config['AUTO_START']) && session_start() != PHP_SESSION_ACTIVE){
-            ini_set('session.auto_start', 0);
-            $start = true;
+        if(!empty($config['AUTO_START']) && session_status() != PHP_SESSION_ACTIVE){
+            ini_set('session.auto_start', 0);   //开启回话要调用session_start()
+            $start = true;  //session没有开启
         }
         //范围前缀
         if(isset($config['PREFIX']) && !empty($config['PREFIX'])) self::$prefix = $config['PREFIX'];
 
         //设置session_id
-        if(isset($config['VAR_SESSION_ID']) && $_REQUEST[$config['VAR_SESSION_ID']]){
+        if(isset($config['VAR_SESSION_ID']) && !empty($_REQUEST[$config['VAR_SESSION_ID']])){
             session_id($_REQUEST[$config['VAR_SESSION_ID']]);   //获取并设置网页请求中的session_id
         }elseif(isset($config['ID']) && !empty($config['ID'])){
             session_id($config['ID']);  //指定的session_id
@@ -72,7 +77,7 @@ class Session{
         }
 
         //是否用coolie保存session
-        if (isset($config['USE_COOKIES']))  ini_set('session.use_cookies', $config['use_cookies'] ? 1 : 0);
+        if (isset($config['USE_COOKIES']))  ini_set('session.use_cookies', $config['USE_COOKIES'] ? 1 : 0);
 
         //指定会话页面所使用的缓冲控制方法
         if (isset($config['CACHE_LIMITER']) && !empty($config['CACHE_LIMITER'])) session_cache_limiter($config['CACHE_LIMITER']);
@@ -93,9 +98,11 @@ class Session{
 
        //启动session，记录初始化状态
        if($start){
+           //session成功初始化，并开启
            session_start();
            self::$init = true;
        }else{
+           //session已经开启，初始化失败
            self::$init = false;
        }
     }
@@ -104,20 +111,185 @@ class Session{
      * session启动或者初始化
      */
     static public function start(){
-        if(self::$init == null){
+        if(self::$init === null){
             self::init();   //初始化
         }elseif(self::$init === false){
-            session_start(); //重新启动
+            if(session_status() != PHP_SESSION_ACTIVE) session_start(); //重新启动
             self::$init = true;
         }
     }
 
+    /**
+     * 设置session
+     * @param $name
+     * @param string $value
+     * @param null $prefix
+     */
     static public function set($name, $value = '', $prefix = null){
-        //检查是否启动,初始化
-        if(self::$init === null) self::start();
+        //初始化
+        self::start();
         //范围前缀
         $prefix = !is_null($prefix)?$prefix:self::$prefix;
+        //二维数组赋值支持
+        if(strpos($name, '.')){
+            list($one_level, $two_level) = explode('.', $name);
+            if($prefix){
+                $_SESSION[$prefix][$one_level][$two_level] = $value;
+            }else{
+                $_SESSION[$one_level][$two_level] = $value;
+            }
+        }else{
+            if($prefix) {
+                $_SESSION[$prefix][$name] = $value;
+            }else{
+                $_SESSION[$name] = $value;
+            }
+        }
+    }
+
+    /**
+     * 获取session
+     * @param string $name  名称
+     * @param null $prefix  作用范围
+     * @return array  返回值
+     */
+    static public function get($name = '', $prefix = null){
+        //session初始化
+        self::start();
+        //作用范围
+        $prefix = is_null($prefix)?self::$prefix:$prefix;
+        if(empty($name)){
+            //返回全部session
+            $content = !empty($prefix)?(!empty($_SESSION[$prefix])?$_SESSION[$prefix]:[]):$_SESSION;
+        }else{
+            if($prefix){
+                if(strpos($name, '.')){
+                    list($one_level, $two_level) = explode('.', $name);
+                    $content = isset($_SESSION[$prefix][$one_level][$two_level])?$_SESSION[$prefix][$one_level][$two_level]:null;
+                }else{
+                    $content = isset($_SESSION[$prefix][$name])?$_SESSION[$prefix][$name]:null;
+                }
+            }else{
+                if(strpos($name, '.')){
+                    list($one_level, $two_level) = explode('.', $name);
+                    $content = isset($_SESSION[$one_level][$two_level])?$_SESSION[$one_level][$two_level]:null;
+                }else{
+                    $content = isset($_SESSION[$name])?$_SESSION[$name]:null;
+                }
+            }
+        }
+        return $content;
+    }
+
+    /**
+     * 获取并删除
+     * @param string $name  session名
+     * @param null $prefix  作用范围
+     * @return array|null  返回值
+     */
+    static public function obtain($name = '', $prefix = null){
+        $content = self::get($name, $prefix);
+        if($content){
+            self::delete($name, $prefix);
+            return $content;
+        }else{
+            return null;
+        }
+    }
+
+    /**
+     * 删除session，支持数组递归删除
+     * @param string|array $name 名称
+     * @param null $prefix  作用范围
+     */
+    static public function delete($name, $prefix = null){
+        //初始化
+        self::start();
+        $prefix = is_null($prefix)?self::$prefix:$prefix;
+        //支持数组批量删除
+        if(is_array($name)){
+            foreach ($name as $val){
+                self::delete($val, $prefix);    //递归删除
+            }
+        }elseif(strpos($name, '.')){
+            list($one_level, $two_level) = explode('.', $name);
+            if($prefix){
+                unset($_SESSION[$prefix][$one_level][$two_level]);
+            }else{
+                unset($_SESSION[$one_level][$two_level]);
+            }
+        }else{
+            if($prefix){
+                unset($_SESSION[$prefix][$name]);
+            }else{
+                unset($_SESSION[$name]);
+            }
+        }
+    }
+
+    /**
+     * 判断指定的session是否存在
+     * @param string $name  名称
+     * @param null $prefix  范围前缀
+     * @return bool
+     */
+    static public function exist($name, $prefix = null){
+        //初始化
+        self::start();
+        //范围
+        $prefix = is_null($prefix)?self::$prefix:$prefix;
+        if(strpos($name, '.')){
+            list($one_level, $two_level) = explode('.', $name);
+            return $prefix?isset($_SESSION[$prefix][$one_level][$two_level]):isset($_SESSION[$one_level][$two_level]);
+        }else{
+            return $prefix?isset($_SESSION[$prefix][$name]):isset($_SESSION[$name]);
+        }
+    }
+
+    /**
+     * 设置下一次请求有效
+     * @param string $name session名
+     * @param mixed $value  session值
+     * @param null $prefix  作用范围
+     */
+    static public function flash($name, $value, $prefix = null){
+        $prefix = is_null($prefix)?self::$prefix:$prefix;
+        self::set($name, $value, $prefix);
+        if(!self::exist('__flash__.__time__')){
+            self::set('__flash__.__time__', $_SERVER['REQUEST_TIME_FLOAT'], $prefix);   //REQUEST_TIME_FLOAT请求开始时的时间戳
+        }
+        self::push('__flash__', $name, $prefix);
+    }
+
+    static public function flush(){
+        
+    }
+    /**
+     * 添加一个数据到session数组
+     * @param string $key session数组名
+     * @param mixed $value  要添加的值
+     * @param string $prefix  作用范围
+     */
+    static public function push($key, $value, $prefix = null){
+        $prefix = is_null($prefix)?self::$prefix:$prefix;
+        $result = self::get($key, $prefix);  //取出数组
+        if(is_null($result)){
+            $result = [];
+        }
+        $result[] = $value;  //追加数据
+        self::set($key, $result, $prefix);  //重新赋值
     }
 
 }
 ?>
+
+
+
+
+
+
+
+
+
+
+

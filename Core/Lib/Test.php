@@ -4,6 +4,8 @@ use Core\Lib\Drives\Session\Memcache;
 
 class Test{
     static public function test(){
+        //E(['init',session_status()],true);
+        //E(PHP_SESSION_ACTIVE,true);
         //exit(json_encode([$_POST,$_GET]));
         $psr4 = new \Command\Back\PSR4();
         $psr4->PSR4();
@@ -60,7 +62,7 @@ class Test{
             ],
         ];
         $a = new \Core\Lib\Drives\Log\File($configure);
-        $a->save($log);
+        //$a->save($log);
 
         $a = new \Core\Lib\Drives\Log\Socket([
             'HOST'               => 'localhost',  //Socket 服务器地址
@@ -73,8 +75,23 @@ class Test{
         //E(24*60);
 //        \Core\Lib\Session::init([]);
 //        Log::test();
+
+
+        \Core\Lib\Session::set('ggg.dayes', 'Dragon', 'Dragon');
+        \Core\Lib\Session::set('nnn.dayes', 'Dragon');
+        \Core\Lib\Session::set('www', 'Dragon');
+        \Core\Lib\Session::set('fff', 'Dragon', 'Dragon');
+        //E($_SESSION);
+//       E(\Core\Lib\Session::get('ggg','Dragon'));
+//       E(\Core\Lib\Session::get('www'));
+//       E(\Core\Lib\Session::get('bbbbb'));
+//        E(Session::obtain('ggg','Dragon'));
+//        E($_SESSION);
+        E(Session::exist('fff','Dragon'));
+        //E(Session::push('abc','abd'));
+        Session::flash('next', 'gogogo', 'Dragon');
+        E($_SESSION);
         Memcache::test();
-        new Log();
         exit;
     }
 
