@@ -262,7 +262,7 @@ class Session{
     }
 
     static public function flush(){
-        
+
     }
     /**
      * 添加一个数据到session数组

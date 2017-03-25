@@ -12,86 +12,111 @@
 // +----------------------------------------------------------------------
 
 namespace Core\Lib;
-/**
- * 请求类获取请求信息
- * Class Request
- * @package Core\Lib
- */
+
 class Request{
-    private $property = [];  //http属性
-    private $feedback = [];
 
-    /**
-     * 构造方法。调用init()初始化，并且在注册表中注册
-     * Request constructor.
-     */
-    public function __construct()
-    {
-        $this->init();  //初始化
-        //RequestRegistry::setRequest($this); //在注册表中注册
-    }
+    //对象实例
+    protected $instance;
 
-    /**
-     * 初始化方法，获取请求中的信息参数
-     * @return array
-     */
-    public function init(){
-        //GET POST 请求
-        if(isset($_SERVER['REQUEST_METHOD'])){
-            foreach ($_REQUEST as $k => $v){
-                if($v) $this->property[$k] = $v;
+    //域名
+    protected $domain;
+
+    //url地址
+    protected $url;
+
+    //基础URL地址
+    protected $baseUrl;
+
+    //当前执行的文件
+    protected $baseFile;
+
+    //访问的root地址
+    protected $root;
+
+    //pathinfo
+    protected $pathinfo;
+
+    //path
+    protected $path;
+
+    //路由信息
+    protected $routeInfo = [];
+
+    //控制信息
+    protected $dispatch = [];
+    protected $module;
+    protected $command;
+    protected $action;
+    protected $language;
+
+    //请求参数
+    protected $param = [];
+    protected $get   = [];
+    protected $post  = [];
+    protected $request = [];
+    protected $route = [];
+    protected $put = [];
+    protected $session = [];
+    protected $cookie = [];
+    protected $file = [];
+    protected $server = [];
+    protected $header = [];
+
+    //资源类型
+    protected $source = [
+        'xml'  => 'application/xml,text/xml,application/x-xml',
+        'json' => 'application/json,text/x-json,application/jsonrequest,text/json',
+        'js'   => 'text/javascript,application/javascript,application/x-javascript',
+        'css'  => 'text/css',
+        'rss'  => 'application/rss+xml',
+        'yaml' => 'application/x-yaml,text/yaml',
+        'atom' => 'application/atom+xml',
+        'pdf'  => 'application/pdf',
+        'text' => 'text/plain',
+        'png'  => 'image/png',
+        'jpg'  => 'image/jpg,image/jpeg,image/pjpeg',
+        'gif'  => 'image/gif',
+        'csv'  => 'text/csv',
+        'html' => 'text/html,application/xhtml+xml,*/*',
+    ];
+
+    protected $content;
+
+    //全局过滤规则
+    protected $filter;
+
+    //Hook扩展方法
+    protected $hook = [];
+
+    //绑定属性
+    protected $bind = [];
+
+    //php://input
+    protected $input;
+
+    //请求缓存
+    protected $cache;
+
+    //缓存检查
+    protected $checkCache;
+
+    public function __construct($options = []){
+        //初始化参数
+        foreach ($options as $name => $item){
+            //检查给出的 property 是否存在于指定的类中以及是否能在当前范围内访问
+            if(property_exists($this, $name)){
+                $this->$name = $item;
             }
         }
-        //$_SERVER 参数信息
-        //$_SERVER["QUERY_STRING"]; //查询(query)的字符串
-        //$_SERVER["REQUEST_URI"];   //访问此页面所需的URI,除域名外的部分
-        //$_SERVER["SCRIPT_NAME"];   //包含当前脚本的路径
-        //$_SERVER["PHP_SELF"];     //当前正在执行脚本的文件名
-        foreach ($_SERVER as $key => $val){
-            $this->setProperty($key, $val);
-        }
-        return $this->property;
+        if(is_null($this->filter)) $this->filter = Conf::get('DEFAULT_FILTER');
+        //php://input 可以读取http entity body中指定长度的值,由Content-Length指定长度,不管是POST方式或者GET方法提交过来的数据
+        $this->input = file_get_contents('php://input');
+        E([$this->filter, $this->input]);
     }
 
-    /**
-     * 获取请求参数
-     * @param $key static 请求参数键值
-     * @return mixed|null  返回请求参数
-     */
-    public function getProperty($key){
-        DragonException::error(isset($this->property[$key]),"参数{$key}不存在存在！");
-        return $this->property[$key];
+    static public function test(){
+       // E(Conf::get('PAGINATE'));
     }
 
-    /**
-     * 设置参数
-     * @param $key static 键值
-     * @param $val mixed 参数内容
-     */
-    public function setProperty($key, $val){
-        DragonException::error(!isset($this->property[$key]),"参数{$key}=>{$val}已经存在！");
-        $this->property[$key] = $val;
-    }
-
-    /**
-     * 添加反馈信息
-     * @param $msg mixed 反馈信息
-     */
-    public function addFeedback($msg){
-        array_push($this->feedback, $msg);  //在数组的最后插入信息
-    }
-
-    /**
-     * 获取反馈信息
-     * @param string $type  返回信息的类型
-     * @return array|string 返回信息
-     */
-    public function getFeedback($type = 'array'){
-        if($type == 'array'){
-            return $this->feedback;
-        }elseif ($type = 'string'){
-            return implode($this->feedback, "\n");
-        }
-    }
 }
 ?>

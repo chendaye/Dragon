@@ -59,7 +59,9 @@ return [
     // 操作方法后缀
     'ACTION_SUFFIX'         => '',
     // 自动搜索命令
-    'COMMAND_SEARCH' => false,
+    'COMMAND_SEARCH'        => false,
+    //全局过滤
+    'DEFAULT_FILTER'        => 'DEFAULT_FILTER',
 
     // +----------------------------------------------------------------------
     // | URL设置
@@ -195,7 +197,7 @@ return [
         // SESSION_ID的提交变量,解决flash上传跨域
         'VAR_SESSION_ID' => '',
         // SESSION 前缀
-        'PREFIX'         => 'DRAGON',
+        'PREFIX'         => 'dragon',
         // 驱动方式 支持redis memcache memcached
         'TYPE'           => '',
         // 是否自动开启 SESSION
@@ -222,13 +224,13 @@ return [
     // +----------------------------------------------------------------------
     'COOKIE'                 => [
         // cookie 名称前缀
-        'PREFIX'    => '',
+        'PREFIX'    => 'dragon',
         // cookie 保存时间
         'EXPIRE'    => 0,
         // cookie 保存路径
         'PATH'      => '/',
         // cookie 有效域名
-        'DOMAIN'    => '',
+        'DOMAIN'    => 'www.dragon-god.com',
         //  cookie 启用安全传输
         'sSECURE'    => false,
         // httponly设置

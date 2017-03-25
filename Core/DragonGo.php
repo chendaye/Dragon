@@ -70,8 +70,8 @@ require LIB."Load.php";
 //错误调试
 \Core\Lib\Error::registry();
 
-//todo:test
-\Core\Lib\Test::test();
+//TODO:test
+\Core\Lib\Dragon::Test();
 
 //启动框架
 \Core\Lib\Dragon::engine();

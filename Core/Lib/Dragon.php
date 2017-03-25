@@ -24,6 +24,15 @@ use Core\Lib\Registry\RequestRegistry;
  * @package Core\Lib
  */
 class Dragon{
+    
+    //TODO:test
+    static public function Test(){
+        //todo:test
+        Conf::cfgFile('Config.php', '');
+        Test::test();
+        exit;
+    }
+
     /**
      * 单例
      * Controller constructor.
@@ -34,6 +43,7 @@ class Dragon{
      * 请求分发引擎，完成相应请求的准备工作
      */
     public static function engine(){
+
         $instance = new Dragon();   //单例
         $instance->init();
         $instance->distributeRequest();

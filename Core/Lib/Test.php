@@ -2,8 +2,28 @@
 namespace Core\Lib;
 use Core\Lib\Drives\Session\Memcache;
 
+/**
+ * 简易测试类
+ * Class Test
+ * @package Core\Lib
+ */
 class Test{
+    /**
+     * TEST
+     */
     static public function test(){
+        self::request();
+        self::aoutload();
+        self::conf();
+        self::cookie();
+        self::log();
+        self::session();
+    }
+
+    /**
+     * 自动加载
+     */
+    static public function aoutload(){
         //E(['init',session_status()],true);
         //E(PHP_SESSION_ACTIVE,true);
         //exit(json_encode([$_POST,$_GET]));
@@ -23,9 +43,14 @@ class Test{
         \Core\Lib\Load::import('Cache\Cache');
         $cache = new \Cache\Cache();
         $cache->cache();
+    }
 
+    /**
+     * conf
+     */
+    static public function conf(){
         $type = pathinfo('/var/www/Dragon/test.php', PATHINFO_EXTENSION);
-       // E($type);
+        // E($type);
 
         //E(\Core\Lib\Conf::analysis(json_encode(123),'json'));
 
@@ -34,14 +59,19 @@ class Test{
 
 
         $a = \Core\Lib\Conf::get('PAGINATE');
-       // E($a);
+        E($a);
         ini_set('date.timezone','Asia/Shanghai');
-       // E(date('c'));
+        // E(date('c'));
+    }
 
-      //  E(\Core\Lib\Conf::get('Log'));
+    /**
+     * log
+     */
+    static public function log(){
+        //  E(\Core\Lib\Conf::get('Log'));
         var_dump(\Core\Lib\Log::save());
         \Core\Lib\Log::savee();
-       // E(2097152/1024);
+        // E(2097152/1024);
 
 
         $configure = [
@@ -75,8 +105,12 @@ class Test{
         //E(24*60);
 //        \Core\Lib\Session::init([]);
 //        Log::test();
+    }
 
-
+    /**
+     * session
+     */
+    static public function session(){
         \Core\Lib\Session::set('ggg.dayes', 'Dragon', 'Dragon');
         \Core\Lib\Session::set('nnn.dayes', 'Dragon');
         \Core\Lib\Session::set('www', 'Dragon');
@@ -87,11 +121,42 @@ class Test{
 //       E(\Core\Lib\Session::get('bbbbb'));
 //        E(Session::obtain('ggg','Dragon'));
 //        E($_SESSION);
-        E(Session::exist('fff','Dragon'));
+        // E(Session::exist('fff','Dragon'));
         //E(Session::push('abc','abd'));
         Session::flash('next', 'gogogo', 'Dragon');
-        E($_SESSION);
+        //E($_SESSION);
         Memcache::test();
+    }
+
+    /**
+     * cookie
+     */
+    static public function cookie(){
+        // E( explode(',', 'www'));
+        Cookie::init();
+
+//        $_COOKIE['dragon_test'] = 'dragon:test';
+//       // Cookie::get('test');
+        Cookie::set('name', 'dragon', ['PREFIX'=>'TEST']);
+        Cookie::set('name222', 'dragon', ['PREFIX'=>'TEST']);
+        Cookie::set('name222', 'dragon', ['PREFIX'=>'DRAGON']);
+//        E($_REQUEST);
+//        E($_COOKIE);
+        E( Cookie::get('name', 'TEST'));
+        E(Cookie::exist('name','TEST'));
+        Cookie::delete('name', 'TEST');
+        Cookie::clear('DRAGON');
+        Cookie::clear('TEST');
+        E($_COOKIE);
+    }
+
+    /**
+     * request
+     */
+    static public function request(){
+        \Core\Lib\Conf::cfgFile('Config.php', '');
+        $req = new Request();
+        Request::test();
         exit;
     }
 
