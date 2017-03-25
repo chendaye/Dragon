@@ -55,6 +55,7 @@ class Load
             'Core\\Lib\\Db'   => LIB. 'Db' . SP,
             'Core\\Lib\\Db\\Connector'   => LIB. 'Db' . SP.'Connector'.SP,
             'Core\\Lib\\Drives\\Log'   => LIB. 'Drives' . SP.'Log'.SP,
+            'Core\\Lib\\Drives\\Config'   => LIB. 'Drives' . SP.'Config'.SP,
             'Core\\Lib\\Observe'   => LIB. 'Observe' . SP,
             'Core\\Lib\\Registry'   => LIB. 'Registry' . SP,
         ]);

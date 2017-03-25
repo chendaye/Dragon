@@ -82,6 +82,11 @@ $psr4->PSR4();
 \Core\Lib\Load::import('Cache\Cache');
 $cache = new \Cache\Cache();
 $cache->cache();
+
+$type = pathinfo('/var/www/Dragon/test.json', PATHINFO_EXTENSION);
+E($type);
+
+E(\Core\Lib\Conf::parse('chendaye',json_encode(123),'json'));
 exit;
 //启动框架
 \Core\Lib\Dragon::engine();
