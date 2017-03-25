@@ -1,1 +1,0 @@
-s:33:"mysql:dbname=mysql;host=127.0.0.1";

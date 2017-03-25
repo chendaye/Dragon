@@ -1,1 +1,0 @@
-a:6:{s:7:"DB_HOST";s:9:"127.0.0.1";s:7:"DB_USER";s:4:"root";s:6:"DB_PWD";s:4:"root";s:7:"DB_NAME";s:5:"mysql";s:7:"DB_TYPE";s:5:"mysql";s:10:"DB_CHARSET";s:5:"utf-8";}
