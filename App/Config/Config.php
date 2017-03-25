@@ -49,12 +49,12 @@ return [
     // 默认模块名
     'default_module'         => 'index',
     // 禁止访问模块
-    'deny_module_list'       => ['common'],
-    // 默认控制器名
+    'deny_module_list'       => [''],
+    // 默认命令命
     'default_controller'     => 'Index',
-    // 默认操作名
+    // 默认操作命
     'default_action'         => 'index',
-    // 默认的空控制器名
+    // 默认的空命令命
     'empty_controller'       => 'Error',
     // 操作方法后缀
     'action_suffix'          => '',
