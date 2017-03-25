@@ -78,6 +78,10 @@ $psr4 = new \Model\PSR4();
 $psr4->PSR4();
 $psr4 = new \Observer\Event\PSR4();
 $psr4->PSR4();
+
+\Core\Lib\Load::import('Cache\Cache');
+$cache = new \Cache\Cache();
+$cache->cache();
 exit;
 //启动框架
 \Core\Lib\Dragon::engine();

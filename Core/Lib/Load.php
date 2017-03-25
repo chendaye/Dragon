@@ -18,8 +18,6 @@ namespace Core\Lib;
  */
 class Load
 {
-    static protected  $instance = [];
-
     // 类名映射
     static protected  $map = [];
 
@@ -116,6 +114,7 @@ class Load
     {
         //命名空间直接映射目录
         if (!empty(self::$map[$class])) return self::$map[$class];
+
         //类文件名
         $psr4_path = strtr($class, '\\', SP) . EXT;
         //空间首字母长度数组
@@ -304,6 +303,7 @@ class Load
             }
         }
     }
+    
     /**
      * 导入所需的类库 同java的Import 本函数有缓存功能
      * @param string $class   类库命名空间字符串
@@ -315,38 +315,37 @@ class Load
     {
         static $_file = [];
         $key          = $class . $baseUrl;
-        $class        = str_replace(['.', '#'], [SP, '.'], $class);
+        $class        = str_replace('\\', SP, $class); //一一替换
         if (isset($_file[$key])) {
             return true;
         }
         if (empty($baseUrl)) {
-            list($name, $class) = explode(SP, $class, 2);
+            list($name, $class) = explode(SP, $class, 2);   //拆分空间，类名
+            //是否是已经注册的命名空间
             if (isset(self::$space_dirs_psr4[$name . '\\'])) {
                 // 注册的命名空间
                 $baseUrl = self::$space_dirs_psr4[$name . '\\'];
-            } elseif ('@' == $name) {
-                //加载当前模块应用类库
-                $baseUrl = App::$modulePath;
-            } elseif (is_dir(EXTEND_PATH . $name)) {
-                $baseUrl = EXTEND_PATH . $name . SP;
+            } elseif (is_dir(EXTEND . $name)) {
+                //是否是扩展类库
+                $baseUrl = EXTEND . $name . SP;
             } else {
-                // 加载其它模块的类库
-                $baseUrl = APP_PATH . $name . SP;
+                // 加载其它模块的类库 APP目录下
+                $baseUrl = APP . $name . SP;
             }
         } elseif (substr($baseUrl, -1) != SP) {
             $baseUrl .= SP;
         }
+
         // 如果类存在 则导入类库文件
-        if (is_array($baseUrl)) {
+        if (is_array($baseUrl)) {   //如果是目录数组
             foreach ($baseUrl as $path) {
-                $filename = $path . SP . $class . $ext;
-                if (is_file($filename)) {
-                    break;
-                }
+                $filename = $path . SP . $class . $ext;     //逐个匹配路径，匹配成功，获取文件路径
+                if (is_file($filename)) break;
             }
         } else {
-            $filename = $baseUrl . $class . $ext;
+            $filename = $baseUrl . $class . $ext;   //如果不是数组
         }
+        //加载文件
         if (!empty($filename) && is_file($filename)) {
             // 开启调试模式Win环境严格区分大小写
             if (IS_WIN && pathinfo($filename, PATHINFO_FILENAME) != pathinfo(realpath($filename), PATHINFO_FILENAME)) {
@@ -358,210 +357,7 @@ class Load
         }
         return false;
     }
-    /**
-     * 实例化（分层）模型
-     * @param string $name         Model名称
-     * @param string $layer        业务层名称
-     * @param bool   $appenSPuffix 是否添加类名后缀
-     * @param string $common       公共模块名
-     * @return Object
-     * @throws ClassNotFoundException
-     */
-    public static function model($name = '', $layer = 'model', $appenSPuffix = false, $common = 'common')
-    {
-        $guid = $name . $layer;
-        if (isset(self::$instance[$guid])) {
-            return self::$instance[$guid];
-        }
-        if (strpos($name, '\\')) {
-            $class = $name;
-        } else {
-            if (strpos($name, '/')) {
-                list($module, $name) = explode('/', $name, 2);
-            } else {
-                $module = Request::instance()->module();
-            }
-            $class = self::parseClass($module, $layer, $name, $appenSPuffix);
-        }
-        if (class_exists($class)) {
-            $model = new $class();
-        } else {
-            $class = str_replace('\\' . $module . '\\', '\\' . $common . '\\', $class);
-            if (class_exists($class)) {
-                $model = new $class();
-            } else {
-                throw new ClassNotFoundException('class not exists:' . $class, $class);
-            }
-        }
-        self::$instance[$guid] = $model;
-        return $model;
-    }
-    /**
-     * 实例化（分层）控制器 格式：[模块名/]控制器名
-     * @param string $name         资源地址
-     * @param string $layer        控制层名称
-     * @param bool   $appenSPuffix 是否添加类名后缀
-     * @param string $empty        空控制器名称
-     * @return Object|false
-     * @throws ClassNotFoundException
-     */
-    public static function controller($name, $layer = 'controller', $appenSPuffix = false, $empty = '')
-    {
-        if (strpos($name, '\\')) {
-            $class = $name;
-        } else {
-            if (strpos($name, '/')) {
-                list($module, $name) = explode('/', $name);
-            } else {
-                $module = Request::instance()->module();
-            }
-            $class = self::parseClass($module, $layer, $name, $appenSPuffix);
-        }
-        if (class_exists($class)) {
-            return App::invokeClass($class);
-        } elseif ($empty && class_exists($emptyClass = self::parseClass($module, $layer, $empty, $appenSPuffix))) {
-            return new $emptyClass(Request::instance());
-        }
-    }
-    /**
-     * 实例化验证类 格式：[模块名/]验证器名
-     * @param string $name         资源地址
-     * @param string $layer        验证层名称
-     * @param bool   $appenSPuffix 是否添加类名后缀
-     * @param string $common       公共模块名
-     * @return Object|false
-     * @throws ClassNotFoundException
-     */
-    public static function validate($name = '', $layer = 'validate', $appenSPuffix = false, $common = 'common')
-    {
-        $name = $name ?: Config::get('default_validate');
-        if (empty($name)) {
-            return new Validate;
-        }
-        $guid = $name . $layer;
-        if (isset(self::$instance[$guid])) {
-            return self::$instance[$guid];
-        }
-        if (strpos($name, '\\')) {
-            $class = $name;
-        } else {
-            if (strpos($name, '/')) {
-                list($module, $name) = explode('/', $name);
-            } else {
-                $module = Request::instance()->module();
-            }
-            $class = self::parseClass($module, $layer, $name, $appenSPuffix);
-        }
-        if (class_exists($class)) {
-            $validate = new $class;
-        } else {
-            $class = str_replace('\\' . $module . '\\', '\\' . $common . '\\', $class);
-            if (class_exists($class)) {
-                $validate = new $class;
-            } else {
-                throw new ClassNotFoundException('class not exists:' . $class, $class);
-            }
-        }
-        self::$instance[$guid] = $validate;
-        return $validate;
-    }
-    /**
-     * 数据库初始化 并取得数据库类实例
-     * @param mixed         $config 数据库配置
-     * @param bool|string   $name 连接标识 true 强制重新连接
-     * @return \think\db\Connection
-     */
-    public static function db($config = [], $name = false)
-    {
-        return Db::connect($config, $name);
-    }
-    /**
-     * 远程调用模块的操作方法 参数格式 [模块/控制器/]操作
-     * @param string       $url          调用地址
-     * @param string|array $vars         调用参数 支持字符串和数组
-     * @param string       $layer        要调用的控制层名称
-     * @param bool         $appenSPuffix 是否添加类名后缀
-     * @return mixed
-     */
-    public static function action($url, $vars = [], $layer = 'controller', $appenSPuffix = false)
-    {
-        $info   = pathinfo($url);
-        $action = $info['basename'];
-        $module = '.' != $info['dirname'] ? $info['dirname'] : Request::instance()->controller();
-        $class  = self::controller($module, $layer, $appenSPuffix);
-        if ($class) {
-            if (is_scalar($vars)) {
-                if (strpos($vars, '=')) {
-                    parse_str($vars, $vars);
-                } else {
-                    $vars = [$vars];
-                }
-            }
-            return App::invokeMethod([$class, $action . Config::get('action_suffix')], $vars);
-        }
-    }
-    /**
-     * 字符串命名风格转换
-     * type 0 将Java风格转换为C的风格 1 将C风格转换为Java的风格
-     * @param string  $name 字符串
-     * @param integer $type 转换类型
-     * @param bool    $ucfirst 首字母是否大写（驼峰规则）
-     * @return string
-     */
-    public static function parseName($name, $type = 0, $ucfirst = true)
-    {
-        if ($type) {
-            $name = preg_replace_callback('/_([a-zA-Z])/', function ($match) {
-                return strtoupper($match[1]);
-            }, $name);
-            return $ucfirst ? ucfirst($name) : lcfirst($name);
-        } else {
-            return strtolower(trim(preg_replace("/[A-Z]/", "_\\0", $name), "_"));
-        }
-    }
-    /**
-     * 解析应用类的类名
-     * @param string $module 模块名
-     * @param string $layer  层名 controller model ...
-     * @param string $name   类名
-     * @param bool   $appenSPuffix
-     * @return string
-     */
-    public static function parseClass($module, $layer, $name, $appenSPuffix = false)
-    {
-        $name  = str_replace(['/', '.'], '\\', $name);
-        $array = explode('\\', $name);
-        $class = self::parseName(array_pop($array), 1) . (App::$suffix || $appenSPuffix ? ucfirst($layer) : '');
-        $path  = $array ? implode('\\', $array) . '\\' : '';
-        return App::$namespace . '\\' . ($module ? $module . '\\' : '') . $layer . '\\' . $path . $class;
-    }
-    /**
-     * 初始化类的实例
-     * @return void
-     */
-    public static function clearInstance()
-    {
-        self::$instance = [];
-    }
-    /**
-     * include作用范围隔离
-     * @param $file
-     * @return mixed
-     */
-    static public function insulate_include($file)
-    {
-        return include $file;
-    }
-    /**
-     * require作用范围隔离
-     * @param $file
-     * @return mixed
-     */
-    static public function insulate_require($file)
-    {
-        return require $file;
-    }
-    
+
     /**
      * 递归加载目录下所有PHP文件
      * @param string $path
@@ -668,5 +464,24 @@ class Load
             }
         }
         return $construct;
+    }
+
+    /**
+     * include作用范围隔离
+     * @param $file
+     * @return mixed
+     */
+    static public function insulate_include($file)
+    {
+        return include $file;
+    }
+    /**
+     * require作用范围隔离
+     * @param $file
+     * @return mixed
+     */
+    static public function insulate_require($file)
+    {
+        return require $file;
     }
 }
