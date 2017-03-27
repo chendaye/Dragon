@@ -89,12 +89,14 @@ E($type);
 E(\Core\Lib\Conf::analysis(json_encode(123),'json'));
 
 \Core\Lib\Conf::cfgFile('Config.php', '');
-\Core\Lib\Conf::Test();
+
 
 $a = \Core\Lib\Conf::get('PAGINATE');
 E($a);
-\Core\Lib\Conf::reset(true);
-\Core\Lib\Conf::Test();
+
+
+E(\Core\Lib\Conf::get('Log'));
+var_dump(\Core\Lib\Log::save());
 exit;
 //启动框架
 \Core\Lib\Dragon::engine();

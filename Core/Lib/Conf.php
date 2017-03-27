@@ -34,7 +34,7 @@ class Conf{
     static public function get($name = NULL, $range = ''){
         $range = $range?:self::$range;
         if($name === NULL) return isset(self::$config[$range])?self::$config[$range]:NULL;  //不指定配置名称获取所有配置
-        $config = self::exist($name);
+        $config = self::exist($name, $range);
         return $config;
     }
 

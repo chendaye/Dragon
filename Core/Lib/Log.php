@@ -14,12 +14,12 @@
 namespace Core\Lib;
 
 class Log{
-    const LOG = 'LOG';
-    const ERROR = 'ERROR';
-    const INFO = 'INFO';
-    const SQL = 'SQL';
-    const NOTICE = 'NOTICE';
-    const ALERT = 'ALERT';
+    const LOG = 'log';
+    const ERROR = 'error';
+    const INFO = 'info';
+    const SQL = 'sql';
+    const NOTICE = 'notice';
+    const ALERT = 'alert';
     static protected $info = []; //日志信息
     static protected $config = [];  //配置信息
     static protected $type = ['log', 'error', 'info', 'sql', 'notice', 'alert'];    //日志类型
@@ -31,10 +31,10 @@ class Log{
      * @param array $config
      */
     static public function init($config = []){
-        $logtype = isset($config['type'])?$config['type']:'File';   //默认日志写入文件
+        $logtype = isset($config['TYPE'])?$config['TYPE']:'File';   //默认日志写入文件
         $drive = 'Core\Lib\Drives\Log\\'.ucwords($logtype);   //驱动类
         self::$config = $config;
-        unset($config['type']);
+        unset($config['TYPE']);
         DragonException::error(class_exists($drive), "类{$drive}不存在！");
         self::$drive = new $drive();   //日志驱动
         //记录日志驱动初始化信息
@@ -87,8 +87,23 @@ class Log{
         return true;
     }
     static public function save(){
-        if(empty(self::$info)) return false;    //日志信息是否为空
-        if(is_null(self::$drive)) self::$drive = self::init(Conf::get('config', 'LOG'));
+        //日志信息是否为空
+       if(empty(self::$info)) return false;
+        //初始化日志配置
+        if(is_null(self::$drive))  self::init(Conf::get('LOG'));
+        //检查日志写入权限
+        if(!self::check(self::$config)) return false;
+        //获取日志的等级
+        if(!empty(self::$config['LEVEL'])){
+            $log = self::$info; //全部日志
+        }else{
+            $log = [];
+            foreach (self::$config['LEVEL'] as $level){
+                if(isset(self::$info[$level])){
+                    $log[$level] = self::$info[$level];     //记录相应等级的日志
+                }
+            }
+        }
 
     }
 }
