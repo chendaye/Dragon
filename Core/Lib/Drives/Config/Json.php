@@ -18,13 +18,13 @@ namespace Core\Lib\Drives\Config;
  * Class Json
  * @package Core\Lib\Drives\Config
  */
-class Json{
+class Json implements Drives{
     /**
      * 解析json
      * @param $content
      * @return mixed
      */
-    public function json($content)
+    public function resolve($content)
     {
         if (is_file($content)) $content = file_get_contents($content);
         $result = json_decode($content, true);

@@ -14,30 +14,16 @@
 namespace Core\Lib\Drives\Config;
 
 /**
- * xml解析
- * Class Xml
+ * 配置解析驱动接口
+ * Interface Drives
  * @package Core\Lib\Drives\Config
  */
-class Xml implements Drives {
+interface Drives{
     /**
-     * 解析xml内容
-     * @param $content
-     * @return array
+     * 解析配置内容
+     * @param  $content
+     * @return mixed
      */
-    public function resolve($content)
-    {
-        if (is_file($content)) {
-            $msg= simplexml_load_file($content);
-        } else {
-            $msg = simplexml_load_string($content);
-        }
-        $result = (array) $msg; //把结果转化为数组
-        foreach ($result as $key => $val) {
-            if (is_object($val)) {
-                $result[$key] = (array) $val;   //对象转化为数组
-            }
-        }
-        return $result;
-    }
+    public function resolve($content);
 }
 ?>

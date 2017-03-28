@@ -372,28 +372,18 @@ class Collection implements \ArrayAccess ,\Countable ,\IteratorAggregate ,\JsonS
     }
 
     /**
-     * 递归实现数组键名大小写转换，支持二维数组
-     * @param array $value  目标数组
-     * @param int $case 1大写、0小写
-     * @return array
+     * 递归实现数组键名大小写转换
+     * @param $array
+     * @param int $case 默认转化为大写
      */
-    public function arrayKeyToCase( $value, $case = 0 )
+    public function keyToCase(&$array, $case=CASE_UPPER)
     {
-        $temp = array();
-        foreach ( $value as $key => $item ) {
-            if ( $case ) {
-                $keyTemp = strtoupper($key);
-            } else {
-                $keyTemp = strtolower($key);
-            }
-
-            if ( is_array($item) ) {
-                $temp[$keyTemp] = array_change_key_case($item, $case);
-            }else{
-                $temp[$keyTemp] = $item;
+        $array = array_change_key_case($array, $case);
+        foreach ($array as $key => $value) {
+            if ( is_array($value) ) {
+                array_case($array[$key], $case);
             }
         }
-        return $temp;
     }
 }
 ?>
