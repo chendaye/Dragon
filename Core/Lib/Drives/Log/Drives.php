@@ -25,5 +25,11 @@ interface Drives{
      * @return mixed
      */
     public function save(array $content);
+
+    /**
+     * 获取运行时信息
+     * @return mixed
+     */
+    public function request_info();
 }
 ?>

@@ -12,9 +12,14 @@
 // +----------------------------------------------------------------------
 
 namespace Core\Lib\Drives\Log;
-use Core\Lib\Conf;
 
+/**
+ * 文件日志驱动
+ * Class File
+ * @package Core\Lib\Drives\Log
+ */
 class File implements Drives {
+
     //默认配置参数
     private $configure = [
         'TIME_FORMAT'     => 'c',   //ISO-8601 标准的日期（例如 2013-05-05T16:34:42+00:00）
@@ -103,23 +108,6 @@ class File implements Drives {
             'req_method' => isset($_SERVER['REQUEST_METHOD'])?$_SERVER['REQUEST_METHOD']:'CLI',
             'req_uri' => isset($_SERVER['REQUEST_URI'])?$_SERVER['REQUEST_URI']:'',
         ];
-    }
-
-    /**
-     * @param $msg  mixed 日志内容
-     * @param string $name  日志文件名
-     * @return int 日志大小
-     */
-    public function log($msg, $name='log'){
-        //检查路径是否存在,一个小时建一个目录
-        $path = $this->path.'/'.date("YmdH");
-        if(!is_dir($path)){
-            mkdir($path, 0777);
-        }
-        $msg = date("Y-m-d H:i:s").json_encode($msg).PHP_EOL;   //加上换行
-        //把日志内容写入文件
-        $file_path = $path.'/'.$name.'.php';
-        return file_put_contents($file_path, $msg, FILE_APPEND);    //以追加的形式写入
     }
 }
 ?>
