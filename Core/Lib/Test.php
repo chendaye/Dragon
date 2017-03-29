@@ -8,6 +8,7 @@ use Core\Lib\Drives\Session\Memcache;
  * @package Core\Lib
  */
 class Test{
+
     /**
      * TEST
      */
@@ -154,8 +155,16 @@ class Test{
      * request
      */
     static public function request(){
+        echo "<form action=\"index.php?d=888\" method=\"post\">
+                <input name=\"aaa\" type=\"hidden\" value=\"6669879879\">
+                <input type=\"submit\">
+            </form>";
         \Core\Lib\Conf::cfgFile('Config.php', '');
         $req = new Request();
+
+        //$req->none('ddd');
+        Request::hook(['test'=>'test']);
+        Request::hook('t','test');
         Request::test();
         exit;
     }

@@ -86,7 +86,7 @@ class Request{
     protected $filter;
 
     //Hook扩展方法
-    protected $hook = [];
+    static protected $hook = [];
 
     //绑定属性
     protected $bind = [];
@@ -100,6 +100,11 @@ class Request{
     //缓存检查
     protected $checkCache;
 
+    /**
+     * 参数初始化，获取请求数据
+     * Request constructor.
+     * @param array $options
+     */
     public function __construct($options = []){
         //初始化参数
         foreach ($options as $name => $item){
@@ -108,14 +113,46 @@ class Request{
                 $this->$name = $item;
             }
         }
+        //全局过滤
         if(is_null($this->filter)) $this->filter = Conf::get('DEFAULT_FILTER');
-        //php://input 可以读取http entity body中指定长度的值,由Content-Length指定长度,不管是POST方式或者GET方法提交过来的数据
-        $this->input = file_get_contents('php://input');
-        E([$this->filter, $this->input]);
+        //php://input 获取
+        $this->input = file_get_contents("php://input");
     }
 
+    /**
+     * 魔术方法，调用不类存在的方法时，指定调用某个方法
+     * @param $name
+     * @param $arguments
+     * @throws DragonException
+     */
+    public function __call($name, $arguments){
+        //检查扩展方法是否存在
+        if(array_key_exists($name, self::$hook)){
+            array_unshift($arguments, $this);   //在数组开头插入元素
+            call_user_func_array(self::$hook[$name], $arguments);
+        }else{
+            throw  new DragonException("方法不存在：".__CLASS__."->$name");
+        }
+    }
+
+    /**
+     * 注册Hook方法（钩子），支持单个和数组两种注册方式
+     * @param $method
+     * @param null $callback
+     */
+    static public function hook($method, $callback = null){
+        if(is_array($method)){
+            //数组形式注册
+            self::$hook = array_merge(self::$hook, $method);
+        }else{
+            //单个注册
+            self::$hook[$method] = $callback;
+        }
+    }
+
+    static public function create(){}
     static public function test(){
-       // E(Conf::get('PAGINATE'));
+        E(self::$hook);
     }
 
 }
