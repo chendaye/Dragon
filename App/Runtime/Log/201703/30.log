@@ -1,0 +1,364 @@
+[RecordTime2017-03-30T07:30:25+08:00:] Server:192.168.1.111 Remote:192.168.1.111 Method:GET URI:/Dragon/Login/login 
+[Runinfo:]www.dragon-god.com/Dragon/Login/login[运行时间：0.017322s] [吞吐率：57.73req/s][内存消耗： 978.15kb][文件加载数：40]
+[log:]array (
+  0 => '175',
+  1 => 15,
+  2 => 1,
+)[log:]array (
+  0 => '165',
+  1 => 17,
+  2 => 0,
+)
+                                
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+[RecordTime2017-03-30T08:26:12+08:00:] Server:192.168.1.111 Remote:192.168.1.111 Method:GET URI:/Dragon/Login/login 
+[Runinfo:]www.dragon-god.com/Dragon/Login/login[运行时间：0.027149s] [吞吐率：36.83req/s][内存消耗： 978.79kb][文件加载数：40]
+[log:]array (
+  0 => '175',
+  1 => 15,
+  2 => 1,
+)[log:]array (
+  0 => '165',
+  1 => 17,
+  2 => 0,
+)
+                                
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+[RecordTime2017-03-30T09:00:42+08:00:] Server:192.168.1.111 Remote:192.168.1.111 Method:GET URI:/Dragon/Login/login 
+[Runinfo:]www.dragon-god.com/Dragon/Login/login[运行时间：0.015249s] [吞吐率：65.58req/s][内存消耗： 979.11kb][文件加载数：40]
+[log:]array (
+  0 => '175',
+  1 => 15,
+  2 => 1,
+)[log:]array (
+  0 => '165',
+  1 => 17,
+  2 => 0,
+)
+                                
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+[RecordTime2017-03-30T09:26:08+08:00:] Server:192.168.1.111 Remote:192.168.1.111 Method:GET URI:/Dragon/Login/login 
+[Runinfo:]www.dragon-god.com/Dragon/Login/login[运行时间：0.015129s] [吞吐率：66.10req/s][内存消耗： 978.93kb][文件加载数：40]
+[log:]array (
+  0 => '175',
+  1 => 15,
+  2 => 1,
+)[log:]array (
+  0 => '165',
+  1 => 17,
+  2 => 0,
+)
+                                
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+[RecordTime2017-03-30T09:27:25+08:00:] Server:192.168.1.111 Remote:192.168.1.111 Method:GET URI:/Dragon/Login/login 
+[Runinfo:]www.dragon-god.com/Dragon/Login/login[运行时间：0.014233s] [吞吐率：70.26req/s][内存消耗： 968.20kb][文件加载数：40]
+[log:]array (
+  0 => '175',
+  1 => 15,
+  2 => 1,
+)[log:]array (
+  0 => '165',
+  1 => 17,
+  2 => 0,
+)
+                                
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+[RecordTime2017-03-30T09:27:26+08:00:] Server:192.168.1.111 Remote:192.168.1.111 Method:GET URI:/Dragon/Login/login 
+[Runinfo:]www.dragon-god.com/Dragon/Login/login[运行时间：0.015302s] [吞吐率：65.35req/s][内存消耗： 968.20kb][文件加载数：40]
+[log:]array (
+  0 => '175',
+  1 => 15,
+  2 => 1,
+)[log:]array (
+  0 => '165',
+  1 => 17,
+  2 => 0,
+)
+                                
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+[RecordTime2017-03-30T09:27:26+08:00:] Server:192.168.1.111 Remote:192.168.1.111 Method:GET URI:/Dragon/Login/login 
+[Runinfo:]www.dragon-god.com/Dragon/Login/login[运行时间：0.016260s] [吞吐率：61.50req/s][内存消耗： 968.20kb][文件加载数：40]
+[log:]array (
+  0 => '175',
+  1 => 15,
+  2 => 1,
+)[log:]array (
+  0 => '165',
+  1 => 17,
+  2 => 0,
+)
+                                
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+[RecordTime2017-03-30T09:27:27+08:00:] Server:192.168.1.111 Remote:192.168.1.111 Method:GET URI:/Dragon/Login/login 
+[Runinfo:]www.dragon-god.com/Dragon/Login/login[运行时间：0.014360s] [吞吐率：69.64req/s][内存消耗： 968.20kb][文件加载数：40]
+[log:]array (
+  0 => '175',
+  1 => 15,
+  2 => 1,
+)[log:]array (
+  0 => '165',
+  1 => 17,
+  2 => 0,
+)
+                                
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+[RecordTime2017-03-30T09:27:27+08:00:] Server:192.168.1.111 Remote:192.168.1.111 Method:GET URI:/Dragon/Login/login 
+[Runinfo:]www.dragon-god.com/Dragon/Login/login[运行时间：0.014488s] [吞吐率：69.02req/s][内存消耗： 968.20kb][文件加载数：40]
+[log:]array (
+  0 => '175',
+  1 => 15,
+  2 => 1,
+)[log:]array (
+  0 => '165',
+  1 => 17,
+  2 => 0,
+)
+                                
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+[RecordTime2017-03-30T09:27:28+08:00:] Server:192.168.1.111 Remote:192.168.1.111 Method:GET URI:/Dragon/Login/login 
+[Runinfo:]www.dragon-god.com/Dragon/Login/login[运行时间：0.014318s] [吞吐率：69.84req/s][内存消耗： 968.20kb][文件加载数：40]
+[log:]array (
+  0 => '175',
+  1 => 15,
+  2 => 1,
+)[log:]array (
+  0 => '165',
+  1 => 17,
+  2 => 0,
+)
+                                
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+[RecordTime2017-03-30T09:27:28+08:00:] Server:192.168.1.111 Remote:192.168.1.111 Method:GET URI:/Dragon/Login/login 
+[Runinfo:]www.dragon-god.com/Dragon/Login/login[运行时间：0.013151s] [吞吐率：76.04req/s][内存消耗： 968.20kb][文件加载数：40]
+[log:]array (
+  0 => '175',
+  1 => 15,
+  2 => 1,
+)[log:]array (
+  0 => '165',
+  1 => 17,
+  2 => 0,
+)
+                                
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+[RecordTime2017-03-30T09:27:29+08:00:] Server:192.168.1.111 Remote:192.168.1.111 Method:GET URI:/Dragon/Login/login 
+[Runinfo:]www.dragon-god.com/Dragon/Login/login[运行时间：0.014915s] [吞吐率：67.05req/s][内存消耗： 968.20kb][文件加载数：40]
+[log:]array (
+  0 => '175',
+  1 => 15,
+  2 => 1,
+)[log:]array (
+  0 => '165',
+  1 => 17,
+  2 => 0,
+)
+                                
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+[RecordTime2017-03-30T09:27:29+08:00:] Server:192.168.1.111 Remote:192.168.1.111 Method:GET URI:/Dragon/Login/login 
+[Runinfo:]www.dragon-god.com/Dragon/Login/login[运行时间：0.014882s] [吞吐率：67.19req/s][内存消耗： 968.20kb][文件加载数：40]
+[log:]array (
+  0 => '175',
+  1 => 15,
+  2 => 1,
+)[log:]array (
+  0 => '165',
+  1 => 17,
+  2 => 0,
+)
+                                
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+[RecordTime2017-03-30T09:27:29+08:00:] Server:192.168.1.111 Remote:192.168.1.111 Method:GET URI:/Dragon/Login/login 
+[Runinfo:]www.dragon-god.com/Dragon/Login/login[运行时间：0.014720s] [吞吐率：67.93req/s][内存消耗： 968.20kb][文件加载数：40]
+[log:]array (
+  0 => '175',
+  1 => 15,
+  2 => 1,
+)[log:]array (
+  0 => '165',
+  1 => 17,
+  2 => 0,
+)
+                                
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+[RecordTime2017-03-30T09:28:02+08:00:] Server:192.168.1.111 Remote:192.168.1.111 Method:GET URI:/Dragon/Login/login 
+[Runinfo:]www.dragon-god.com/Dragon/Login/login[运行时间：0.026316s] [吞吐率：38.00req/s][内存消耗： 968.46kb][文件加载数：40]
+[log:]array (
+  0 => '175',
+  1 => 15,
+  2 => 1,
+)[log:]array (
+  0 => '165',
+  1 => 17,
+  2 => 0,
+)
+                                
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+[RecordTime2017-03-30T09:28:03+08:00:] Server:192.168.1.111 Remote:192.168.1.111 Method:GET URI:/Dragon/Login/login 
+[Runinfo:]www.dragon-god.com/Dragon/Login/login[运行时间：0.018783s] [吞吐率：53.24req/s][内存消耗： 968.46kb][文件加载数：40]
+[log:]array (
+  0 => '175',
+  1 => 15,
+  2 => 1,
+)[log:]array (
+  0 => '165',
+  1 => 17,
+  2 => 0,
+)
+                                
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+[RecordTime2017-03-30T09:28:03+08:00:] Server:192.168.1.111 Remote:192.168.1.111 Method:GET URI:/Dragon/Login/login 
+[Runinfo:]www.dragon-god.com/Dragon/Login/login[运行时间：0.014397s] [吞吐率：69.46req/s][内存消耗： 968.46kb][文件加载数：40]
+[log:]array (
+  0 => '175',
+  1 => 15,
+  2 => 1,
+)[log:]array (
+  0 => '165',
+  1 => 17,
+  2 => 0,
+)
+                                
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+[RecordTime2017-03-30T09:28:03+08:00:] Server:192.168.1.111 Remote:192.168.1.111 Method:GET URI:/Dragon/Login/login 
+[Runinfo:]www.dragon-god.com/Dragon/Login/login[运行时间：0.013404s] [吞吐率：74.61req/s][内存消耗： 968.46kb][文件加载数：40]
+[log:]array (
+  0 => '175',
+  1 => 15,
+  2 => 1,
+)[log:]array (
+  0 => '165',
+  1 => 17,
+  2 => 0,
+)
+                                
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+[RecordTime2017-03-30T09:28:04+08:00:] Server:192.168.1.111 Remote:192.168.1.111 Method:GET URI:/Dragon/Login/login 
+[Runinfo:]www.dragon-god.com/Dragon/Login/login[运行时间：0.013569s] [吞吐率：73.70req/s][内存消耗： 968.46kb][文件加载数：40]
+[log:]array (
+  0 => '175',
+  1 => 15,
+  2 => 1,
+)[log:]array (
+  0 => '165',
+  1 => 17,
+  2 => 0,
+)
+                                
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+[RecordTime2017-03-30T09:28:04+08:00:] Server:192.168.1.111 Remote:192.168.1.111 Method:GET URI:/Dragon/Login/login 
+[Runinfo:]www.dragon-god.com/Dragon/Login/login[运行时间：0.014150s] [吞吐率：70.67req/s][内存消耗： 968.46kb][文件加载数：40]
+[log:]array (
+  0 => '175',
+  1 => 15,
+  2 => 1,
+)[log:]array (
+  0 => '165',
+  1 => 17,
+  2 => 0,
+)
+                                
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+[RecordTime2017-03-30T09:28:04+08:00:] Server:192.168.1.111 Remote:192.168.1.111 Method:GET URI:/Dragon/Login/login 
+[Runinfo:]www.dragon-god.com/Dragon/Login/login[运行时间：0.020459s] [吞吐率：48.88req/s][内存消耗： 968.46kb][文件加载数：40]
+[log:]array (
+  0 => '175',
+  1 => 15,
+  2 => 1,
+)[log:]array (
+  0 => '165',
+  1 => 17,
+  2 => 0,
+)
+                                
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+[RecordTime2017-03-30T09:28:04+08:00:] Server:192.168.1.111 Remote:192.168.1.111 Method:GET URI:/Dragon/Login/login 
+[Runinfo:]www.dragon-god.com/Dragon/Login/login[运行时间：0.014563s] [吞吐率：68.67req/s][内存消耗： 968.46kb][文件加载数：40]
+[log:]array (
+  0 => '175',
+  1 => 15,
+  2 => 1,
+)[log:]array (
+  0 => '165',
+  1 => 17,
+  2 => 0,
+)
+                                
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+[RecordTime2017-03-30T09:28:05+08:00:] Server:192.168.1.111 Remote:192.168.1.111 Method:GET URI:/Dragon/Login/login 
+[Runinfo:]www.dragon-god.com/Dragon/Login/login[运行时间：0.014043s] [吞吐率：71.21req/s][内存消耗： 968.46kb][文件加载数：40]
+[log:]array (
+  0 => '175',
+  1 => 15,
+  2 => 1,
+)[log:]array (
+  0 => '165',
+  1 => 17,
+  2 => 0,
+)
+                                
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+[RecordTime2017-03-30T09:28:05+08:00:] Server:192.168.1.111 Remote:192.168.1.111 Method:GET URI:/Dragon/Login/login 
+[Runinfo:]www.dragon-god.com/Dragon/Login/login[运行时间：0.014434s] [吞吐率：69.28req/s][内存消耗： 968.46kb][文件加载数：40]
+[log:]array (
+  0 => '175',
+  1 => 15,
+  2 => 1,
+)[log:]array (
+  0 => '165',
+  1 => 17,
+  2 => 0,
+)
+                                
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+[RecordTime2017-03-30T09:28:05+08:00:] Server:192.168.1.111 Remote:192.168.1.111 Method:GET URI:/Dragon/Login/login 
+[Runinfo:]www.dragon-god.com/Dragon/Login/login[运行时间：0.015127s] [吞吐率：66.11req/s][内存消耗： 968.46kb][文件加载数：40]
+[log:]array (
+  0 => '175',
+  1 => 15,
+  2 => 1,
+)[log:]array (
+  0 => '165',
+  1 => 17,
+  2 => 0,
+)
+                                
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+[RecordTime2017-03-30T09:28:05+08:00:] Server:192.168.1.111 Remote:192.168.1.111 Method:GET URI:/Dragon/Login/login 
+[Runinfo:]www.dragon-god.com/Dragon/Login/login[运行时间：0.014734s] [吞吐率：67.87req/s][内存消耗： 968.46kb][文件加载数：40]
+[log:]array (
+  0 => '175',
+  1 => 15,
+  2 => 1,
+)[log:]array (
+  0 => '165',
+  1 => 17,
+  2 => 0,
+)
+                                
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+[RecordTime2017-03-30T09:28:06+08:00:] Server:192.168.1.111 Remote:192.168.1.111 Method:GET URI:/Dragon/Login/login 
+[Runinfo:]www.dragon-god.com/Dragon/Login/login[运行时间：0.014406s] [吞吐率：69.42req/s][内存消耗： 968.46kb][文件加载数：40]
+[log:]array (
+  0 => '175',
+  1 => 15,
+  2 => 1,
+)[log:]array (
+  0 => '165',
+  1 => 17,
+  2 => 0,
+)
+                                
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+[RecordTime2017-03-30T09:28:06+08:00:] Server:192.168.1.111 Remote:192.168.1.111 Method:GET URI:/Dragon/Login/login 
+[Runinfo:]www.dragon-god.com/Dragon/Login/login[运行时间：0.015254s] [吞吐率：65.56req/s][内存消耗： 968.46kb][文件加载数：40]
+[log:]array (
+  0 => '175',
+  1 => 15,
+  2 => 1,
+)[log:]array (
+  0 => '165',
+  1 => 17,
+  2 => 0,
+)
+                                
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

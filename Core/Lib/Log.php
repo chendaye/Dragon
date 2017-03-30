@@ -149,5 +149,8 @@ class Log{
             'method_param'  => $arguments
         ]);
     }
+    static public function test(){
+        E(self::$info);
+    }
 }
 ?>

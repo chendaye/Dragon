@@ -1,5 +1,7 @@
 <?php
 namespace Core\Lib;
+use Core\Lib\Drives\Session\Memcache;
+
 class Test{
     static public function test(){
         //exit(json_encode([$_POST,$_GET]));
@@ -14,30 +16,30 @@ class Test{
         $psr4 = new \Observer\Event\PSR4();
         $psr4->PSR4();
 
-        E($_SERVER);
+        //E($_SERVER);
 
         \Core\Lib\Load::import('Cache\Cache');
         $cache = new \Cache\Cache();
         $cache->cache();
 
         $type = pathinfo('/var/www/Dragon/test.php', PATHINFO_EXTENSION);
-        E($type);
+       // E($type);
 
-        E(\Core\Lib\Conf::analysis(json_encode(123),'json'));
+        //E(\Core\Lib\Conf::analysis(json_encode(123),'json'));
 
         \Core\Lib\Conf::cfgFile('Config.php', '');
 
 
 
         $a = \Core\Lib\Conf::get('PAGINATE');
-        E($a);
+       // E($a);
         ini_set('date.timezone','Asia/Shanghai');
-        E(date('c'));
+       // E(date('c'));
 
-        E(\Core\Lib\Conf::get('Log'));
+      //  E(\Core\Lib\Conf::get('Log'));
         var_dump(\Core\Lib\Log::save());
         \Core\Lib\Log::savee();
-        E(2097152/1024);
+       // E(2097152/1024);
 
 
         $configure = [
@@ -66,9 +68,13 @@ class Test{
             'FORCE_TO_CLIENT_ID' => ['192.168.0.10','192.168.0.11'],     //强制记录日志到设置的客户端ID
             'ALLOW_CLIENT_ID'    => ['192.168.0.10']     //限制日志读取
         ]);
-        $a->Test();
+        //$a->Test();
 
-        \Core\Lib\Session::init([]);
+        //E(24*60);
+//        \Core\Lib\Session::init([]);
+//        Log::test();
+        Memcache::test();
+        new Log();
         exit;
     }
 

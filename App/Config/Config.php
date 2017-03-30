@@ -190,6 +190,7 @@ return [
     // +----------------------------------------------------------------------
 
     'SESSION'                => [
+        //指定ID
         'ID'             => '',
         // SESSION_ID的提交变量,解决flash上传跨域
         'VAR_SESSION_ID' => '',
@@ -199,6 +200,21 @@ return [
         'TYPE'           => '',
         // 是否自动开启 SESSION
         'AUTO_START'     => true,
+        //跨页传递
+        'USE_TRANS_SID' => 1,
+        //session文件层路径
+        'PATH'          =>'',
+        //session跨域，不同服务器共享ID
+        'DOMAIN'        => 'www.dragon-god.com',
+        //存储时间
+        'EXPIRE'        => 1440,
+        //传递方式
+        'USE_COOKIES'   => 1,
+        //指定会话页面所使用的缓冲控制方法
+        'CACHE_LIMITER' => 'public ',
+        //缓存的到期时间
+        'CACHE_EXPIRE'  => 180,
+
     ],
 
     // +----------------------------------------------------------------------

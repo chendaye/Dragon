@@ -48,7 +48,7 @@ class Load
         // 注册系统自动加载
         spl_autoload_register($autoload ?: 'Core\\Lib\\Load::autoload', true, true);
 
-        // 注册框架核心命名空间映射
+        // 注册框架核心命名空间映射,若遵循PSR4，只用注册根空间即可Core
         self::addNamespace([
             'Core'    => CORE,
             'Core\\Lib' => LIB,
