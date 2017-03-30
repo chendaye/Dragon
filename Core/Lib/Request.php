@@ -150,7 +150,123 @@ class Request{
         }
     }
 
-    static public function create(){}
+    /**
+     * 设置获取主机名
+     * @param null $domain
+     * @return null|string
+     */
+    public function domain($domain = null){
+        if(!is_null($domain)){
+            $this->domain = $domain;
+            return $this;
+        }elseif (!$this->domain){
+            $this->domain = $this->scheme().'://'.$this->host();
+        }
+        return $this->domain;
+    }
+
+    /**
+     * 获取当前完整的URL 包括query_string
+     * @param null $url
+     * @return mixed
+     */
+    public function url($url = null){
+        if(!is_null($url) && $url !== true){
+            $this->url = $url;
+            return $this;
+        }elseif(!$this->url){
+            if(IS_CML){
+                $this->url = isset($_SERVER['argv'][1]) ? $_SERVER['argv'][1] : '';
+            }elseif (isset($_SERVER['HTTP_X_REWRITE_URL'])){
+                $this->url = $_SERVER['HTTP_X_REWRITE_URL'];
+            }elseif (isset($_SERVER['REQUEST_URI'])){
+                $this->url = $_SERVER['REQUEST_URI'];
+            }elseif (isset($_SERVER['ORIG_PATH_INFO'])){
+                $this->url = $_SERVER['ORIG_PATH_INFO'] . (!empty($_SERVER['QUERY_STRING']) ? '?' . $_SERVER['QUERY_STRING'] : '');
+            }else{
+                $this->url = '';
+            }
+        }
+        return ($url === true)? $this->domain() . $this->url:$this->url;
+    }
+
+    /**
+     * 获取不含有query_string 的URL
+     * @param null $url
+     * @return mixed
+     */
+    public function baseUrl($url = null){
+        if(!is_null($url) && $url !== true){
+            $this->baseUrl = $url;
+            return $this;
+        }elseif (!$this->baseUrl){
+            $url_str = $this->url();
+            //不含query_string 的url
+            $this->baseUrl = strpos($url_str, '?')?strstr($url_str, '?', true):$url_str;
+        }
+        return ($url === true)?$this->domain().$this->baseUrl:$this->baseUrl;
+    }
+
+    /**
+     * 获取当前执行文件 SCRIPT_NAME
+     * @param null $file
+     * @return mixed
+     */
+    public function baseFile($file = null){
+        if(!is_null($file) && $file !== true){
+            $this->baseFile = $file;
+            return $this;
+        }elseif(!$this->baseFile){
+            $url = '';
+            if(!IS_CML){
+                $script_name = basename($_SERVER['SCRIPT_FILENAME']);
+                if($_SERVER['SCRIPT_NAME'] === $script_name){
+                    $url = $_SERVER['SCRIPT_NAME'];
+                }elseif ($_SERVER['PHP_SELF'] === $script_name){
+                    $url = $_SERVER['PHP_SELF'];
+                }elseif (isset($_SERVER['ORIG_SCRIPT_NAME']) && basename($_SERVER['ORIG_SCRIPT_NAME']) === $script_name){
+                    $url = $_SERVER['ORIG_SCRIPT_NAME'];
+                }elseif (($pos = strpos($_SERVER['PHP_SELF'], '/' . $script_name)) !== false){
+                    $url = substr($_SERVER['SCRIPT_NAME'], 0, $pos) . '/' . $script_name;
+                }elseif (isset($_SERVER['DOCUMENT_ROOT']) && strpos($_SERVER['SCRIPT_FILENAME'], $_SERVER['DOCUMENT_ROOT']) === 0){
+                    $url = str_replace('\\', '/', str_replace($_SERVER['DOCUMENT_ROOT'], '', $_SERVER['SCRIPT_FILENAME']));
+                }
+            }
+            $this->baseFile = $url;
+        }
+        return ($file === true)?$this->domain().$this->baseFile:$this->baseFile;
+    }
+
+    /**
+     * 获取URL访问的根地址
+     * @param null $url
+     * @return mixed
+     */
+    public function root($url = null){
+        if(!is_null($url) && $url !== true){
+            $this->root = $url;
+            return $this;
+        }elseif(!$this->root){
+            $file = $this->baseFile();  //可执行文件
+            if($file && strpos($this->url(), $file) !== 0){
+                $file = str_replace('\\', '/', dirname($file));
+            }
+            $this->root = rtrim($file, '/');
+        }
+        return ($url === true)?$this->domain().$this->root:$this->root;
+    }
+
+    public function pathInfo(){
+
+    }
+
+    public function host(){
+
+    }
+    public function scheme(){
+
+    }
+
     static public function test(){
         E(self::$hook);
     }

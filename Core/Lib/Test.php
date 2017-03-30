@@ -1,6 +1,8 @@
 <?php
 namespace Core\Lib;
 use Core\Lib\Drives\Session\Memcache;
+use Core\Lib\Registry\RequestHelper;
+use Core\Lib\Registry\RequestRegistry;
 
 /**
  * 简易测试类
@@ -166,6 +168,17 @@ class Test{
         Request::hook(['test'=>'test']);
         Request::hook('t','test');
         Request::test();
+
+        E($_SERVER);
+        RequestHelper::instance()->create('http://username:password@www.dragon-god.com:80/Dragon/Login/login?d=888&user=chen&pass=daye','get',$param = ['a'=>1,'b'=>2]);
+        RequestHelper::instance()->init();
+        dump(RequestRegistry::getRequest()->domain('www.dragon.com'));
+        //dump(RequestRegistry::getRequest()->url('www.dragon.com'));
+        dump(RequestRegistry::getRequest()->baseUrl(true));
+        dump(RequestRegistry::getRequest()->baseFile());
+        dump(RequestRegistry::getRequest()->root());
+        //dump(RequestRegistry::getRequest());
+
         exit;
     }
 

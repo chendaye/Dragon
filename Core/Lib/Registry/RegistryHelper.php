@@ -21,10 +21,11 @@ abstract class RegistryHelper{
 
     /**
      * 获取系统信息，并在注册表中注册
-     * @param $option array|string 要获取的配置
+     * @param array $option  配置信息
+     * @param bool $flash
      * @return mixed
      */
-    abstract protected function registryOption(array $option);
+    abstract  protected function registryOption(array $option = [], $flash = false);
 
 }
 ?>

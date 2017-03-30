@@ -45,22 +45,23 @@ class RequestRegistry extends Registry{
      * @return bool
      */
     static public function getRequest(){
-        //请求对象
-        $instance = self::instance()->get('request');
-        if(!$instance) return null;
-        return $instance;
+        if(!self::instance()->get('request')) return null;
+        return self::instance()->get('request');
     }
 
     /**
      * 储存请求对象，便于集中管理
-     * @param Request $request  路由对象，按理请求对象更合理，之后再处理
+     * @param Request $request  请求实例
+     * @param bool $flash   是否刷新
      * @return bool
      */
-    static public function setRequest(Request $request){
-        //请求对象
-        $instance = self::instance()->get('request');
-        if($instance) return false;
-        self::instance()->set('request',$request); //保存请求对象
+    static public function setRequest(Request $request, $flash = false){
+        if(self::instance()->get('request') && $flash === false){
+            return false;
+        } else{
+            //刷新请求对象
+            self::instance()->set('request',$request);
+        }
     }
 
     /**
@@ -82,7 +83,6 @@ class RequestRegistry extends Registry{
      * @return bool 是否保存成功
      */
     protected function set($key, $val){
-        if(isset($this->request[$key])) return false;
         $this->request[$key] = $val;    //保存对象
         return true;
     }
