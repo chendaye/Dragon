@@ -74,7 +74,7 @@ return [
     // pathinfo分隔符
     'PATHINFO_DEPR'          => '/',
     // URL伪静态后缀
-    'URL_HTML_SUFFIX'        => 'html',
+    'URL_HTML_SUFFIX'        => ['html','htmll'],
     // URL普通方式参数 用于自动生成
     'URL_COMMON_PARAM'       => false,
     // URL参数方式 0 按名称成对解析 1 按顺序解析

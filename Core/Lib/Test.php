@@ -165,20 +165,43 @@ class Test{
         $req = new Request();
 
         //$req->none('ddd');
-        Request::hook(['test'=>'test']);
-        Request::hook('t','test');
-        Request::test();
+//        Request::hook(['test'=>'test']);
+//        Request::hook('t','test');
+//        Request::test();
 
-        E($_SERVER);
-        RequestHelper::instance()->create('http://username:password@www.dragon-god.com:80/Dragon/Login/login?d=888&user=chen&pass=daye','get',$param = ['a'=>1,'b'=>2]);
-        RequestHelper::instance()->init();
+       // E($_SERVER);
+        RequestHelper::instance()->create('http://username:password@www.dragon-god.com:80/Dragon/Login/login.htmll?d=888&user=chen&pass=daye','delete',$param = ['a'=>1,'b'=>2]);
+        //RequestHelper::instance()->init();
         dump(RequestRegistry::getRequest()->domain('www.dragon.com'));
         //dump(RequestRegistry::getRequest()->url('www.dragon.com'));
         dump(RequestRegistry::getRequest()->baseUrl(true));
         dump(RequestRegistry::getRequest()->baseFile());
         dump(RequestRegistry::getRequest()->root());
+        dump(RequestRegistry::getRequest()->pathinfo());
+        dump(RequestRegistry::getRequest()->path());
+        dump(RequestRegistry::getRequest()->ext());
+        dump(RequestRegistry::getRequest()->source());
+        dump(RequestRegistry::getRequest()->method());
+        dump(RequestRegistry::getRequest()->isCli());
+        dump(RequestRegistry::getRequest()->isCgi());
+        dump(RequestRegistry::getRequest()->isGet());
+        dump(RequestRegistry::getRequest()->isPut());
+        $var = 'qwer';
+        RequestRegistry::getRequest()->typeCast($var, 'a');
+        E($var);
+        $var = 'ttexptt';
+        RequestRegistry::getRequest()->filterExp($var);
+        E($var);
         //dump(RequestRegistry::getRequest());
 
+
+        $reg = '/^qwer$/i';
+
+        $filter = ['filtertest',$reg];
+        $filter[] = 'default';
+        $var = 'qwerq';
+        $ret = RequestRegistry::getRequest()->filter($var, $filter);
+        E($var, $ret);
         exit;
     }
 
