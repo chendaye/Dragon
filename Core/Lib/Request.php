@@ -58,7 +58,7 @@ class Request{
     protected $post  = [];
     protected $request = [];
     protected $route = [];
-    protected $put = [];
+    protected $put = null;
     protected $session = [];
     protected $cookie = [];
     protected $file = [];
@@ -466,7 +466,7 @@ class Request{
             //获取请求变量
             switch ($method){
                 case 'POST':
-                    $vars = $this->post(false);
+                    $vars = $this->post(false); //false返回原数据，不过滤
                     break;
                 case 'PUT':
                 case 'DELETE':
@@ -486,8 +486,50 @@ class Request{
         return $this->obtain($this->param, $name, $default, $filter);
     }
 
+    /**
+     * 设置、过滤获取put参数
+     * @param string|array $name  要获取的参数名。或者要设置的参数数组
+     * @param null $default  默认值
+     * @param string $filter  过滤方式
+     * @return array|mixed|string
+     */
     public function put($name = '', $default = null, $filter = ''){
+        //设置put参数
+        if(is_array($name)){
+            $this->param = [];
+            return $this->put = is_null($this->put)?$name:array_merge($this->put, $name);
+        }
 
+        //过滤，获取put参数
+        if(is_null($this->put)){
+            $put = $this->input;
+            if(strpos($put, '":')){
+                //json格式
+                $this->put = json_decode($put);
+            }else{
+                //query格式
+                parse_str($put, $this->put);
+            }
+        }
+        return $this->obtain($this->put, $name, $default, $filter);
+    }
+
+    /**
+     * 设置、过滤获取get参数
+     * @param string|array $name  要设置的参数或者要获取的参数名
+     * @param null $default  默认值
+     * @param string $filter 过滤方式
+     * @return array|mixed
+     */
+    public function get($name = '', $default = null, $filter = ''){
+        //设置get参数
+        if(is_array($name)){
+            $this->param = [];
+            return $this->get = array_merge($this->get, $name);
+        }
+        //过滤获取get参数
+        if(empty($this->get)) $this->get = $_GET;
+        return $this->obtain($this->get, $name, $default, $filter);
     }
 
     /**
@@ -498,14 +540,31 @@ class Request{
      * @return array|mixed
      */
     public function post($name = '', $default = null, $filter = ''){
-        if(empty($this->post)) $this->post = $_POST;
+        //设置post参数
         if(is_array($name)){
             $this->param = [];
-            //设置post参数
             return $this->post = array_merge($this->post, $name);
         }
         //过滤、获取post参数，支持多重名称a.b.c@s
+        if(empty($this->post)) $this->post = $_POST;
         return $this->obtain($this->post, $name, $default, $filter);
+    }
+
+    /**
+     * 设置、获取route参数
+     * @param string|array $name  要设置获取的参数
+     * @param null $default  默认值
+     * @param string $filter 过滤方法
+     * @return array|mixed
+     */
+    public function route($name = '', $default = null, $filter = ''){
+        //设置路由参数
+        if(is_array($name)){
+            $this->param = [];
+            return $this->route = array_merge($this->route, $name);
+        }
+        //过滤、获取route参数
+        return $this->obtain($this->route, $name, $default, $filter);
     }
 
     /**
