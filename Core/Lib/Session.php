@@ -38,7 +38,7 @@ class Session{
      */
     static public function init(array $config = []){
         if(empty($config)) $config = Conf::get('SESSION');  //去取session配置
-        Log::log('[SESSION] INIT '.var_export($config), 'info');    //记录日志信息
+        Log::log('[SESSION] INIT '.var_export($config, true), 'info');    //记录日志信息
 
         //默认session已经开启
         $start = false;

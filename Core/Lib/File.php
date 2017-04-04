@@ -13,8 +13,11 @@
 
 namespace Core\Lib;
 
-use phpDocumentor\Reflection\DocBlock\Tags\Return_;
-
+/**
+ * 文件上传，处理
+ * Class File
+ * @package Core\Lib
+ */
 class File extends \SplFileObject {
     //错误信息
     private $error = '';
@@ -39,7 +42,7 @@ class File extends \SplFileObject {
      * @param $file_name
      * @param $open_mode
      */
-    public function __construct($file_name, $open_mode){
+    public function __construct($file_name, $open_mode = 'r'){
         parent::__construct($file_name, $open_mode);
         //初始化文件名
         $this->filename = $this->getRealPath()?:$this->getPathname();
@@ -159,8 +162,233 @@ class File extends \SplFileObject {
         return is_uploaded_file($this->filename);
     }
 
+    /**
+     * 检查上传文件
+     * @param array $rule 检查规则
+     * @return bool
+     */
     public function check($rule = []){
         $rule = $rule?:$this->validate;
         //检查文件大小
+        if(isset($rule['size']) && !$this->checkSize($rule['size'])) {
+            $this->error = "上传文件大小不能超过 {$rule['size']}";
+            return false;
+        }
+
+        //检查Mime类型
+        if(isset($rule['mime']) && !$this->checkMime($rule['mime'])){
+            $this->error = "文件Mime类型不符合要求！";
+            return false;
+        }
+
+        //检查文件后缀
+        if(isset($rule['ext']) && !$this->checkExt($rule['ext'])){
+            $this->error = "上传文件后缀不合法！";
+            return false;
+        }
+
+        //检查图像文件
+        if(!$this->checkImg()){
+            $this->error = "非法图像文件！";
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * 检查文件后缀
+     * @param string|array $ext  合法后缀
+     * @return bool
+     */
+    public function checkExt($ext){
+        if(is_string($ext)) $ext = explode(',', $ext);
+        $extension = strtolower(pathinfo($this->getInfo('name'), PATHINFO_EXTENSION));
+        if(in_array($extension, $ext)) return true;
+        return false;
+    }
+
+    /**
+     * 检测图像文件
+     * @return bool
+     */
+    public function checkImg(){
+        $extension = strtolower(pathinfo($this->getInfo('name'), PATHINFO_EXTENSION));
+        if(in_array($extension, ['gif', 'jpg', 'jpeg', 'bmp', 'png', 'swf']) && !in_array($this->imageType($this->filename), [1, 2, 3, 4, 6])){
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * 获取图像类型
+     * @param $image
+     * @return int
+     */
+    public function imageType($image){
+        if(function_exists('exif_imagetype')){
+            return exif_imagetype($image);
+        }else{
+            $info = getimagesize($image);
+            return $info[2];
+        }
+    }
+
+    /**
+     * 检查文件大小
+     * @param $size
+     * @return bool
+     */
+    public function checkSize($size){
+        if($this->getSize() > $size) return false;
+        return true;
+    }
+
+    /**
+     * 检测上传文件类型
+     * @param string|array $mime 合法类型
+     * @return bool
+     */
+    public function checkMime($mime){
+        if(is_string($mime)) $mime = explode(',', $mime);
+        if(in_array(strtolower($this->getMime()), (array)$mime)) return true;
+        return false;
+    }
+
+    /**
+     * 移动文件到指定路径
+     * @param $path
+     * @param bool $saveName
+     * @param bool $replace
+     * @return bool|File
+     */
+    public function move($path, $saveName = true, $replace = true){
+        //文件上传数百，捕获错误代码
+        if(!empty($this->fileInfo['error'])){
+            $this->error($this->fileInfo['error']);
+            return false;
+        }
+        //合法性检查
+        if(!$this->valid()){
+            $this->error = "非法上传文件";
+            return false;
+        }
+
+        //验证上传
+        if(!$this->check()) return false;
+
+        //保存文件名
+        $path = rtrim($path, SP).SP;
+        $name = $this->saveName($saveName);
+        $filename = $path.$name;
+
+        //检查目录
+        if($this->checkDir(dirname($filename)) === false) return false;
+
+        //覆盖同名文件
+        if($replace && is_file($filename)){
+            $this->error = "存在同名文件{$filename}";
+            return false;
+        }
+
+        //是否测试，上传成功
+        if($this->isTest){
+            rename($this->filename, $filename);
+        }else{
+            if(is_dir($filename)){
+                return $filename;
+            }
+            $status = move_uploaded_file($this->filename, $filename);
+            if(!$status){
+                $this->error = "上传文件保存失败！";
+                return false;
+            }
+        }
+
+        //返回自身实例,操作上传后的文件
+        $file = new self($filename);
+        $file->saveName($saveName);
+        $file->setInfo($this->fileInfo);
+        return $file;
+    }
+
+    /**
+     * 生成获取保存文件名
+     * @param $saveName
+     * @return mixed|string
+     */
+    protected function saveName($saveName){
+        if($saveName === true){
+            //自动生成文件名
+            if($this->nameRule instanceof \Closure){
+                $saveName = call_user_func_array($this->nameRule, [$this]);
+            }else{
+                switch ($this->nameRule){
+                    case 'time':
+                        $saveName = date('Ymd') . SP . md5(microtime(true));
+                        break;
+                    default:
+                        if(in_array($this->nameRule, hash_algos())){
+                            $hash = $this->hash($this->nameRule);
+                            $saveName = substr($hash, 0, 2) . SP . substr($hash, 2);
+                        }elseif (is_callable($this->nameRule)){
+                            $saveName = call_user_func($this->nameRule);
+                        }else{
+                            $saveName = date('Ymd') . SP . md5(microtime(true));
+                        }
+                }
+            }
+        }elseif($saveName === ''){
+            $saveName = $this->getInfo('name');
+        }
+        if(!strpos($saveName, '.')){
+            $saveName .= '.' . pathinfo($this->getInfo('name'), PATHINFO_EXTENSION);
+        }
+        return $saveName;
+    }
+
+    /**
+     * 获取错误代码信息
+     * @param int $errorNo  错误号
+     */
+    private function error($errorNo)
+    {
+        switch ($errorNo) {
+            case 1:
+            case 2:
+                $this->error = '上传文件大小超过了最大值！';
+                break;
+            case 3:
+                $this->error = '文件只有部分被上传！';
+                break;
+            case 4:
+                $this->error = '没有文件被上传！';
+                break;
+            case 6:
+                $this->error = '找不到临时文件夹！';
+                break;
+            case 7:
+                $this->error = '文件写入失败！';
+                break;
+            default:
+                $this->error = '未知上传错误！';
+        }
+    }
+
+    /**
+     * 获取上传错误信息
+     * @return string
+     */
+    public function getError(){
+        return $this->error;
+    }
+
+    /**
+     * 魔术方法，调用不存在的方法时触发
+     * @param $method
+     * @param $args
+     * @return mixed
+     */
+    public function __call($method, $args){
+        return $this->hash($method);
     }
 }

@@ -197,7 +197,7 @@ return [
         // SESSION_ID的提交变量,解决flash上传跨域
         'VAR_SESSION_ID' => '',
         // SESSION 前缀
-        'PREFIX'         => 'dragon',
+        'PREFIX'         => 'Dragon',
         // 驱动方式 支持redis memcache memcached
         'TYPE'           => '',
         // 是否自动开启 SESSION

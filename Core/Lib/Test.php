@@ -157,10 +157,12 @@ class Test{
      * request
      */
     static public function request(){
-        echo "<form action=\"index.php?d=888\" method=\"post\">
-                <input name=\"aaa\" type=\"hidden\" value=\"6669879879\">
-                <input type=\"submit\">
-            </form>";
+        ini_set('date.timezone','Asia/Shanghai');
+
+//        echo "<form action=\"index.php?d=888\" method=\"post\">
+//                <input name=\"aaa\" type=\"hidden\" value=\"6669879879\">
+//                <input type=\"submit\">
+//            </form>";
         \Core\Lib\Conf::cfgFile('Config.php', '');
         $req = new Request();
 
@@ -172,6 +174,21 @@ class Test{
        // E($_SERVER);
         RequestHelper::instance()->create('http://username:password@www.dragon-god.com:80/Dragon/Login/login.htmll?d=888&user=chen&pass=daye','delete',$param = ['a'=>1,'b'=>2]);
         //RequestHelper::instance()->init();
+       //$_SESSION = $_COOKIE = $_POST = $_GET;
+        \Core\Lib\Session::set('fff', 'Dragon', 'Dragon');
+        //E(\Core\Lib\Session::get());
+       // E($_ENV);
+        dump(RequestRegistry::getRequest()->session($name = '', $default = 'chendaye', $filter = ''));
+        //E($_SESSION);
+        dump(RequestRegistry::getRequest()->cookie($name = '', $default = 'chendaye', $filter = ''));
+        dump(RequestRegistry::getRequest()->server($name = '', $default = 'chendaye', $filter = ''));
+        dump(RequestRegistry::getRequest()->env($name = '', $default = 'chendaye', $filter = ''));
+        dump(RequestRegistry::getRequest()->header($name = '', $default = 'chendaye'));
+        //$_SESSION = $_COOKIE = $_POST = $_GET;
+//        if(session_status() == PHP_SESSION_ACTIVE){
+//            E($_SESSION,true);
+//        }
+
         dump(RequestRegistry::getRequest()->domain('www.dragon.com'));
         //dump(RequestRegistry::getRequest()->url('www.dragon.com'));
         dump(RequestRegistry::getRequest()->baseUrl(true));
@@ -187,11 +204,11 @@ class Test{
         dump(RequestRegistry::getRequest()->isGet());
         dump(RequestRegistry::getRequest()->isPut());
         $var = 'qwer';
-        RequestRegistry::getRequest()->typeCast($var, 'a');
-        E($var);
+        RequestRegistry::getRequest()->typeCast($var, 's');
+        //E($var);
         $var = 'ttexptt';
         RequestRegistry::getRequest()->filterExp($var);
-        E($var);
+        //E($var);
         //dump(RequestRegistry::getRequest());
 
 
@@ -199,12 +216,12 @@ class Test{
         $filter = ['filtertest',$reg,1];
         $filter[] = 'default';
         $var = 'fdgwer';
-        //$ret = RequestRegistry::getRequest()->filter($var, $filter);
+        //$ret = RequestRegistry::getRequest()->filter($var,$key, $filter);
         //E([$var, $ret]);
         //$r = RequestRegistry::getRequest()->input(['a'=>['b'=>['c'=>666]],'b'=>'qwer'],'a.b.c/a','default', ['filtertest',$reg,1]);
         $var = '456';
        $ret =  RequestRegistry::getRequest()->obtain($var,'','过滤未通过', ['filtertest',$reg]);
-        E([$ret,$var]);
+        //E([$ret,$var]);
 
         function a(){
             for($i = 0; $i<5; $i++){
@@ -212,7 +229,42 @@ class Test{
             }
             E($i);
         }
-        a();
+
+
+        //文件上传
+//        echo '<form action = "" method="post" enctype="multipart/form-data"  id="products_enquiry">';
+//        echo '<input type="file" name="file[]" />';
+//        echo '<input type="file" name="file[]" />';
+//        echo '<input type="file" name="file[]" />';
+//        echo '<input type="submit" id="enquiry_submit"   value="更新信息"></form>';
+        $file = RequestRegistry::getRequest()->file('file.1');
+       // E($file);
+        //dump($file->isTest());
+//        dump($file->getInfo('size'));
+//        dump($file->setName('chendaye'));
+//        dump($file->getName());
+//        dump($file->hash());
+//       // dump($file->checkDir(CORE));
+//        dump($file->getMime());
+//        dump($file->rule([]));
+//        dump($file->valid([]));
+//        dump($file->check([]));
+//        dump($file->checkExt(['xls']));
+//        dump($file->checkImg());
+//        //dump($file->imageType('test.png'));
+//        dump($file->checkSize(33066666));
+//        dump($file->checkMime('xls'));
+       // dump($file->move(RUNTIME));
+//        dump($file->saveName('chendaye'));
+//        dump($file->saveName(true));
+
+//        dump(RequestRegistry::getRequest()->put($name = '', $default = null, $filter = ''));
+//        dump(RequestRegistry::getRequest()->get($name = '', $default = 'chendaye', $filter = ''));
+//        dump(RequestRegistry::getRequest()->post($name = '', $default = 'chendaye', $filter = ''));
+//        dump(RequestRegistry::getRequest()->route($name = '', $default = 'chendaye', $filter = ''));
+//        dump(RequestRegistry::getRequest()->request($name = '', $default = 'chendaye', $filter = ''));
+
+        E(substr('123456789', 2,1));
         exit;
     }
 

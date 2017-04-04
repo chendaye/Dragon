@@ -63,6 +63,7 @@ class Request{
     protected $cookie = [];
     protected $file = [];
     protected $server = [];
+    protected $env = [];
     protected $header = [];
 
     //资源类型
@@ -486,6 +487,155 @@ class Request{
         return $this->obtain($this->param, $name, $default, $filter);
     }
 
+
+    /**
+     * 获取上传的文件信息
+     * @param string $name
+     * @return array|mixed|null
+     */
+    public function file($name = ''){
+        //原始文件上传信息
+        if(empty($this->file)) $this->file = isset($_FILES)?$_FILES:[];
+        //如果是数组，设置信息
+        if(is_array($name)) return array_merge($this->file, $name);
+        $file = $this->file;
+        if(!empty($file)){
+            //处理上传文件
+            $array = [];
+            //遍历上传文件数组，一个数组包含一次提交所含的若干文件信息
+            foreach ($file as $key => $val){
+                //$val 一次提交包含的若干文件信息
+                if(is_array($val['name'])){
+                    $file_obj = [];
+                    //文件上传信息键值,文件信息数组
+                    $msg_key = array_keys($val);
+                    //上传个数
+                    $count = count($val['name']);
+                    //提取一次上传的文件各自信息
+                    for($i = 0; $i < $count; $i++){
+                        $temp_file = [];
+                        if(empty($val['tmp_name'][$i])) continue;
+                        $temp_file['key'] = $key;
+                        foreach ($msg_key as $item){
+                            $temp_file[$item] = $val[$item][$i];
+                        }
+                        //处理各自信息,得到文件处理对象
+                        $file_obj[] = (new File($temp_file['tmp_name']))->setInfo($temp_file);
+                    }
+                    $array[$key] = $file_obj;
+                }else{
+                    if($val instanceof File){
+                        $array[$key] = $val;    //如果是文件处理对象
+                    }else{
+                        if(empty($val['tmp_name'])) continue;
+                        $array[$key] = (new File($val['tmp_name']))->setInfo($val); //如果是单个文件
+                    }
+                }
+            }
+            //要获取的上传文件的名字
+            if(strpos($name, '.')) list($name, $sub) = explode('.', $name);
+            //根据名字获取内容
+            if($name === ''){
+                return $array;
+            }elseif (isset($sub) && isset($array[$name][$sub])){
+                return $array[$name][$sub];
+            }elseif (isset($array[$name])){
+                return $array[$name];
+            }
+        }
+        return null;
+    }
+
+    /**
+     * 设置、获取delete参数
+     * @param string|array $name  要设置获取的值
+     * @param null $default  默认值
+     * @param string $filter  过滤方式
+     * @return array|mixed
+     */
+    public function delete($name = '', $default = null, $filter = ''){
+        return $this->put($name, $default, $filter);
+    }
+
+    /**
+     * 设置、获取patch参数
+     * @param string|array $name  要是指获取的值
+     * @param null $default  默认值
+     * @param string $filter  过滤方式
+     * @return array|mixed|string
+     */
+    public function patch($name = '', $default = null, $filter = ''){
+        return $this->put($name, $default, $filter);
+    }
+
+    /**
+     * 设置、获取REQUEST参数
+     * @param string $name
+     * @param null $default
+     * @param $filter
+     * @return array|mixed
+     */
+    public function request($name = '', $default = null, $filter){
+        if(empty($this->request)) $this->request = $_REQUEST;
+        if(is_array($name)){
+            $this->param = [];
+            $this->request = array_merge($this->request, $name);
+        }
+        return $this->obtain($this->request, $name, $default, $filter);
+    }
+
+    /**
+     * 获取设置session
+     * @param string|array $name  要设置获取的cookie参数
+     * @param null $default 默认值
+     * @param string $filter  过滤方式
+     * @return array|mixed
+     */
+    public function session($name = '', $default = null, $filter = ''){
+        if(empty($this->session)) $this->session = Session::get();
+        if(is_array($name)) $this->session = array_merge($this->session, $name);
+        return $this->obtain($this->session, $name, $default, $filter);
+    }
+
+    /**
+     * 设置获取cookie
+     * @param string|array $name  要设置获取的cookie参数
+     * @param null $default  默认值
+     * @param string $filter  过滤方式
+     * @return array|mixed
+     */
+    public function cookie($name = '', $default = null, $filter = ''){
+        if(empty($this->cookie)) $this->cookie = $_COOKIE;
+        if(is_array($name)) $this->cookie = array_merge($this->cookie, $name);
+        return $this->obtain($this->cookie, $name, $default, $filter);
+    }
+
+    /**
+     * 获取设置SERVER参数
+     * @param string|array $name 要获取设置的参数
+     * @param null $default 默认值
+     * @param string $filter  过滤方式
+     * @return array|mixed
+     */
+    public function server($name = '', $default = null, $filter = ''){
+        if(empty($this->server)) $this->server = $_SERVER;
+        if(is_array($name)) $this->server = array_merge($this->server, $name);
+        return $this->obtain($this->server, false === $name ? false : strtoupper($name), $default, $filter);
+    }
+
+    /**
+     * 获取、设置环境变量
+     * @param string|array $name 要获取设置的变量
+     * @param null $default 默认值
+     * @param string $filter 过滤方法
+     * @return array|mixed
+     */
+    public function env($name = '', $default = null, $filter = ''){
+        if(empty($this->env)) $this->env = $_ENV;
+        if(is_array($name)) $this->env = array_merge($this->env, $name);
+        return $this->obtain($this->env, false === $name ? false : strtoupper($name), $default, $filter);
+    }
+
     /**
      * 设置、过滤获取put参数
      * @param string|array $name  要获取的参数名。或者要设置的参数数组
@@ -568,6 +718,44 @@ class Request{
     }
 
     /**
+     * 获取、设置头信息
+     * @param string $name
+     * @param null $default
+     * @return array|mixed|null
+     */
+    public function header($name = '', $default = null){
+        if(empty($this->header)){
+            $header = [];
+            //Fetch all HTTP request headers
+            if(function_exists('apache_request_headers') && $result = apache_request_headers()){
+                $header = $result;
+            }else{
+                $server = $this->server?:$_SERVER;
+                foreach ($server as $k => $v){
+                    if(strpos($k, 'HTTP_') === 0){
+                        //截取HTTP_后面部分，第二个参数替换第一个参数
+                        $k = str_replace('_', '-', strtolower(substr($k, 5)));
+                        $header[$k] = $v;
+                    }
+                }
+                //类型
+                if(isset($server['CONTENT_TYPE'])) $header['content-type'] = $server['CONTENT_TYPE'];
+                //长度
+                if(isset($server['CONTENT_LENGTH'])) $header['content-length'] = $server['CONTENT_LENGTH'];
+            }
+            //转化为小写
+            $this->header = array_change_key_case($header);
+        }
+        //数组设置值
+        if(is_array($name)) return $this->header = array_merge($this->header, $name);
+        //名称为空，返回所有头信息
+        if($name === '') return $this->header;
+        //名称不为空
+        $name = str_replace('_', '-', strtolower($name));
+        return isset($this->header[$name])?$this->header[$name]:$default;
+    }
+
+    /**
      * 过滤并获取数据，支持整体过滤（name为空） 也支持单个元素过滤（name不为空）
      * @param array $data
      * @param string $name
@@ -609,10 +797,11 @@ class Request{
         $filter[] = $default;
         //过滤数据
         if(is_array($data)){
+            //myfunction 接受两个参数。array 参数的值作为第一个，键名作为第二个。如果提供了可选参数 userdata ，将被作为第三个参数传递给回调函数。
             array_walk_recursive($data, [$this, 'filter'], $filter);
             reset($data);   //将数组的内部指针设置为第一个元素
         }else{
-            $this->filter($data, $filter);
+            $this->filter($data, $name, $filter);
         }
         //强制类型转换
         if(isset($type) && $data != $default){
@@ -624,10 +813,11 @@ class Request{
     /**
      * 递归过滤给定的值，必须满足所有过滤条件
      * @param mixed $value  待过滤的值
+     * @param string $key  无具体意义，仅用来接受 array_walk_recursive()的参数
      * @param array $filter  过滤方法（函数+正则匹配）+默认值
      * @return array
      */
-    public function filter(&$value, $filter){
+    public function filter(&$value, $key, $filter){
         //弹出并返回 array 数组的最后一个单元，并将数组 array 的长度减一
         $default = array_pop($filter);
         //变量要满足所有的过滤条件
@@ -707,6 +897,15 @@ class Request{
         }
     }
 
+    public function exist($name, $type = 'param', $checkEmpty = false){
+        if(empty($this->$type)){
+            //值为空，获取
+            $param = $this->$type();
+        }else{
+            $param = $this->$type;
+        }
+
+    }
 
     public function host(){
 
