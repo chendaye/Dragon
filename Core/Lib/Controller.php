@@ -17,7 +17,8 @@ namespace Core\lib;
  * Class Controller
  * @package Core\lib
  */
-class Controller{
+class Controller
+{
     public $assign = [];   //存储变量
 
     /**
@@ -25,7 +26,8 @@ class Controller{
      * @param $key
      * @param $value
      */
-    protected function assign($key, $value){
+    protected function assign($key, $value)
+    {
         $this->assign[$key] = $value;   //赋值
     }
 }

@@ -17,7 +17,8 @@ namespace Core\Lib;
  * Class Commond
  * @package Core\Lib
  */
-abstract class Command{
+abstract class Command
+{
     /**
      * 定义为final，则任何子类都不能覆盖父类的构造方法
      * Commond constructor.
@@ -28,7 +29,8 @@ abstract class Command{
      * 分发请求；具体的操作移到doExecute()方法中实现，子类中可以有不同的具体实现
      * @param Request $request
      */
-    public function execute(Request $request){
+    public function execute(Request $request)
+    {
         $this->doExecute($request);
     }
 

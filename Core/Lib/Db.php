@@ -19,11 +19,13 @@ use Core\Lib\Registry\ApplicationRegistry;
  * Class Db
  * @package Core\Lib
  */
-class Db{
+class Db
+{
     static private $instrance = [];    //数据库连接实例
     static public $queryTimes = 0;      //查询次数
     static public $executeTimes = 0;    //执行次数
-    static public function connect($config = [], $link = false){
+    static public function connect($config = [], $link = false)
+    {
         if($link === false){
             $link = md5(serialize($config));    //把配置信息序列化后，MD5加密，生成一个唯一标识
         }
@@ -40,7 +42,8 @@ class Db{
      * @return mixed|null|void
      * @throws DragonException
      */
-    static public function parseConfig($config){
+    static public function parseConfig($config)
+    {
         if(empty($config)){
             $config = ApplicationRegistry::getOptions();
         }
@@ -59,7 +62,8 @@ class Db{
      * @param $config
      * @return array
      */
-    static public function parseDsn($config){
+    static public function parseDsn($config)
+    {
         $configure = parse_url($config);    //解析DSN
         if(!$configure){
             return [];

@@ -19,7 +19,8 @@ use Core\Lib\DragonException;
  * Class ObserveRegistry
  * @package Core\Lib\Registry
  */
-class ObserveRegistry extends Registry {
+class ObserveRegistry extends Registry
+{
     static private $instance;
     private $event = []; //保存事件对象，键值就是事件名（类名+命名空间）
 
@@ -33,7 +34,8 @@ class ObserveRegistry extends Registry {
      * 创建单例
      * @return ObserveRegistry
      */
-    static public function instance(){
+    static public function instance()
+    {
         if(!isset(self::$instance)){
             self::$instance = new self();
         }
@@ -70,7 +72,8 @@ class ObserveRegistry extends Registry {
      * @param $event string 事件名
      * @return mixed|null
      */
-    public static function getEvent($event){
+    public static function getEvent($event)
+    {
         if(!self::instance()->get($event)) return null;
         return self::instance()->get($event);
     }
@@ -80,7 +83,8 @@ class ObserveRegistry extends Registry {
      * @param $event string 监听事件名
      * @return bool
      */
-    public static function setRequest($event){
+    public static function setRequest($event)
+    {
         DragonException::error(class_exists($event),"事件{$event} 不存在！");
         DragonException::insCheck($event,'Core\Lib\Observe\Event');
         if(self::instance()->get($event)) return false;

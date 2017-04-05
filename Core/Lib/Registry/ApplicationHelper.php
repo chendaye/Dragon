@@ -22,7 +22,8 @@ use Core\Lib\DragonException;
  * Class ApplicationHelper
  * @package Core\Lib
  */
-class ApplicationHelper extends RegistryHelper  {
+class ApplicationHelper extends RegistryHelper
+{
     private static $instance;
     private $freezedir = APP;    //配置文件路径
 
@@ -36,7 +37,8 @@ class ApplicationHelper extends RegistryHelper  {
      * 实例化
      * @return ApplicationHelper
      */
-    public static function instance(){
+    public static function instance()
+    {
         if(!isset(self::$instance)){
             self::$instance = new self();
         }
@@ -48,7 +50,8 @@ class ApplicationHelper extends RegistryHelper  {
      * 以此减小系统花销
      * 先检查注册表中数据是否已经注册，若没有，则调用方法在注册表中注册
      */
-    public function init(){
+    public function init()
+    {
         //判断注册表中是否注册过DSN
         $dsn = ApplicationRegistry::getDSN();
         //判断是否注册过选项
@@ -65,7 +68,8 @@ class ApplicationHelper extends RegistryHelper  {
      * @param array|string $file
      * @return mixed
      */
-    protected function registryOption($file){
+    protected function registryOption($file)
+    {
         $options = Conf::get($file);
         if(is_array($options)){
             $dsn =  $options['DB_TYPE'].":dbname=".$options['DB_NAME'].";host=".$options['DB_HOST'];

@@ -17,7 +17,8 @@ namespace Core\Lib\Observe;
  * Interface Observabel
  * @package Core\Lib\Observe
  */
-interface Observabel {
+interface Observabel
+{
     /**
      *注册观察者
      * @param Observe $observe

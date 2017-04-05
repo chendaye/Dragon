@@ -12,7 +12,8 @@
 // +----------------------------------------------------------------------
 
 namespace Core\Lib\Db;
-abstract class Model implements \JsonSerializable, \ArrayAccess{
+abstract class Model implements \JsonSerializable, \ArrayAccess
+{
 
 }
 ?>

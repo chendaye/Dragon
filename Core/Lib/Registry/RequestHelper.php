@@ -19,7 +19,8 @@ use Core\Lib\Request;
  * Class RequestHelper
  * @package Core\Lib\Registry
  */
-class RequestHelper extends RegistryHelper {
+class RequestHelper extends RegistryHelper
+{
     private static $instance;
     /**
      * 单例构造方法
@@ -30,7 +31,8 @@ class RequestHelper extends RegistryHelper {
      * 获取单例实例
      * @return RequestHelper
      */
-    static public function instance(){
+    static public function instance()
+    {
         if(!isset(self::$instance)){
             self::$instance = new self();
         }
@@ -39,7 +41,8 @@ class RequestHelper extends RegistryHelper {
     /**
      * 初始化注册表信息
      */
-    public function init(){
+    public function init()
+    {
         //若没有注册，注册
         $this->registryOption();
     }
@@ -50,7 +53,8 @@ class RequestHelper extends RegistryHelper {
      * @param bool $flash
      * @return  void
      */
-     protected function registryOption(array $option = [], $flash = false){
+     protected function registryOption(array $option = [], $flash = false)
+     {
         $request = new Request($option);
         RequestRegistry::setRequest($request, $flash);
     }
@@ -65,7 +69,8 @@ class RequestHelper extends RegistryHelper {
      * @param array $server
      * @param null $content
      */
-     public function create($uri, $method = 'GET', $param = [], $cookie = [], $file = [], $server = [], $content = null){
+     public function create($uri, $method = 'GET', $param = [], $cookie = [], $file = [], $server = [], $content = null)
+     {
         $server['PATH_INFO'] = '';
         $server['REQUEST_METHOD'] = strtoupper($method);
         //解析url

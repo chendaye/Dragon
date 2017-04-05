@@ -14,7 +14,8 @@
 namespace Core\Lib\Db\Connector;
 use Core\Lib\Db\Connection;
 
-class Mysql extends Connection {
+class Mysql extends Connection
+{
 
 }
 ?>

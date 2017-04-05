@@ -12,7 +12,8 @@
 // +----------------------------------------------------------------------
 
 namespace Core\Lib\Registry;
-abstract class RegistryHelper{
+abstract class RegistryHelper
+{
     /**
      * 初始化注册信息
      * @return mixed

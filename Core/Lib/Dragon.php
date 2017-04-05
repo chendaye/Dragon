@@ -23,10 +23,12 @@ use Core\Lib\Registry\RequestRegistry;
  * Class Dragon
  * @package Core\Lib
  */
-class Dragon{
+class Dragon
+{
     
     //TODO:test
-    static public function Test(){
+    static public function Test()
+    {
         //todo:test
         Conf::cfgFile('Config.php', '');
         Test::test();
@@ -42,7 +44,8 @@ class Dragon{
     /**
      * 请求分发引擎，完成相应请求的准备工作
      */
-    public static function engine(){
+    public static function engine()
+    {
 
         $instance = new Dragon();   //单例
         $instance->init();
@@ -53,7 +56,8 @@ class Dragon{
      * 初始化注册表数据，将数据放入注册表中
      * 使用委托，委托其他类实际完成初始化的任务
      */
-    public function init(){
+    public function init()
+    {
         //设置时区
         ini_set('date.timezone','Asia/Shanghai');
         //date_default_timezone_set('Asia/Shanghai');
@@ -77,7 +81,8 @@ class Dragon{
      * Request->获取请求信息 >>>>>  CommandResolver -> 解析请求信息获取对应的命令对象
      * Command->执行具体的操作
      */
-    public function distributeRequest(){
+    public function distributeRequest()
+    {
         //todo:请求对象实例
         $request = RequestRegistry::getRequest();
         //todo:解析器实例, 命令类工厂，解析命令参数，返回对应命令

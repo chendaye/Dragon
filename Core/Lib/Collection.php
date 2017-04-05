@@ -14,7 +14,8 @@
 namespace Core\Lib;
 use Core\Lib\Db\Model;
 
-class Collection implements \ArrayAccess ,\Countable ,\IteratorAggregate ,\JsonSerializable {
+class Collection implements \ArrayAccess ,\Countable ,\IteratorAggregate ,\JsonSerializable
+{
     protected $item = [];
 
     /**
@@ -32,7 +33,8 @@ class Collection implements \ArrayAccess ,\Countable ,\IteratorAggregate ,\JsonS
      * @param $item
      * @return array
      */
-    public function convertToArray($item){
+    public function convertToArray($item)
+    {
         if($item instanceof self){
             return $item->all();
         }
@@ -42,7 +44,8 @@ class Collection implements \ArrayAccess ,\Countable ,\IteratorAggregate ,\JsonS
     /**
      * @return array
      */
-    public function all(){
+    public function all()
+    {
         return $this->item;
     }
 
@@ -51,7 +54,8 @@ class Collection implements \ArrayAccess ,\Countable ,\IteratorAggregate ,\JsonS
      * @param array $item
      * @return static
      */
-    static public function make($item = []){
+    static public function make($item = [])
+    {
         /**
          * 后期静态绑定, static代表使用的这个类,
          * 就是你在父类里写的static, 然后通过子类直接/间接用到了这个static, 这个static指的就是这个子类,
@@ -65,14 +69,16 @@ class Collection implements \ArrayAccess ,\Countable ,\IteratorAggregate ,\JsonS
      * 是否为空
      * @return bool
      */
-    public function isEmpty(){
+    public function isEmpty()
+    {
         return empty($this->item);
     }
 
     /**
      * @return array
      */
-    public function toArray(){
+    public function toArray()
+    {
         //array_map() 函数将用户自定义函数作用到数组中的每个值上，并返回用户自定义函数作用后的带有新的值的数组
         return array_map(function($value){
             //如果元素值是 Model 或者 本类 继承者，那么就把值转化为数组，否则不变
@@ -85,7 +91,8 @@ class Collection implements \ArrayAccess ,\Countable ,\IteratorAggregate ,\JsonS
      * @param $item
      * @return static
      */
-    public function merge($item){
+    public function merge($item)
+    {
         return new static(array_merge($this->item, $this->convertToArray($item)));
     }
 
@@ -94,7 +101,8 @@ class Collection implements \ArrayAccess ,\Countable ,\IteratorAggregate ,\JsonS
      * @param $item
      * @return static
      */
-    public function diff($item){
+    public function diff($item)
+    {
         return new static(array_diff($this->item, $this->convertToArray($item)));
     }
 
@@ -103,14 +111,16 @@ class Collection implements \ArrayAccess ,\Countable ,\IteratorAggregate ,\JsonS
      * @param $item
      * @return static
      */
-    public function intersect($item){
+    public function intersect($item)
+    {
         return new static(array_intersect($this->item, $this->convertToArray($item)));
     }
     /**
      * 交换数组中的键和值
      * @return array
      */
-    public function flip(){
+    public function flip()
+    {
         return array_flip($this->item);
     }
 
@@ -118,7 +128,8 @@ class Collection implements \ArrayAccess ,\Countable ,\IteratorAggregate ,\JsonS
      * 返回数组中的键名
      * @return array
      */
-    public function keys(){
+    public function keys()
+    {
         return array_keys($this->item);
     }
 
@@ -126,7 +137,8 @@ class Collection implements \ArrayAccess ,\Countable ,\IteratorAggregate ,\JsonS
      * 删除数组最后一个元素
      * @return mixed
      */
-    public function pop(){
+    public function pop()
+    {
         return array_pop($this->item);
     }
 
@@ -136,15 +148,18 @@ class Collection implements \ArrayAccess ,\Countable ,\IteratorAggregate ,\JsonS
      * @param null $initial 如果指定第三个参数，则该参数将被当成是数组中的第一个值来处理，或者如果数组为空的话就作为最终返回值
      * @return mixed
      */
-    public function reduce(callable $callback, $initial = null){
-        return array_reduce($this->item, $callback, $initial);  //array_reduce() 函数向用户自定义函数发送数组中的值，并返回一个字符串
+    public function reduce(callable $callback, $initial = null)
+    {
+        //array_reduce() 函数向用户自定义函数发送数组中的值，并返回一个字符串
+        return array_reduce($this->item, $callback, $initial);
     }
 
     /**
      * 以相反的顺序返回数组
      * @return array
      */
-    public function reverse(){
+    public function reverse()
+    {
         return array_reverse($this->item);
     }
 
@@ -152,7 +167,8 @@ class Collection implements \ArrayAccess ,\Countable ,\IteratorAggregate ,\JsonS
      * 删除数组的首个元素，并返回删除的值
      * @return mixed
      */
-    public function shift(){
+    public function shift()
+    {
         return array_shift($this->item);
     }
 
@@ -161,7 +177,8 @@ class Collection implements \ArrayAccess ,\Countable ,\IteratorAggregate ,\JsonS
      * @param $value
      * @param null $key
      */
-    public function unshift($value, $key = null){
+    public function unshift($value, $key = null)
+    {
         if($key === null){
             array_unshift($this->item, $value);
         }else{
@@ -188,7 +205,8 @@ class Collection implements \ArrayAccess ,\Countable ,\IteratorAggregate ,\JsonS
      * @param callable $callback
      * @return $this
      */
-    public function each(callable $callback){
+    public function each(callable $callback)
+    {
         foreach($this->item as $key => $item){
             if($callback($key, $item) === false){
                 break;
@@ -202,7 +220,8 @@ class Collection implements \ArrayAccess ,\Countable ,\IteratorAggregate ,\JsonS
      * @param callable|null $callback
      * @return array|void
      */
-    public function filter(callable $callback = null){
+    public function filter(callable $callback = null)
+    {
         if($callback === null){
             return array_filter($this->item);
         }
@@ -215,7 +234,8 @@ class Collection implements \ArrayAccess ,\Countable ,\IteratorAggregate ,\JsonS
      * @param null $index_key
      * @return array
      */
-    public function column($column_key, $index_key = null){
+    public function column($column_key, $index_key = null)
+    {
         //内置函数支持
         if(function_exists('array_column')){
             return array_column($this->item, $column_key, $index_key);
@@ -254,7 +274,8 @@ class Collection implements \ArrayAccess ,\Countable ,\IteratorAggregate ,\JsonS
      * @param callable|null $callback
      * @return static
      */
-    public function sort(callable $callback = null){
+    public function sort(callable $callback = null)
+    {
         $array = $this->item;
         //usort函数对指定数组(参数1)按指定方式(参数2)进行排序
         $callback?uasort($array, $callback):uasort($array, function ($a, $b){
@@ -268,7 +289,8 @@ class Collection implements \ArrayAccess ,\Countable ,\IteratorAggregate ,\JsonS
      * 将数组打乱
      * @return static
      */
-    public function shuffle(){
+    public function shuffle()
+    {
         $item = $this->item;
         shuffle($item);
         return new static($item);
@@ -281,7 +303,8 @@ class Collection implements \ArrayAccess ,\Countable ,\IteratorAggregate ,\JsonS
      * @param bool $preserveKeys
      * @return static
      */
-    public function slice($offset, $length = null, $preserveKeys = false){
+    public function slice($offset, $length = null, $preserveKeys = false)
+    {
         return new static($this->item, $offset, $length, $preserveKeys);
     }
 
@@ -358,7 +381,8 @@ class Collection implements \ArrayAccess ,\Countable ,\IteratorAggregate ,\JsonS
      * @param int $options
      * @return string
      */
-    public function toJson($options = JSON_UNESCAPED_UNICODE){
+    public function toJson($options = JSON_UNESCAPED_UNICODE)
+    {
         return json_encode($this->toArray(),$options);
     }
 

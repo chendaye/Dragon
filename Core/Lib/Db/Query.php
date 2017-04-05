@@ -19,7 +19,8 @@ use Core\Lib\Db;
  * Class Query
  * @package Core\Lib\Db
  */
-class Query{
+class Query
+{
     protected $connection;  //数据库Connection对象实例
     protected $builder;     //数据库驱动类型
     protected $model;       //当前模型类model的名称

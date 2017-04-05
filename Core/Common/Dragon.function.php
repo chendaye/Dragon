@@ -16,7 +16,8 @@
  * @param mixed $var  变量值
  * @param bool $exit  是否中断
  */
-function E($var, $exit=false){
+function E($var, $exit=false)
+{
     if($var === true){
         $var = '(BOOL)TRUE';
     }elseif ($var === false){

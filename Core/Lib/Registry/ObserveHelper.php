@@ -19,7 +19,8 @@ use Observer\Provider;
  * Class RequestHelper
  * @package Core\Lib\Registry
  */
-class ObserveHelper extends RegistryHelper {
+class ObserveHelper extends RegistryHelper
+{
     private static $instance;
 
     /**
@@ -32,7 +33,8 @@ class ObserveHelper extends RegistryHelper {
      * 获取单例实例
      * @return RequestHelper
      */
-    public static function instance(){
+    public static function instance()
+    {
         if(!isset(self::$instance)){
             self::$instance = new self();
         }

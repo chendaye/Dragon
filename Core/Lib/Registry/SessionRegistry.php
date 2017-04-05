@@ -14,14 +14,16 @@
 namespace Core\Lib\Registry;
 use Controller\Index;
 
-class SessionRegistry extends Registry{
+class SessionRegistry extends Registry
+{
     private static $instance;
 
     /**
      * 单例构造方法
      * SessionRegistry constructor.
      */
-    private function __construct(){
+    private function __construct()
+    {
         session_start();    //开启session
     }
 
@@ -64,7 +66,8 @@ class SessionRegistry extends Registry{
      * Index 类的会话信息
      * @return null
      */
-    public static function getIndex(){
+    public static function getIndex()
+    {
         return self::instance()->get('index');    //子类的功能
     }
 
@@ -72,7 +75,8 @@ class SessionRegistry extends Registry{
      * 设置Index 类的会话信息
      * @param Index $index
      */
-    public static function setIndex(Index $index){
+    public static function setIndex(Index $index)
+    {
         self::instance()->set('index',$index);
     }
 

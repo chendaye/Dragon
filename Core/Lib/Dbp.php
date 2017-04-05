@@ -14,7 +14,8 @@
 namespace Core\Lib;
 use Core\Lib\Registry\ApplicationRegistry;
 
-class Dbp{
+class Dbp
+{
     protected static $config = array();   //连接参数，配置信息
     protected static $link = null;    //连接标志符
     protected static $pconnect = false;   //是否开启长连接
@@ -85,7 +86,8 @@ class Dbp{
      * @param null $sql
      * @return mixed
      */
-    public static function getAll($sql = null){
+    public static function getAll($sql = null)
+    {
         //todo:sql不为空，先执行sql；得到结果集对象，并保存在静态属性中
         if($sql != null){
             self::query($sql);
@@ -99,7 +101,8 @@ class Dbp{
      * @param null $sql
      * @return mixed
      */
-    public static function getRow($sql = null){
+    public static function getRow($sql = null)
+    {
         if($sql != null){
             self::query($sql);
         }
@@ -114,7 +117,8 @@ class Dbp{
      * @param string $fields    字段
      * @return mixed
      */
-    public static function findById($tabName,$priId,$fields='*'){
+    public static function findById($tabName,$priId,$fields='*')
+    {
         $sql='SELECT %s FROM %s WHERE id=%d';
         //sprintf()把百分号（%）符号替换成一个作为参数进行传递的变量
         return self::getRow(sprintf($sql,self::parseFields($fields),$tabName,$priId));
@@ -131,7 +135,8 @@ class Dbp{
      * @param null $limit  limit子句
      * @return mixed
      */
-    public static function find($tables,$where=null,$fields='*',$group=null,$having=null,$order=null,$limit=null){
+    public static function find($tables,$where=null,$fields='*',$group=null,$having=null,$order=null,$limit=null)
+    {
         $sql='SELECT '.self::parseFields($fields).' FROM '.$tables
             .self::parseWhere($where)
             .self::parseGroup($group)
@@ -148,7 +153,8 @@ class Dbp{
      * @param array|string $data    添加的字段
      * @return bool
      */
-    public static function add($data,$table){
+    public static function add($data,$table)
+    {
         $keys=array_keys($data);
         array_walk($keys,array('PdoMySQL','addSpecialChar'));
         $fieldsStr=join(',',$keys);
@@ -167,7 +173,8 @@ class Dbp{
      * @param int $limit
      * @return bool|unknown
      */
-    public static function update($data,$table,$where=null,$order=null,$limit=0){
+    public static function update($data,$table,$where=null,$order=null,$limit=0)
+    {
         $sets = '';
         foreach($data as $key=>$val){
             $sets.=$key."='".$val."',";
@@ -186,7 +193,8 @@ class Dbp{
      * @param int $limit
      * @return bool|unknown
      */
-    public static function delete($table,$where=null,$order=null,$limit=0){
+    public static function delete($table,$where=null,$order=null,$limit=0)
+    {
         $sql="DELETE FROM {$table} ".self::parseWhere($where).self::parseOrder($order).self::parseLimit($limit);
         return self::execute($sql);
     }
@@ -195,7 +203,8 @@ class Dbp{
      * 得到最后执行的SQL语句
      * @return bool|null
      */
-    public static function getLastSql(){
+    public static function getLastSql()
+    {
         $link=self::$link;
         if(!$link)return false;
         return self::$queryStr;
@@ -205,7 +214,8 @@ class Dbp{
      * 得到最后插入的id
      * @return bool|null
      */
-    public static function getLastInsertId(){
+    public static function getLastInsertId()
+    {
         $link=self::$link;
         if(!$link)return false;
         return self::$lastInsertId;
@@ -214,7 +224,8 @@ class Dbp{
      * 获取数据库的版本
      * @return mixed|null
      */
-    public static function getDbVerion(){
+    public static function getDbVerion()
+    {
         $link=self::$link;
         if(!$link)return false;
         return self::$dbVersion;
@@ -224,7 +235,8 @@ class Dbp{
      * 获取数据表
      * @return array
      */
-    public static function showTables(){
+    public static function showTables()
+    {
         $tables=array();
         if(self::query("SHOW TABLES")){
             $result=self::getAll();
@@ -240,7 +252,8 @@ class Dbp{
      * @param $where
      * @return string
      */
-    public static function parseWhere($where){
+    public static function parseWhere($where)
+    {
         $whereStr='';
         if(is_string($where)&&!empty($where)){
             $whereStr=$where;
@@ -253,7 +266,8 @@ class Dbp{
      * @param $group
      * @return string
      */
-    public static function parseGroup($group){
+    public static function parseGroup($group)
+    {
         $groupStr='';
         if(is_array($group)){
             $groupStr.=' GROUP BY '.implode(',',$group);
@@ -268,7 +282,8 @@ class Dbp{
      * @param $having
      * @return string
      */
-    public static function parseHaving($having){
+    public static function parseHaving($having)
+    {
         $havingStr='';
         if(is_string($having)&&!empty($having)){
             $havingStr.=' HAVING '.$having;
@@ -281,7 +296,8 @@ class Dbp{
      * @param $order
      * @return string
      */
-    public static function parseOrder($order){
+    public static function parseOrder($order)
+    {
         $orderStr='';
         if(is_array($order)){
             $orderStr.=' ORDER BY '.join(',',$order);
@@ -296,7 +312,8 @@ class Dbp{
      * @param $limit
      * @return string
      */
-    public static function parseLimit($limit){
+    public static function parseLimit($limit)
+    {
         $limitStr='';
         if(is_array($limit)){
             if(count($limit)>1){
@@ -315,7 +332,8 @@ class Dbp{
      * @param $fields
      * @return string
      */
-    public static function parseFields($fields){
+    public static function parseFields($fields)
+    {
         if(is_array($fields)){
             array_walk($fields,array('Dbp','addSpecialChar'));
             $fieldsStr=implode(',',$fields);
@@ -338,7 +356,8 @@ class Dbp{
      * @param $value
      * @return bool|string
      */
-    public static function addSpecialChar(&$value){
+    public static function addSpecialChar(&$value)
+    {
         if($value==='*'||strpos($value,'.')!==false||strpos($value,'`')!==false){
             //不用做处理
         }elseif(strpos($value,'`')===false){
@@ -352,7 +371,8 @@ class Dbp{
      * @param null $sql
      * @return bool|int
      */
-    public static function execute($sql=null){
+    public static function execute($sql=null)
+    {
         $link=self::$link;
         if(!$link) return false;
         self::$queryStr=$sql;
@@ -371,7 +391,8 @@ class Dbp{
     /**
      * 释放结果集
      */
-    protected static function free(){
+    protected static function free()
+    {
         self::$PDOStatement = null;
     }
 
@@ -380,7 +401,8 @@ class Dbp{
      * @param string $sql
      * @return bool
      */
-    public static function query($sql=''){
+    public static function query($sql='')
+    {
         $link=self::$link;
         if(!$link) return false;
         //判断之前是否有结果集，如果有的话，释放结果集
@@ -396,7 +418,8 @@ class Dbp{
      * 抛出错误信息
      * @return bool
      */
-    public static function haveErrorThrowException(){
+    public static function haveErrorThrowException()
+    {
         $obj=empty(self::$PDOStatement)?self::$link: self::$PDOStatement;
         $arrError=$obj->errorInfo();
         //print_r($arrError);
@@ -415,7 +438,8 @@ class Dbp{
      * 自定义错误样式
      * @param $errMsg
      */
-    public static function throw_exception($errMsg){
+    public static function throw_exception($errMsg)
+    {
         echo '<div style="width:80%;background-color:#ABCDEF;color:black;font-size:20px;padding:20px 0px;">
 				'.$errMsg.'
 		</div>';
@@ -424,7 +448,8 @@ class Dbp{
     /**
      *销毁连接对象，关闭数据库
      */
-    public static function close(){
+    public static function close()
+    {
         self::$link = null;
     }
 }

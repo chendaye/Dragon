@@ -17,7 +17,8 @@ namespace Core\Lib;
  * Class Request
  * @package Core\Lib
  */
-class Request_init{
+class Request_init
+{
     private $property = [];  //http属性
     private $feedback = [];
 
@@ -35,7 +36,8 @@ class Request_init{
      * 初始化方法，获取请求中的信息参数
      * @return array
      */
-    public function init(){
+    public function init()
+    {
         //GET POST 请求
         if(isset($_SERVER['REQUEST_METHOD'])){
             foreach ($_REQUEST as $k => $v){
@@ -58,7 +60,8 @@ class Request_init{
      * @param $key static 请求参数键值
      * @return mixed|null  返回请求参数
      */
-    public function getProperty($key){
+    public function getProperty($key)
+    {
         DragonException::error(isset($this->property[$key]),"参数{$key}不存在存在！");
         return $this->property[$key];
     }
@@ -68,7 +71,8 @@ class Request_init{
      * @param $key static 键值
      * @param $val mixed 参数内容
      */
-    public function setProperty($key, $val){
+    public function setProperty($key, $val)
+    {
         DragonException::error(!isset($this->property[$key]),"参数{$key}=>{$val}已经存在！");
         $this->property[$key] = $val;
     }
@@ -77,7 +81,8 @@ class Request_init{
      * 添加反馈信息
      * @param $msg mixed 反馈信息
      */
-    public function addFeedback($msg){
+    public function addFeedback($msg)
+    {
         array_push($this->feedback, $msg);  //在数组的最后插入信息
     }
 
@@ -86,7 +91,8 @@ class Request_init{
      * @param string $type  返回信息的类型
      * @return array|string 返回信息
      */
-    public function getFeedback($type = 'array'){
+    public function getFeedback($type = 'array')
+    {
         if($type == 'array'){
             return $this->feedback;
         }elseif ($type = 'string'){

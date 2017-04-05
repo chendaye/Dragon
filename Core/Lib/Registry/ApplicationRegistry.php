@@ -21,7 +21,8 @@ use Core\Lib\DragonException;
  * Class ApplicationRegistry
  * @package Core\Lib\Registry
  */
-class ApplicationRegistry extends Registry  {
+class ApplicationRegistry extends Registry
+{
     private static $instance;
     private $freezedir = '';    //配置文件路径
     private $value = [];    //系统值
@@ -31,7 +32,8 @@ class ApplicationRegistry extends Registry  {
      * 单例构造函数
      * ApplicationRegistry constructor.
      */
-    private function __construct(){
+    private function __construct()
+    {
         $this->freezedir = APP;
     }
 
@@ -39,7 +41,8 @@ class ApplicationRegistry extends Registry  {
      * 实例化单例
      * @return ApplicationRegistry
      */
-    public static function instance(){
+    public static function instance()
+    {
         if(!isset(self::$instance)){
             self::$instance = new self();
         }
@@ -51,7 +54,8 @@ class ApplicationRegistry extends Registry  {
      * @param string $key 文件名同时也是键值
      * @return mixed|null
      */
-    protected function get($key){
+    protected function get($key)
+    {
         $path = $this->freezedir.$key.'.php';  //文件路径
         //todo:文件存在
         if(file_exists($path)){
@@ -94,7 +98,8 @@ class ApplicationRegistry extends Registry  {
      * 从文件系统中获取DSN
      * @return mixed|null
      */
-    static public  function getDSN(){
+    static public  function getDSN()
+    {
         return self::instance()->get('dsn');
     }
 
@@ -102,7 +107,8 @@ class ApplicationRegistry extends Registry  {
      * 从文件系统中获取数据库配置选项
      * @return mixed|null
      */
-    static public function getOptions(){
+    static public function getOptions()
+    {
         return self::instance()->get('options');
     }
 
@@ -111,7 +117,8 @@ class ApplicationRegistry extends Registry  {
      * @param $dsn
      * @return mixed|null
      */
-    static public  function setDSN($dsn){
+    static public  function setDSN($dsn)
+    {
         return self::instance()->set('dsn', $dsn);
     }
 
@@ -120,7 +127,8 @@ class ApplicationRegistry extends Registry  {
      * @param $options
      * @return mixed|null
      */
-    static public function setOptions($options){
+    static public function setOptions($options)
+    {
         return self::instance()->set('options',$options);
     }
 }

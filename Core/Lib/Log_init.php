@@ -12,13 +12,15 @@
 // +----------------------------------------------------------------------
 
 namespace Core\Lib;
-class LogSelf{
+class LogSelf
+{
     static $class;
 
     /**
      * 初始化获取log类实例
      */
-    static public function init(){
+    static public function init()
+    {
         //获取驱动类型 实例，并且保存在静态属性中
         $dirves = Conf::get('config','LOG');
         $classname = '\\Core\Lib\Drives\Log\\'.$dirves;
@@ -31,7 +33,8 @@ class LogSelf{
      * @param $msg
      * @param $name
      */
-    static public function log($msg, $name){
+    static public function log($msg, $name)
+    {
         self::$class->log($msg,$name);
     }
 }

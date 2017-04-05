@@ -19,13 +19,15 @@ use Core\Lib\Registry\RequestRegistry;
  * Class View
  * @package Core\Lib
  */
-class View{
+class View
+{
     /**
      * 加载视图
      * @param string $path 视图路径
      * @throws DragonException
      */
-    static public function view($data,$path = ''){
+    static public function view($data,$path = '')
+    {
         //视图路径信息
         $info = self::viewPath($path);
         //加载视图文件
@@ -46,7 +48,8 @@ class View{
      * @return array 视图文件位置信息
      * @throws DragonException
      */
-    static private function viewPath($path){
+    static private function viewPath($path)
+    {
         if(!empty($path)){
             //解析指定视图路径
             $visit = explode('/', $path);

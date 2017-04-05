@@ -7,7 +7,8 @@ use Core\Lib\DragonException;
  * Class Provider
  * @package Observer
  */
-class Provider{
+class Provider
+{
     //注册监听事件
     static private $observe = [
         'Observer\Event\Login' => [
@@ -21,7 +22,8 @@ class Provider{
      * @param $key
      * @return mixed
      */
-    static public function Get($key){
+    static public function Get($key)
+    {
         DragonException::error(!empty(self::$observe[$key]),"监听事件{$key}未注册！");
         return self::$observe[$key];
     }
@@ -30,7 +32,8 @@ class Provider{
      * 获取所有的注册事件
      * @return array|null
      */
-    static public function Thing(){
+    static public function Thing()
+    {
         if(empty(self::$observe)){
             return null;    //未注册任何事件
         }

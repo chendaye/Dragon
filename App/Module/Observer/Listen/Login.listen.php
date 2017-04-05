@@ -3,7 +3,8 @@ namespace Observer\Listen;
 use Core\Lib\Observe\Event;
 use Core\Lib\Observe\Observe;
 
-class Login implements Observe {
+class Login implements Observe
+{
     public function execute(Event $event)
     {
         // TODO: Implement execute() method.

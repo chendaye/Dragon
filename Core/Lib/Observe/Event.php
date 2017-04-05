@@ -21,7 +21,8 @@ use Observer\Provider;
  * Class Event
  * @package Core\Lib\Observe
  */
-class Event implements Observabel {
+class Event implements Observabel
+{
     protected $listen;  //监听器
 
     /**
@@ -36,7 +37,8 @@ class Event implements Observabel {
     /**
      * 事件监听器初始化
      */
-    protected function init(){
+    protected function init()
+    {
         $listen_event = Provider::Get(get_class($this));
         //注册用户已经定义的监听器
         foreach ($listen_event as $listen){
@@ -105,7 +107,8 @@ class Event implements Observabel {
      * @param  $event string 要触发的事件
      * @return  void
      */
-    static public function Go($event){
+    static public function Go($event)
+    {
         DragonException::error(class_exists($event),"事件{$event} 不存在！");
         $reg = ObserveRegistry::instance();    //获取事件注册表单例
         $event_obj = $reg::getEvent($event);    //获取要触发的事件

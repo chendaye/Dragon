@@ -15,7 +15,8 @@ namespace Core\Lib;
 
 use Prophecy\Exception\Doubler\ClassNotFoundException;
 
-class Session{
+class Session
+{
     //作用范围前缀
     static protected $prefix = '';
 
@@ -27,7 +28,8 @@ class Session{
      * @param $prefix
      * @return string
      */
-    static public function scope($prefix){
+    static public function scope($prefix)
+    {
         if(!empty($prefix) || $prefix === null) self::$prefix = $prefix;
         return self::$prefix;
     }
@@ -36,7 +38,8 @@ class Session{
      * session配置初始化
      * @param array $config
      */
-    static public function init(array $config = []){
+    static public function init(array $config = [])
+    {
         if(empty($config)) $config = Conf::get('SESSION');  //去取session配置
         Log::log('[SESSION] INIT '.var_export($config, true), 'info');    //记录日志信息
 
@@ -110,7 +113,8 @@ class Session{
     /**
      * session启动或者初始化
      */
-    static public function start(){
+    static public function start()
+    {
         if(self::$init === null){
             self::init();   //初始化
         }elseif(self::$init === false){
@@ -125,7 +129,8 @@ class Session{
      * @param string $value
      * @param null $prefix
      */
-    static public function set($name, $value = '', $prefix = null){
+    static public function set($name, $value = '', $prefix = null)
+    {
         //初始化
         self::start();
         //范围前缀
@@ -153,7 +158,8 @@ class Session{
      * @param null $prefix  作用范围
      * @return array  返回值
      */
-    static public function get($name = '', $prefix = null){
+    static public function get($name = '', $prefix = null)
+    {
         //session初始化
         self::start();
         //作用范围
@@ -187,7 +193,8 @@ class Session{
      * @param null $prefix  作用范围
      * @return array|null  返回值
      */
-    static public function obtain($name = '', $prefix = null){
+    static public function obtain($name = '', $prefix = null)
+    {
         $content = self::get($name, $prefix);
         if($content){
             self::delete($name, $prefix);
@@ -202,7 +209,8 @@ class Session{
      * @param string|array $name 名称
      * @param null $prefix  作用范围
      */
-    static public function delete($name, $prefix = null){
+    static public function delete($name, $prefix = null)
+    {
         //初始化
         self::start();
         $prefix = is_null($prefix)?self::$prefix:$prefix;
@@ -233,7 +241,8 @@ class Session{
      * @param null $prefix  范围前缀
      * @return bool
      */
-    static public function exist($name, $prefix = null){
+    static public function exist($name, $prefix = null)
+    {
         //初始化
         self::start();
         //范围
@@ -252,7 +261,8 @@ class Session{
      * @param mixed $value  session值
      * @param null $prefix  作用范围
      */
-    static public function flash($name, $value, $prefix = null){
+    static public function flash($name, $value, $prefix = null)
+    {
         $prefix = is_null($prefix)?self::$prefix:$prefix;
         self::set($name, $value, $prefix);
         if(!self::exist('__flash__.__time__')){
@@ -261,7 +271,8 @@ class Session{
         self::push('__flash__', $name, $prefix);
     }
 
-    static public function flush(){
+    static public function flush()
+    {
 
     }
     /**
@@ -270,7 +281,8 @@ class Session{
      * @param mixed $value  要添加的值
      * @param string $prefix  作用范围
      */
-    static public function push($key, $value, $prefix = null){
+    static public function push($key, $value, $prefix = null)
+    {
         $prefix = is_null($prefix)?self::$prefix:$prefix;
         $result = self::get($key, $prefix);  //取出数组
         if(is_null($result)){

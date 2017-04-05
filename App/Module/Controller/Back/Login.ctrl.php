@@ -10,11 +10,13 @@ use Core\Lib\Registry\ObserveRegistry;
  * Class LoginController
  * @package Controller
  */
-class Login extends Controller {
+class Login extends Controller
+{
     /**
      * 登录
      */
-    public function login(){
+    public function login()
+    {
         Debug::dump(Debug::fileMsg(true));
         E(Debug::fileMsg(true), true);
         E('公共函数',true);
@@ -33,7 +35,8 @@ class Login extends Controller {
         return $this->assign;
     }
 
-   public function diao(){
+   public function diao()
+   {
        return '龙神就是叼,怎么说，问题不大！';
    }
 }

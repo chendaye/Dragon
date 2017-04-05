@@ -17,12 +17,14 @@ namespace Core\Lib;
  * Class DragonException
  * @package Dragon\Core\Lib
  */
-class DragonException extends \Exception {
+class DragonException extends \Exception
+{
     /**
      * 自定义错误显示样式
      * @param $msg
      */
-    static public function throw_exception($msg){
+    static public function throw_exception($msg)
+    {
         echo '<div style="width:100%; background-color: crimson;color:black;font-size:20px; font-weight: 600;padding:20px 0px;">'.$msg.'</div>';
     }
 
@@ -32,7 +34,8 @@ class DragonException extends \Exception {
      * @param $message  static  错误信息
      * @throws DragonException
      */
-    static public function error($expr, $message){
+    static public function error($expr, $message)
+    {
         if(!$expr){
             throw new DragonException("$message");
         }
@@ -43,7 +46,8 @@ class DragonException extends \Exception {
      * @param $check string  被检查的类名
      * @param $ischeck string  基准类的类名
      */
-    static public function insCheck($check, $ischeck){
+    static public function insCheck($check, $ischeck)
+    {
         $ref = new \ReflectionClass($check);
         $isref = new \ReflectionClass($ischeck);
         self::error($ref->isSubclassOf($isref),"{$check} 的类型错误，非{$ischeck} 的子类");

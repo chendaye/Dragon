@@ -17,7 +17,8 @@ namespace Core\Lib;
  * Class Conf
  * @package Dragon\Core\Lib
  */
-class Confself{
+class Confself
+{
     static protected $appConf = [];    //存放获取的配置文件
     static protected $comConf = [];
 
@@ -28,7 +29,8 @@ class Confself{
      * @return mixed
      * @throws DragonException
      */
-    static public function get($confFile, $conf = null){
+    static public function get($confFile, $conf = null)
+    {
         $path = self::exist($confFile); //检查配置文件是否存在
         $com = null;
         $app = null;
@@ -74,7 +76,8 @@ class Confself{
      * @return string
      * @throws DragonException
      */
-    static private function exist($file){
+    static private function exist($file)
+    {
         $comConfPath = APP.$file.'.php';
         $appConfPath = APP.'Module/'.$file.'.php';
         if (!is_file($comConfPath) && is_file($appConfPath)){

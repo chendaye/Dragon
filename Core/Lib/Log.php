@@ -13,7 +13,8 @@
 
 namespace Core\Lib;
 
-class Log{
+class Log
+{
     const LOG = 'log';
     const ERROR = 'error';
     const INFO = 'info';
@@ -30,7 +31,8 @@ class Log{
      * 初始化日志，获取日志配置，实例化对应日志驱动，保存日志配置
      * @param array $config
      */
-    static public function init($config = []){
+    static public function init($config = [])
+    {
         $logtype = isset($config['TYPE'])?$config['TYPE']:'File';   //默认日志写入文件
         $drive = 'Core\Lib\Drives\Log\\'.ucwords($logtype);   //驱动类
         self::$config = $config;
@@ -47,7 +49,8 @@ class Log{
      * @param string $level
      * @return array|mixed
      */
-    static public function getLog($level = ''){
+    static public function getLog($level = '')
+    {
         return $level?self::$info[$level]:self::$info;
     }
 
@@ -56,14 +59,16 @@ class Log{
      * @param $msg
      * @param string $level
      */
-    static public function log($msg, $level = 'log'){
+    static public function log($msg, $level = 'log')
+    {
         self::$info[$level] = $msg;
     }
 
     /**
      * 清空日志信息
      */
-    static public function clear(){
+    static public function clear()
+    {
         self::$info = [];
     }
 
@@ -71,7 +76,8 @@ class Log{
      * 当前日志记录的授权 power
      * @param $power
      */
-    static public function power($power){
+    static public function power($power)
+    {
         self::$power = $power;
     }
 
@@ -80,7 +86,8 @@ class Log{
      * @param $config
      * @return bool
      */
-    static public function check($config){
+    static public function check($config)
+    {
         if(self::$power && !empty($config['KEY']) && !in_array(self::$power, $config['KEY'])){
             return false;   //禁止写入
         }
@@ -91,7 +98,8 @@ class Log{
      * 写入日志
      * @return bool
      */
-    static public function save(){
+    static public function save()
+    {
         //日志信息是否为空
        if(empty(self::$info)) return false;
         //初始化日志配置
@@ -121,7 +129,8 @@ class Log{
      * @param bool $force  是否强制写入日志
      * @return bool
      */
-    static public function write($msg, $level = 'log', $force = false){
+    static public function write($msg, $level = 'log', $force = false)
+    {
         //初始化日志配置
         if(is_null(self::$drive))  self::init(Conf::get('LOG'));
         $content = [];
@@ -142,15 +151,13 @@ class Log{
      * @param $arguments
      * @return mixed
      */
-    static public function __callStatic($name, $arguments){
+    static public function __callStatic($name, $arguments)
+    {
         //记录错误调用的信息
         if(in_array($name, self::$level)) return call_user_func_array('\\Core\\Log::log', [
             'static_method' => $name,
             'method_param'  => $arguments
         ]);
-    }
-    static public function test(){
-        E(self::$info);
     }
 }
 ?>

@@ -19,7 +19,8 @@ use Core\Lib\Registry\RequestRegistry;
  * Class CommandResolver
  * @package Core\Lib
  */
-class CommandResolver{
+class CommandResolver
+{
     private static $cmd;
 
     /**
@@ -39,7 +40,8 @@ class CommandResolver{
      * @param Request $request
      * @return array
      */
-    public function getCommand(Request $request){
+    public function getCommand(Request $request)
+    {
         //命令参数
         $cmd = $request->getProperty('REQUEST_URI');
         DragonException::error($cmd,"URL 参数：REQUEST_URI 错误！");
@@ -64,7 +66,8 @@ class CommandResolver{
      * @param $cmd static REQUEST_URI
      * @return array 控制器 方法
      */
-    public function parse_url($cmd){
+    public function parse_url($cmd)
+    {
         //命令只能有字符串组成
         DragonException::error(preg_match('/^(\/\w+(\/)?)+(\?(\w+=\w+&?)+)?$/', $cmd),"命令:{$cmd} 包含非法字符！");
         //todo:命令类的实例

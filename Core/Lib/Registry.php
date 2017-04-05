@@ -17,7 +17,8 @@ namespace Core\Lib;
  * Class Registry
  * @package Core\Lib
  */
-abstract class Registry{
+abstract class Registry
+{
     /**
      * 获取数据,大致起着全局变量的作用
      * @param $key string

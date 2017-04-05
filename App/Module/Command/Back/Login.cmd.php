@@ -11,7 +11,8 @@ use Core\Lib\View;
  * Class Login
  * @package Command
  */
-class Login extends Command {
+class Login extends Command
+{
 
     /**
      * 调用具体的业务逻辑类来处理请求

@@ -9,7 +9,8 @@ use Model\Usr;
  * Class Login
  * @package Observer\Event
  */
-class Login extends Event {
+class Login extends Event
+{
     public $usr;
     public $dbs;
     public function __construct()

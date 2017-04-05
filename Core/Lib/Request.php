@@ -13,7 +13,8 @@
 
 namespace Core\Lib;
 
-class Request{
+class Request
+{
 
     //对象实例
     protected $instance;
@@ -45,11 +46,14 @@ class Request{
     //路由信息
     protected $routeInfo = [];
 
+    //请求内容
+    protected $content = null;
+
     //控制信息
     protected $dispatch = [];
     protected $module;
     protected $command;
-    protected $action;
+    protected $controller;
     protected $language;
 
     //请求参数
@@ -84,8 +88,6 @@ class Request{
         'html' => 'text/html,application/xhtml+xml,*/*',
     ];
 
-    protected $content;
-
     //全局过滤规则
     protected $filter;
 
@@ -109,7 +111,8 @@ class Request{
      * Request constructor.
      * @param array $options
      */
-    public function __construct($options = []){
+    public function __construct($options = [])
+    {
         //初始化参数
         foreach ($options as $name => $item){
             //检查给出的 property 是否存在于指定的类中以及是否能在当前范围内访问
@@ -129,7 +132,8 @@ class Request{
      * @param $arguments
      * @throws DragonException
      */
-    public function __call($name, $arguments){
+    public function __call($name, $arguments)
+    {
         //检查扩展方法是否存在
         if(array_key_exists($name, self::$hook)){
             array_unshift($arguments, $this);   //在数组开头插入元素
@@ -144,7 +148,8 @@ class Request{
      * @param $method
      * @param null $callback
      */
-    static public function hook($method, $callback = null){
+    static public function hook($method, $callback = null)
+    {
         if(is_array($method)){
             //数组形式注册
             self::$hook = array_merge(self::$hook, $method);
@@ -159,7 +164,8 @@ class Request{
      * @param null $domain
      * @return null|string
      */
-    public function domain($domain = null){
+    public function domain($domain = null)
+    {
         if(!is_null($domain)){
             $this->domain = $domain;
             return $this;
@@ -174,7 +180,8 @@ class Request{
      * @param null $url
      * @return mixed
      */
-    public function url($url = null){
+    public function url($url = null)
+    {
         if(!is_null($url) && $url !== true){
             $this->url = $url;
             return $this;
@@ -199,7 +206,8 @@ class Request{
      * @param null $url
      * @return mixed
      */
-    public function baseUrl($url = null){
+    public function baseUrl($url = null)
+    {
         if(!is_null($url) && $url !== true){
             $this->baseUrl = $url;
             return $this;
@@ -216,7 +224,8 @@ class Request{
      * @param null $file
      * @return mixed
      */
-    public function baseFile($file = null){
+    public function baseFile($file = null)
+    {
         if(!is_null($file) && $file !== true){
             $this->baseFile = $file;
             return $this;
@@ -246,7 +255,8 @@ class Request{
      * @param null $url
      * @return mixed
      */
-    public function root($url = null){
+    public function root($url = null)
+    {
         if(!is_null($url) && $url !== true){
             $this->root = $url;
             return $this;
@@ -264,7 +274,8 @@ class Request{
      * 获取当前请求URL的pathinfo信息(含后缀)
      * @return string
      */
-    public function pathInfo(){
+    public function pathInfo()
+    {
         if(!is_null($this->pathinfo)) return $this->pathinfo;
         //php cli运行模式
         if (IS_CML) $_SERVER['PATH_INFO'] = isset($_SERVER['argv'][1]) ? $_SERVER['argv'][1] : '';
@@ -286,7 +297,8 @@ class Request{
      * 获取当前请求URL的pathinfo信息(不含后缀)
      * @return mixed|string
      */
-    public function path(){
+    public function path()
+    {
         if(!is_null($this->path)) return $this->path;
         $suffix = Conf::get("URL_HTML_SUFFIX"); //伪静态后缀
         $pathinfo = $this->pathInfo();
@@ -313,7 +325,8 @@ class Request{
      * 当前URL的后缀
      * @return mixed
      */
-    public function ext(){
+    public function ext()
+    {
         return pathinfo($this->pathInfo(), PATHINFO_EXTENSION);
     }
 
@@ -322,7 +335,8 @@ class Request{
      * @param bool $float
      * @return mixed
      */
-    public function time($float = false){
+    public function time($float = false)
+    {
         return $float ? $_SERVER['REQUEST_TIME_FLOAT']:$_SERVER['REQUEST_TIME'];
     }
 
@@ -330,7 +344,8 @@ class Request{
      * 当前请求的资源类型
      * @return bool|int|string
      */
-    public function source(){
+    public function source()
+    {
         $accept = (isset($this->server['HTTP_ACCEPT']))?$this->server['HTTP_ACCEPT']:$_SERVER['HTTP_ACCEPT'];
         if(empty($accept)) return false;
         foreach ($this->source as $key => $val){
@@ -348,7 +363,8 @@ class Request{
      * @param string $type  资源类型名称
      * @param string $val  资源类型
      */
-    public function sourceType($type, $val = ''){
+    public function sourceType($type, $val = '')
+    {
         if(is_array($type)){
             $this->source = array_merge($this->source, $type);
         }else{
@@ -364,7 +380,8 @@ class Request{
      * @param bool $method  true 获取原始请求类型
      * @return mixed|string
      */
-    public function method($method = false){
+    public function method($method = false)
+    {
         if($method === true) return IS_CML ? 'GET' : (isset($this->server['REQUEST_METHOD']))?$this->server['REQUEST_METHOD']:$_SERVER['REQUEST_METHOD'];
         if(!$method){
             if(isset($_POST[Conf::get('VAR_METHOD')])){
@@ -383,7 +400,8 @@ class Request{
      * 当前请求是否为get请求
      * @return bool
      */
-    public function isGet(){
+    public function isGet()
+    {
         return $this->method() == 'GET';
     }
 
@@ -391,7 +409,8 @@ class Request{
      * 当前请求是否为put请求
      * @return bool
      */
-    public function isPut(){
+    public function isPut()
+    {
         return $this->method() == 'PUT';
     }
 
@@ -399,7 +418,8 @@ class Request{
      * 当前请求是否为post请求
      * @return bool
      */
-    public function isPost(){
+    public function isPost()
+    {
         return $this->method() == 'POST';
     }
 
@@ -407,7 +427,8 @@ class Request{
      * 当前请求是否为delete请求
      * @return bool
      */
-    public function isDelete(){
+    public function isDelete()
+    {
         return $this->method() == 'DELETE';
     }
 
@@ -415,7 +436,8 @@ class Request{
      * 当前请求是否为head请求
      * @return bool
      */
-    public function isHead(){
+    public function isHead()
+    {
         return $this->method() == 'HEAD';
     }
 
@@ -423,7 +445,8 @@ class Request{
      * 当前请求是否为patch请求
      * @return bool
      */
-    public function isPatch(){
+    public function isPatch()
+    {
         return $this->method() == 'PATCH';
     }
 
@@ -431,7 +454,8 @@ class Request{
      * 当前请求是否为options请求
      * @return bool
      */
-    public function isOptions(){
+    public function isOptions()
+    {
         return $this->method() == 'OPTIONS';
     }
 
@@ -440,7 +464,8 @@ class Request{
      * PHP CLI模式开发不需要任何一种Web服务器（包括Apache或MS IIS等），CLI可以运行在各种场合。
      * @return bool
      */
-    public function isCli(){
+    public function isCli()
+    {
         return PHP_SAPI == "cli";
     }
 
@@ -450,7 +475,8 @@ class Request{
      * CGI是Common Gateway Interface的缩写，翻译成中文就是通用网关接口，它是网页的后台处理程序，运行在服务器端上，可以用多种语言书写
      * @return bool
      */
-    public function isCgi(){
+    public function isCgi()
+    {
         return strpos(PHP_SAPI, 'cgi') === 0;
     }
 
@@ -461,7 +487,8 @@ class Request{
      * @param string $filter 过滤方法
      * @return mixed
      */
-    public function param($name = '', $default = null, $filter = ''){
+    public function param($name = '', $default = null, $filter = '')
+    {
         if(empty($this->param)){
             $method = $this->method(true);
             //获取请求变量
@@ -493,7 +520,8 @@ class Request{
      * @param string $name
      * @return array|mixed|null
      */
-    public function file($name = ''){
+    public function file($name = '')
+    {
         //原始文件上传信息
         if(empty($this->file)) $this->file = isset($_FILES)?$_FILES:[];
         //如果是数组，设置信息
@@ -553,7 +581,8 @@ class Request{
      * @param string $filter  过滤方式
      * @return array|mixed
      */
-    public function delete($name = '', $default = null, $filter = ''){
+    public function delete($name = '', $default = null, $filter = '')
+    {
         return $this->put($name, $default, $filter);
     }
 
@@ -564,7 +593,8 @@ class Request{
      * @param string $filter  过滤方式
      * @return array|mixed|string
      */
-    public function patch($name = '', $default = null, $filter = ''){
+    public function patch($name = '', $default = null, $filter = '')
+    {
         return $this->put($name, $default, $filter);
     }
 
@@ -575,7 +605,8 @@ class Request{
      * @param $filter
      * @return array|mixed
      */
-    public function request($name = '', $default = null, $filter){
+    public function request($name = '', $default = null, $filter)
+    {
         if(empty($this->request)) $this->request = $_REQUEST;
         if(is_array($name)){
             $this->param = [];
@@ -591,7 +622,8 @@ class Request{
      * @param string $filter  过滤方式
      * @return array|mixed
      */
-    public function session($name = '', $default = null, $filter = ''){
+    public function session($name = '', $default = null, $filter = '')
+    {
         if(empty($this->session)) $this->session = Session::get();
         if(is_array($name)) $this->session = array_merge($this->session, $name);
         return $this->obtain($this->session, $name, $default, $filter);
@@ -604,7 +636,8 @@ class Request{
      * @param string $filter  过滤方式
      * @return array|mixed
      */
-    public function cookie($name = '', $default = null, $filter = ''){
+    public function cookie($name = '', $default = null, $filter = '')
+    {
         if(empty($this->cookie)) $this->cookie = $_COOKIE;
         if(is_array($name)) $this->cookie = array_merge($this->cookie, $name);
         return $this->obtain($this->cookie, $name, $default, $filter);
@@ -617,7 +650,8 @@ class Request{
      * @param string $filter  过滤方式
      * @return array|mixed
      */
-    public function server($name = '', $default = null, $filter = ''){
+    public function server($name = '', $default = null, $filter = '')
+    {
         if(empty($this->server)) $this->server = $_SERVER;
         if(is_array($name)) $this->server = array_merge($this->server, $name);
         return $this->obtain($this->server, false === $name ? false : strtoupper($name), $default, $filter);
@@ -630,7 +664,8 @@ class Request{
      * @param string $filter 过滤方法
      * @return array|mixed
      */
-    public function env($name = '', $default = null, $filter = ''){
+    public function env($name = '', $default = null, $filter = '')
+    {
         if(empty($this->env)) $this->env = $_ENV;
         if(is_array($name)) $this->env = array_merge($this->env, $name);
         return $this->obtain($this->env, false === $name ? false : strtoupper($name), $default, $filter);
@@ -643,7 +678,8 @@ class Request{
      * @param string $filter  过滤方式
      * @return array|mixed|string
      */
-    public function put($name = '', $default = null, $filter = ''){
+    public function put($name = '', $default = null, $filter = '')
+    {
         //设置put参数
         if(is_array($name)){
             $this->param = [];
@@ -671,7 +707,8 @@ class Request{
      * @param string $filter 过滤方式
      * @return array|mixed
      */
-    public function get($name = '', $default = null, $filter = ''){
+    public function get($name = '', $default = null, $filter = '')
+    {
         //设置get参数
         if(is_array($name)){
             $this->param = [];
@@ -689,7 +726,8 @@ class Request{
      * @param string $filter  过滤方式
      * @return array|mixed
      */
-    public function post($name = '', $default = null, $filter = ''){
+    public function post($name = '', $default = null, $filter = '')
+    {
         //设置post参数
         if(is_array($name)){
             $this->param = [];
@@ -707,7 +745,8 @@ class Request{
      * @param string $filter 过滤方法
      * @return array|mixed
      */
-    public function route($name = '', $default = null, $filter = ''){
+    public function route($name = '', $default = null, $filter = '')
+    {
         //设置路由参数
         if(is_array($name)){
             $this->param = [];
@@ -723,7 +762,8 @@ class Request{
      * @param null $default
      * @return array|mixed|null
      */
-    public function header($name = '', $default = null){
+    public function header($name = '', $default = null)
+    {
         if(empty($this->header)){
             $header = [];
             //Fetch all HTTP request headers
@@ -763,7 +803,8 @@ class Request{
      * @param string $filter
      * @return array|mixed
      */
-    public function obtain($data = [], $name = '', $default = null, $filter = ''){
+    public function obtain($data = [], $name = '', $default = null, $filter = '')
+    {
         //返回原始数据
         if($name === false) return $data;
         $name = (string)$name;
@@ -817,7 +858,8 @@ class Request{
      * @param array $filter  过滤方法（函数+正则匹配）+默认值
      * @return array
      */
-    public function filter(&$value, $key, $filter){
+    public function filter(&$value, $key, $filter)
+    {
         //弹出并返回 array 数组的最后一个单元，并将数组 array 的长度减一
         $default = array_pop($filter);
         //变量要满足所有的过滤条件
@@ -856,7 +898,8 @@ class Request{
      * @param string $value
      * @return void
      */
-    public function filterExp(&$value){
+    public function filterExp(&$value)
+    {
         // 过滤查询特殊字符
         if (is_string($value) && preg_match('/^(EXP|NEQ|GT|EGT|LT|ELT|OR|XOR|LIKE|NOTLIKE|NOT BETWEEN|NOTBETWEEN|BETWEEN|NOTIN|NOT IN|IN)$/i', $value)) {
             $value .= ' ';
@@ -868,7 +911,8 @@ class Request{
      * @param mixed $data  待转换的数据
      * @param string $type  转换类型
      */
-    public function typeCast(&$data, $type){
+    public function typeCast(&$data, $type)
+    {
         switch (strtolower($type)){
             //数组
             case 'a':
@@ -897,22 +941,347 @@ class Request{
         }
     }
 
-    public function exist($name, $type = 'param', $checkEmpty = false){
+    /**
+     * 检查参数是否存在
+     * @param string $name 参数名
+     * @param string $type  参数类型
+     * @param bool $checkEmpty  检查参数是否为空字符串
+     * @return bool
+     */
+    public function exist($name, $type = 'param', $checkEmpty = false)
+    {
         if(empty($this->$type)){
             //值为空，获取
             $param = $this->$type();
         }else{
             $param = $this->$type;
         }
-
+        //支持多维数组
+        $name = explode('.', $name);
+        foreach ($name as $value){
+            if(isset($param[$value])){
+                $param = $param[$value];
+            }else{
+                return false;
+            }
+        }
+        //检查是否为空字符串
+        return ($checkEmpty && $param === '')?false:true;
     }
 
-    public function host(){
-
+    /**
+     * 获取指定参数
+     * @param string $name 参数名
+     * @param string $type 参数类型
+     * @return array
+     */
+    public function gain($name, $type = 'param')
+    {
+        $param = $this->$type();
+        if(is_string($name))  $name = explode(',', $name);
+        $val = [];
+        foreach ($name as $key){
+            if(isset($param[$key])) $val[$key] = $param[$key];
+        }
+        return $val;
     }
-    public function scheme(){
 
+    /**
+     * 排除某参数获取其他参数
+     * @param string $name  参数名
+     * @param string $type  参数类型
+     * @return mixed
+     */
+    public function except($name, $type = 'param')
+    {
+        $param = $this->$type();
+        if(is_string($name))  $name = explode(',', $name);
+        foreach($name as $key){
+            if(isset($param[$key])) unset($param[$key]);
+        }
+        return $param;
     }
+
+    /**
+     * SSL协议位于TCP/IP协议与各种应用层协议之间，为数据通讯提供安全支持
+     * Secure Socket Layer,是对TCP/IP协议的封装，方便应用层使用
+     * @return bool
+     */
+    public function isSsl()
+    {
+        $server = array_merge($this->server, $_SERVER);
+        if(isset($server['HTTPS']) && ('1' == $server['HTTPS'] || 'on' == strtolower($server['HTTPS']))){
+            return true;
+        }elseif (isset($server['REQUEST_SCHEME']) && 'https' == $server['REQUEST_SCHEME']){
+            return true;
+        }elseif (isset($server['SERVER_PORT']) && ('443' == $server['SERVER_PORT'])){
+            return true;
+        }elseif (isset($server['HTTP_X_FORWARDED_PROTO']) && 'https' == $server['HTTP_X_FORWARDED_PROTO']){
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * 当前是否是ajax请求
+     * @param bool $ajax true 获取原始ajax请求
+     * @return bool
+     */
+    public function isAjax($ajax = false)
+    {
+        $item = $this->server('HTTP_X_REQUESTED_WITH', '', 'strtolower');
+        $result = ($item == 'xmlhttprequest') ? true : false;
+        if($ajax === $result){
+            return $result;
+        }else{
+            return $this->param(Conf::get('VAR_AJAX'))?true:$result;
+        }
+    }
+
+    /**
+     * 是否是pjax请求
+     * @param bool $pjax true 获取原始pjax请求
+     * @return bool
+     */
+    public function isPjax($pjax = false)
+    {
+        $item = !is_null($this->server('HTTP_X_PJAX')) ? true : false;
+        if($pjax === true){
+            return $item;
+        }else{
+            return $this->param(Conf::get('VAR_PJAX'))?true:$item;
+        }
+    }
+
+    /**
+     * 获取客户端IP地址
+     * @param int $type  type 返回类型 0 返回IP地址 1 返回IPV4地址数字
+     * @param bool $adv    $adv 是否进行高级模式获取（有可能被伪装）
+     * @return mixed
+     */
+    public function ip($type = 0, $adv =false)
+    {
+        $type = $type?1:0;
+        static $ip = null;
+        if(!is_null($ip)) return $ip[$type];
+        if($adv){
+            if(isset($_SERVER['HTTP_X_FORWARDED_FOR'])){
+                $array = explode(',', $_SERVER['HTTP_X_FORWARDED_FOR']);
+                //索键值，返回键名
+                $pos = array_search('unknown', $array);
+                if($pos !== false) unset($array[$pos]);
+                //数组当前元素
+                $ip = trim(current($array));
+            }elseif (isset($_SERVER['HTTP_CLIENT_IP'])){
+                $ip = $_SERVER['HTTP_CLIENT_IP'];
+            }elseif (isset($_SERVER['REMOTE_ADDR'])){
+                $ip = $_SERVER['REMOTE_ADDR'];
+            }
+        }elseif (isset($_SERVER['REMOTE_ADDR'])){
+            $ip = $_SERVER['REMOTE_ADDR'];
+        }
+        //验证IP的合法性;%u - 不包含正负号的十进制数（大于等于 0）;sprintf() 函数把格式化的字符串写写入一个变量中
+        $long = sprintf("%u", ip2long($ip));    //ip2long  把ip地址转换成整型;long2ip,相反，把整型还原为ip地址
+        $ip = $long?array($ip, $long):array('0.0.0.0', 0);
+        return $ip[$type];
+    }
+
+    /**
+     * 检查是否使用手机访问
+     * @return bool
+     */
+    public function mobile()
+    {
+        if(isset($_SERVER['HTTP_VIA']) && stristr($_SERVER['HTTP_VIA'], "wap")){
+            return true;
+        }elseif (isset($_SERVER['HTTP_ACCEPT']) && strpos(strtoupper($_SERVER['HTTP_ACCEPT']), "VND.WAP.WML")){
+            return true;
+        }elseif (isset($_SERVER['HTTP_X_WAP_PROFILE']) || isset($_SERVER['HTTP_PROFILE'])){
+            return true;
+        }elseif (isset($_SERVER['HTTP_USER_AGENT']) && preg_match('/(blackberry|configuration\/cldc|hp |hp-|htc |htc_|htc-|iemobile|kindle|midp|mmp|motorola|mobile|nokia|opera mini|opera |Googlebot-Mobile|YahooSeeker\/M1A1-R2D2|android|iphone|ipod|mobi|palm|palmos|pocket|portalmmm|ppc;|smartphone|sonyericsson|sqh|spv|symbian|treo|up.browser|up.link|vodafone|windows ce|xda |xda_)/i', $_SERVER['HTTP_USER_AGENT'])){
+            return true;
+        }else{
+            return false;
+        }
+    }
+
+    /**
+     * 获取URL中scheme请求参数
+     * @return string
+     */
+    public function scheme()
+    {
+        return $this->isSsl()?'https':'http';
+    }
+
+    /**
+     * 获取URL中query参数
+     * @return mixed
+     */
+    public function query()
+    {
+        return $this->server('QUERY_STRING');
+    }
+
+    /**
+     * 获取当前请求的host
+     * @return array|mixed
+     */
+    public function host()
+    {
+        return $this->server('HTTP_HOST');
+    }
+
+    /**
+     * 当前请求URL地址中的port参数
+     * @return integer
+     */
+    public function port()
+    {
+        return $this->server('SERVER_PORT');
+    }
+
+    /**
+     * 当前请求 SERVER_PROTOCOL
+     * @return integer
+     */
+    public function protocol()
+    {
+        return $this->server('SERVER_PROTOCOL');
+    }
+
+    /**
+     * 当前请求 REMOTE_PORT
+     * @return integer
+     */
+    public function remotePort()
+    {
+        return $this->server('REMOTE_PORT');
+    }
+
+    /**
+     * 获取设置当前routeInfo信息
+     * @param array $route
+     * @return array
+     */
+    public function routeInfo($route = [])
+    {
+        //设置
+        if(!empty($route))return $this->routeInfo = $route;
+        //获取
+        return $this->routeInfo;
+    }
+
+    /**
+     * 设置、获取当前调度信息
+     * @param null $dispatch
+     * @return array|null
+     */
+    public function dispatch($dispatch = null)
+    {
+        //设置
+        if(!is_null($dispatch)) return $this->dispatch = $dispatch;
+        //获取
+        return $this->dispatch;
+    }
+
+    /**
+     * 获取设置当前请求模块
+     * @param null $module
+     * @return $this|string
+     */
+    public function module($module = null)
+    {
+        if(!is_null($module)) {
+            $this->module = $module;
+            return $this;
+        }else{
+            return $this->module?:'';
+        }
+    }
+
+    /**
+     * 获取设置当前请求命令
+     * @param null $command
+     * @return $this|string
+     */
+    public function command($command = null)
+    {
+        if(!is_null($command)){
+            $this->command = $command;
+            return $this;
+        }else{
+            return $this->command?:'';
+        }
+    }
+
+    /**
+     * 获取、设置当前请求控制器
+     * @param null $controller
+     * @return $this|string
+     */
+    public function controller($controller = null)
+    {
+        if(!is_null($controller)){
+            $this->controller = $controller;
+            return $this;
+        }else{
+            return $this->controller?:'';
+        }
+    }
+
+    /**
+     * 获取当前请求语言
+     * @param null $lang
+     * @return $this|string
+     */
+    public function langset($lang = null)
+    {
+        if(!is_null($lang)){
+            $this->language = $lang;
+            return $this;
+        }else{
+            return $this->language?:'';
+        }
+    }
+
+    /**
+     * 设置、获取当前请求的content
+     * @return null|string
+     */
+    public function getContent()
+    {
+        //设置
+        if(is_null($this->content)) return $this->content = $this->input;
+        //获取
+        return $this->content;
+    }
+
+    /**
+     * 获取当前请求php://input
+     * @return string
+     */
+    public function getInput()
+    {
+        return $this->input;
+    }
+
+    /**
+     * 生成请求令牌
+     * @param string $name 令牌名
+     * @param string $type 加密类型
+     * @return string 请求令牌
+     */
+    public function token($name = '__token__', $type = 'md5')
+    {
+        $type = is_callable($type)?$type:'md5';
+        $token = call_user_func($type, $_SERVER['REQUEST_TIME_FLOAT']);
+        //header() 函数向客户端发送原始的 HTTP 报头。
+        if($this->isAjax())header($name.':'.$token);
+        Session::set($name, $token);
+        return $token;
+    }
+
 
 }
 ?>

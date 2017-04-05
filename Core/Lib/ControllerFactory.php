@@ -19,7 +19,8 @@ use Core\Lib\Registry\RequestRegistry;
  * Class ControllerFactory
  * @package Core\Lib
  */
-class ControllerFactory{
+class ControllerFactory
+{
     static private $ctrl;
 
     /**
@@ -27,7 +28,8 @@ class ControllerFactory{
      * 用反射提高安全性
      * @return object
      */
-    static public function ctrl(){
+    static public function ctrl()
+    {
         $request = RequestRegistry::getRequest();
         $controller = $request->getProperty('controller');
         $classname = '\\Controller\\'.$controller;
@@ -40,7 +42,8 @@ class ControllerFactory{
     /**
      * 根据请求直接调用默认的业务类，执行请求对应的方法
      */
-    static public function action(){
+    static public function action()
+    {
         //从注册表中获取请求对象
         $request = RequestRegistry::getRequest();
         //从请求对象中获取请求方法

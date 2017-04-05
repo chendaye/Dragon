@@ -19,7 +19,8 @@ use Core\Lib\Request;
  * Class RequestRegistry
  * @package Core\Lib\Registry
  */
-class RequestRegistry extends Registry{
+class RequestRegistry extends Registry
+{
     private $request = [];  //保存请求对象
     private static $instance;
 
@@ -33,7 +34,8 @@ class RequestRegistry extends Registry{
      * 实例化自身，
      * @return RequestRegistry
      */
-    public static function instance(){
+    public static function instance()
+    {
         if(!isset(self::$instance)){
             self::$instance = new self();
         }
@@ -44,7 +46,8 @@ class RequestRegistry extends Registry{
      * 静态方法获取请求对象
      * @return bool
      */
-    static public function getRequest(){
+    static public function getRequest()
+    {
         if(!self::instance()->get('request')) return null;
         return self::instance()->get('request');
     }
@@ -55,7 +58,8 @@ class RequestRegistry extends Registry{
      * @param bool $flash   是否刷新
      * @return bool
      */
-    static public function setRequest(Request $request, $flash = false){
+    static public function setRequest(Request $request, $flash = false)
+    {
         if(self::instance()->get('request') && $flash === false){
             return false;
         } else{
@@ -70,7 +74,8 @@ class RequestRegistry extends Registry{
      * @param string $key   数据键值
      * @return mixed    请求对象的实例
      */
-    protected function get($key){
+    protected function get($key)
+    {
         if(!isset($this->request[$key])) return false;
         return $this->request[$key];
     }
@@ -82,7 +87,8 @@ class RequestRegistry extends Registry{
      * @param mixed $val    对象值
      * @return bool 是否保存成功
      */
-    protected function set($key, $val){
+    protected function set($key, $val)
+    {
         $this->request[$key] = $val;    //保存对象
         return true;
     }

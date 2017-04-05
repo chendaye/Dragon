@@ -24,7 +24,8 @@ use Core\Lib\Log;
  * Class Connection
  * @package Core\Lib\Db
  */
-abstract class Connection{
+abstract class Connection
+{
     protected $PDOStatement;    //PDO连接实例
     protected $queryStr = '';    //当前SQL语句
     protected $numRows = 0;     //影响的记录条数
@@ -97,7 +98,8 @@ abstract class Connection{
      * 初始化数据库连接，分布式和单一服务器连接
      * @param bool $master  是否是主服务器
      */
-    protected function initConnect($master = true){
+    protected function initConnect($master = true)
+    {
         //分布式部署
         if(!empty($this->config['deploy'])){
             if($master){    //是主服务器
@@ -122,7 +124,8 @@ abstract class Connection{
      * @param bool $master  主服务器
      * @return mixed    “读”服务器的连接实例
      */
-    protected function multiConnect($master = false){
+    protected function multiConnect($master = false)
+    {
         $_config = [];
         //解析分布式数据库配置
         foreach (['username', 'password', 'hostname', 'hostport', 'database', 'dsn', 'charset'] as $item){
@@ -169,7 +172,8 @@ abstract class Connection{
      * @param bool $autoConnection
      * @return mixed    PDO连接实例
      */
-    public function connect(array $config = [], $linkNum = 0, $autoConnection = false){
+    public function connect(array $config = [], $linkNum = 0, $autoConnection = false)
+    {
         if(!isset($this->link[$linkNum])){  //如果未连接数据库， $linkNum 不存在
             //连接信息
             if(!$config){
@@ -225,7 +229,8 @@ abstract class Connection{
      * @param $queryClass   string 查询对象名
      * @return mixed  查询对象实例
      */
-    public function model($model, $queryClass){
+    public function model($model, $queryClass)
+    {
         if(!isset($this->query[$model])){
             $classname = $queryClass?:$this->getConfig('query');    //如果$queryClass为空，就获取配置数组中的：'query' => '\\Core\\Lib\\Db\\Query'；查询对象名
             $this->query[$model] = new $classname($this, $model);   //实例化查询对象Query
@@ -281,7 +286,8 @@ abstract class Connection{
      * @param $info
      * @return array
      */
-    public function fieldsCase($info){
+    public function fieldsCase($info)
+    {
         switch ($this->attrCase){
             case \PDO::CASE_LOWER:
                 $info = array_change_key_case($info);   //函数将数组的所有的键都转换为大写字母或小写字母,默认是小写
@@ -300,7 +306,8 @@ abstract class Connection{
      * @param string $config
      * @return array|mixed
      */
-    public function getConfig($config = ''){
+    public function getConfig($config = '')
+    {
         return $config?$this->config[$config]:$this->config;
     }
 
@@ -309,7 +316,8 @@ abstract class Connection{
      * @param $config
      * @param string $value
      */
-    public function setConfig($config, $value = ''){
+    public function setConfig($config, $value = '')
+    {
         if(is_array($value)){
             $this->config = array_merge($this->config, $value); //参数可以覆盖默认配置
         }else{
@@ -320,7 +328,8 @@ abstract class Connection{
     /**
      * 释放查询结果集
      */
-    public function free(){
+    public function free()
+    {
         $this->PDOStatement = null;
     }
 
@@ -328,7 +337,8 @@ abstract class Connection{
      * 获取PDO连接对象
      * @return bool|int
      */
-    public function getPdo(){
+    public function getPdo()
+    {
         if(!$this->linkID){
             return false;
         }else{
@@ -344,7 +354,8 @@ abstract class Connection{
      * @param bool $class   指定返回的数据集对象
      * @return mixed
      */
-    public function query($sql, $bind = [], $master = false, $class = false){
+    public function query($sql, $bind = [], $master = false, $class = false)
+    {
         $this->initConnect($master);    //初始化连接
         if(!$this->linkID){
             return false;   //没有连接返回FALSE
@@ -380,7 +391,8 @@ abstract class Connection{
      * @param array $bind   参数绑定
      * @return bool|int     影响的行数
      */
-    public function execute($sql, $bind = []){
+    public function execute($sql, $bind = [])
+    {
         $this->initConnect(true);   //初始化连接
         if(!$this->linkID){
             return false;   //未连接返回FALSE
@@ -413,7 +425,8 @@ abstract class Connection{
      * @param $start
      * @param string $sql
      */
-    public function debug($start, $sql = ''){
+    public function debug($start, $sql = '')
+    {
         if(!empty($this->config['debug'])){
             //开启调试
             if($start){
@@ -440,7 +453,8 @@ abstract class Connection{
      * @param $runTime  string  SQL运行时间
      * @param array $explain    性能分析
      */
-    protected function trigger($sql, $runTime, $explain = []){
+    protected function trigger($sql, $runTime, $explain = [])
+    {
         if(!empty(self::$event)){
             foreach (self::$event as $callback){
                 if(is_callable($callback)){
@@ -459,7 +473,8 @@ abstract class Connection{
      * 注册监听SQL的事件
      * @param $callback
      */
-    public function listen($callback){
+    public function listen($callback)
+    {
         self::$event[] = $callback;
     }
 
@@ -469,7 +484,8 @@ abstract class Connection{
      * @param array $bind   参数绑定数组
      * @return string   最终SQL
      */
-    public function getRealSql($sql, $bind = []){
+    public function getRealSql($sql, $bind = [])
+    {
         if($bind){
             foreach ($bind as $key => $val){
                 $value = is_array($val)?$val[0]:$val;
@@ -496,7 +512,8 @@ abstract class Connection{
      * 形如 ['name'=>'value','id'=>123]  或  ['value',123]
      * @param array $bind   要绑定的参数
      */
-    protected function bindValue(array $bind = []){
+    protected function bindValue(array $bind = [])
+    {
         foreach ($bind as $key => $val){
             //占位符
             $param = is_numeric($key)?$key+1:':'.$key;
@@ -520,7 +537,8 @@ abstract class Connection{
      * @param bool $procedure   是否是存储过程
      * @return mixed
      */
-    protected function getResult($class = '', $procedure = false){
+    protected function getResult($class = '', $procedure = false)
+    {
         if($class === true){
             return $this->PDOStatement; //返回PDOStatement对象处理
         }
@@ -543,7 +561,8 @@ abstract class Connection{
      * @param $class true 返回PDOStatement 字符串用于指定返回的类名
      * @return array
      */
-    protected function procedure($class){
+    protected function procedure($class)
+    {
         $item = [];
         do{
             $result = $this->getResult($class);
@@ -562,7 +581,8 @@ abstract class Connection{
      * @throws DragonException
      * @throws \Throwable
      */
-    public function transaction($callback){
+    public function transaction($callback)
+    {
         $this->startTrans();    //开启事务
         try{
             $result = null;
@@ -585,7 +605,8 @@ abstract class Connection{
      * 开启事务
      * @return bool
      */
-    public function startTrans(){
+    public function startTrans()
+    {
         $this->initConnect(true);   //初始化连接
         if(!$this->linkID) return false;
         ++$this->transTimes;    //事物次数自增
@@ -602,7 +623,8 @@ abstract class Connection{
     /**
      * 提交事务
      */
-    public function commit(){
+    public function commit()
+    {
         $this->initConnect(true);   //初始化连接
         //事务数为1，提交事务
         if($this->transTimes == 1){
@@ -615,7 +637,8 @@ abstract class Connection{
     /**
      * 事务回滚
      */
-    public function rollback(){
+    public function rollback()
+    {
         $this->initConnect(true);   //初始化连接
         if($this->transTimes == 1){
             $this->linkID->rollBack();  //事务回滚
@@ -632,7 +655,8 @@ abstract class Connection{
      * 一个复杂的系统时难免在事务中嵌套了事务
      * @return bool
      */
-    protected function supportSavepoint(){
+    protected function supportSavepoint()
+    {
         return false;
     }
 
@@ -644,7 +668,8 @@ abstract class Connection{
      * @param $name
      * @return string
      */
-    protected function parseSavepoint($name){
+    protected function parseSavepoint($name)
+    {
         return 'SAVEPOINT'.$name;
     }
 
@@ -653,7 +678,8 @@ abstract class Connection{
      * @param $name
      * @return string
      */
-    protected function parseSavepointRollBack($name){
+    protected function parseSavepointRollBack($name)
+    {
         return 'ROLLBACK TO SAVEPOINT'.$name;
     }
 
@@ -663,7 +689,8 @@ abstract class Connection{
      * @return bool
      * @throws DragonException
      */
-    public function batchQuery($sqlArray = []){
+    public function batchQuery($sqlArray = [])
+    {
         if(!is_array($sqlArray)) return false;
         $this->startTrans(); //自动开启事务支持
         try{
@@ -683,7 +710,8 @@ abstract class Connection{
      * @param bool $execute
      * @return int
      */
-    public function getQueryTime($execute = false){
+    public function getQueryTime($execute = false)
+    {
         //查询的次数
         return $execute?Db::$queryTimes + Db::$executeTimes:Db::$queryTimes;
     }
@@ -692,14 +720,16 @@ abstract class Connection{
      * SQL执行的次数
      * @return int
      */
-    public function getExecuteTime(){
+    public function getExecuteTime()
+    {
         return Db::$executeTimes;
     }
 
     /**
      * 关闭数据库
      */
-    public function close(){
+    public function close()
+    {
         $this->linkID = null;
     }
 
@@ -707,7 +737,8 @@ abstract class Connection{
      * 获取最后一次执行的SQL
      * @return string
      */
-    public function getLastSql(){
+    public function getLastSql()
+    {
         return $this->queryStr;
     }
 
@@ -716,7 +747,8 @@ abstract class Connection{
      * @param null $sequence    序列自增
      * @return mixed
      */
-    public function getLastInsertId($sequence = null){
+    public function getLastInsertId($sequence = null)
+    {
         return $this->linkID->lastTnsertId($sequence);
     }
 
@@ -724,7 +756,8 @@ abstract class Connection{
      * 获取影响的行数
      * @return int
      */
-    public function getnumRows(){
+    public function getnumRows()
+    {
         return $this->numRows;
     }
 
@@ -732,7 +765,8 @@ abstract class Connection{
      * 获取错误信息
      * @return string
      */
-    public function getError(){
+    public function getError()
+    {
         if($this->PDOStatement){
             $error = $this->PDOStatement->errorInfo();
             $error = $error[1].':'.$error[2];
@@ -751,7 +785,8 @@ abstract class Connection{
      * @param bool $master
      * @return mixed
      */
-    public function quote($str, $master = true){
+    public function quote($str, $master = true)
+    {
         $this->initConnect($master);
         return $this->linkID?$this->linkID->quote($str):$str;
     }

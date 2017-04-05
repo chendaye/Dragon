@@ -53,6 +53,8 @@ define('CONFIG', APP.'Config'.SP);
 define('TPL', APP.'Runtime'.SP.'TemplatesCache'.SP);
 //日志目录
 define('LOG', APP.'Runtime'.SP.'Log'.SP);
+//缓存目录
+define('CACHE', APP.'Runtime'.SP.'Cache'.SP);
 
 // 环境检测
 define('IS_CML', php_sapi_name() == 'cli' ? true : false);

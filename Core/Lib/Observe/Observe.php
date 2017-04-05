@@ -18,7 +18,8 @@ namespace Core\Lib\Observe;
  * Interface Observe
  * @package Core\Lib\Observe
  */
-interface Observe{
+interface Observe
+{
     /**
      * 持有一个功能主体的实例
      * @param Event $event

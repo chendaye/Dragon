@@ -18,7 +18,8 @@ namespace Core\Lib;
  * Class Cookie
  * @package Core\Lib
  */
-class Cookie{
+class Cookie
+{
     //配置
     static protected $configure = [
         'PREFIX' => '',  //前缀
@@ -36,7 +37,8 @@ class Cookie{
      * 初始化
      * @param array $config
      */
-    static public function init(array $config = []){
+    static public function init(array $config = [])
+    {
         if(empty($config)) $config = Conf::get('COOKIE');
         self::$configure = array_merge(self::$configure, $config);
         if(self::$configure['HTTPONLY']) ini_set('session.cookie_httponly', 1);
@@ -48,7 +50,8 @@ class Cookie{
      * @param string $prefix
      * @return mixed
      */
-    static public function prefix($prefix = ''){
+    static public function prefix($prefix = '')
+    {
         if(empty($prefix)) return self::$configure['PREFIX'];
         self::$configure['PREFIX'] = $prefix;
     }
@@ -59,7 +62,8 @@ class Cookie{
      * @param null $prefix
      * @return mixed|null|string
      */
-    static public function get($name, $prefix = null){
+    static public function get($name, $prefix = null)
+    {
         is_null(self::$init) && self::init();
         $prefix = is_null($prefix)?self::$configure['PREFIX']:$prefix;
         $name = $prefix.'_'.$name;
@@ -85,7 +89,8 @@ class Cookie{
      * @param $data
      * @param null $option
      */
-    static public function set($name, $data, $option = null){
+    static public function set($name, $data, $option = null)
+    {
         is_null(self::$init) && self::init();
         //参数设置,覆盖默认参数,当次有效
         if(!is_null($option)){
@@ -123,7 +128,8 @@ class Cookie{
      * @param null $prefix
      * @return bool
      */
-    static public function exist($name, $prefix = null){
+    static public function exist($name, $prefix = null)
+    {
         is_null(self::$init) && self::init();
         $prefix = is_null($prefix)?self::$configure['PREFIX']:$prefix;
         $name = $prefix.'_'.$name;
@@ -135,7 +141,8 @@ class Cookie{
      * @param null $prefix
      * @return bool|null
      */
-    static public function clear($prefix = null){
+    static public function clear($prefix = null)
+    {
         //cookie不存在啥也不干
         if(empty($_COOKIE)) return null;
         is_null(self::$init) && self::init();
@@ -163,7 +170,8 @@ class Cookie{
      * @param $name
      * @param null $prefix
      */
-    static public function delete($name, $prefix = null){
+    static public function delete($name, $prefix = null)
+    {
         is_null(self::$init) && self::init();
         $prefix = is_null($prefix)?self::$configure['PREFIX']:$prefix;
         $config = self::$configure;
@@ -179,7 +187,8 @@ class Cookie{
      * @param $val
      * @param string $type
      */
-    static private function jsonFormat(&$val, $type = 'encode'){
+    static private function jsonFormat(&$val, $type = 'encode')
+    {
         if(!empty($val && $val !== true)){
             if($type == 'encode'){
                 //将字符串编码并将其用于 URL 的请求部分

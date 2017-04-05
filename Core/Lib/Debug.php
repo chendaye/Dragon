@@ -12,7 +12,8 @@
 // +----------------------------------------------------------------------
 
 namespace Core\Lib;
-class Debug{
+class Debug
+{
     //时间信息
     static protected $timeinfo = [];
     //内存信息
@@ -23,7 +24,8 @@ class Debug{
      * @param $name
      * @param string $value
      */
-    static public function record($name, $value = ''){
+    static public function record($name, $value = '')
+    {
         self::$timeinfo[$name] = is_float($value)?$value:microtime(true); //记录时间信息
         //记录内存的使用情况
         if($value != 'time'){
@@ -40,7 +42,8 @@ class Debug{
      * @param int $dsc  小数点
      * @return string
      */
-    static public function rangeTime($start, $end, $dsc = 6){
+    static public function rangeTime($start, $end, $dsc = 6)
+    {
         if(!isset(self::$timeinfo['end'])){
             self::$timeinfo['end'] = microtime(true);
         }
@@ -52,7 +55,8 @@ class Debug{
      * @param int $dsc
      * @return string
      */
-    static public function useTime($dsc = 6){
+    static public function useTime($dsc = 6)
+    {
         return number_format(microtime(true) - DRAGON_START_TIME, $dsc);
     }
 
@@ -60,7 +64,8 @@ class Debug{
      * 当前访问的吞吐率
      * @return string
      */
-    static public function throughputRate(){
+    static public function throughputRate()
+    {
         return number_format(1/self::useTime(), 2).'req/s';
     }
 
@@ -71,7 +76,8 @@ class Debug{
      * @param int $dsc  小数点
      * @return string  内存情况
      */
-    static public function rangeMemory($start, $end, $dsc = 2){
+    static public function rangeMemory($start, $end, $dsc = 2)
+    {
         if(!isset(self::$memory['memory'][$end])){
             self::$memory['memory'][$end] = memory_get_usage(); //获取内存情况
         }
@@ -90,7 +96,8 @@ class Debug{
      * @param int $dsc
      * @return string
      */
-    static public function timeMemory($dsc = 2){
+    static public function timeMemory($dsc = 2)
+    {
         $size = memory_get_usage() - DRAGON_START_MEMORY;
         $unit = ['B', 'KB', 'MB', 'GB', 'TB'];
         $pos = 0;
@@ -108,7 +115,8 @@ class Debug{
      * @param int $dsc  小数点
      * @return string
      */
-    static public function rangePeak($start, $end, $dsc = 2){
+    static public function rangePeak($start, $end, $dsc = 2)
+    {
         if(!isset(self::$memory['peak'][$end])){
             self::$memory['peak'][$end] = memory_get_peak_usage();  //内存峰值
         }
@@ -127,7 +135,8 @@ class Debug{
      * @param bool $detail
      * @return array|int
      */
-    static public function fileMsg($detail = false){
+    static public function fileMsg($detail = false)
+    {
         if($detail){
             $files = get_included_files();
             $info = [];

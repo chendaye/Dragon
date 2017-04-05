@@ -18,7 +18,8 @@ namespace Core\Lib;
  * Class CommandFactory
  * @package Core\Lib
  */
-class CommandFactory{
+class CommandFactory
+{
     static private $cmd;
 
     /**
@@ -26,7 +27,8 @@ class CommandFactory{
      * @param $command
      * @return mixed
      */
-    static public function getCommand($command){
+    static public function getCommand($command)
+    {
         //命令只能有字符串组成
         DragonException::error(preg_match('/^\w+$/', $command),"命令{$command}包含非法字符！");
         //拼接类名

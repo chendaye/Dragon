@@ -18,7 +18,8 @@ namespace Core\Lib;
  * Class File
  * @package Core\Lib
  */
-class File extends \SplFileObject {
+class File extends \SplFileObject
+{
     //错误信息
     private $error = '';
     //当前文件名
@@ -42,7 +43,8 @@ class File extends \SplFileObject {
      * @param $file_name
      * @param $open_mode
      */
-    public function __construct($file_name, $open_mode = 'r'){
+    public function __construct($file_name, $open_mode = 'r')
+    {
         parent::__construct($file_name, $open_mode);
         //初始化文件名
         $this->filename = $this->getRealPath()?:$this->getPathname();
@@ -53,7 +55,8 @@ class File extends \SplFileObject {
      * @param bool $test
      * @return bool
      */
-    public function isTest($test = false){
+    public function isTest($test = false)
+    {
         $this->isTest = $test;
         return $this->isTest;
     }
@@ -63,7 +66,8 @@ class File extends \SplFileObject {
      * @param $info
      * @return $this
      */
-    public function setInfo($info){
+    public function setInfo($info)
+    {
         $this->fileInfo = $info;
         //链式调用
         return $this;
@@ -74,7 +78,8 @@ class File extends \SplFileObject {
      * @param string $name
      * @return mixed
      */
-    public function getInfo($name = ''){
+    public function getInfo($name = '')
+    {
         return isset($this->fileInfo[$name])?$this->fileInfo[$name]:$this->fileInfo;
     }
 
@@ -82,7 +87,8 @@ class File extends \SplFileObject {
      * 获取上传的文件名
      * @return string
      */
-    public function getName(){
+    public function getName()
+    {
         return $this->saveName;
     }
 
@@ -91,7 +97,8 @@ class File extends \SplFileObject {
      * @param $saveName
      * @return $this
      */
-    public function setName($saveName){
+    public function setName($saveName)
+    {
         $this->saveName = $saveName;
         return $this;
     }
@@ -102,7 +109,8 @@ class File extends \SplFileObject {
      * @param string $type
      * @return mixed
      */
-    public function hash($type = 'sha1'){
+    public function hash($type = 'sha1')
+    {
         //获取hash 值
         if(!isset($this->hash[$type])) $this->hash[$type] = hash_file($type, $this->filename);
         return $this->hash[$type];
@@ -113,7 +121,8 @@ class File extends \SplFileObject {
      * @param $path
      * @return bool
      */
-    protected function checkDir($path){
+    protected function checkDir($path)
+    {
         if(is_dir($path)) return true;
         if(mkdir($path, 755, true)){
             return true;
@@ -127,7 +136,8 @@ class File extends \SplFileObject {
      * 获取文件类型信息
      * @return mixed
      */
-    public function getMime(){
+    public function getMime()
+    {
         $type = finfo_open(FILEINFO_MIME_TYPE);
         return finfo_file($type, $this->filename);
     }
@@ -137,7 +147,8 @@ class File extends \SplFileObject {
      * @param string $rule 命名规则
      * @return $this
      */
-    public function rule($rule){
+    public function rule($rule)
+    {
         $this->nameRule = $rule;
         return $this;
     }
@@ -147,7 +158,8 @@ class File extends \SplFileObject {
      * @param array $rule
      * @return $this
      */
-    public function validate($rule = []){
+    public function validate($rule = [])
+    {
         $this->validate = $rule;
         return $this;
     }
@@ -156,7 +168,8 @@ class File extends \SplFileObject {
      * 检查是否是合法的上传文件
      * @return bool
      */
-    public function valid(){
+    public function valid()
+    {
         if($this->isTest) return is_file($this->filename);
         //判断指定的文件是否是通过 HTTP POST 上传
         return is_uploaded_file($this->filename);
@@ -167,7 +180,8 @@ class File extends \SplFileObject {
      * @param array $rule 检查规则
      * @return bool
      */
-    public function check($rule = []){
+    public function check($rule = [])
+    {
         $rule = $rule?:$this->validate;
         //检查文件大小
         if(isset($rule['size']) && !$this->checkSize($rule['size'])) {
@@ -200,7 +214,8 @@ class File extends \SplFileObject {
      * @param string|array $ext  合法后缀
      * @return bool
      */
-    public function checkExt($ext){
+    public function checkExt($ext)
+    {
         if(is_string($ext)) $ext = explode(',', $ext);
         $extension = strtolower(pathinfo($this->getInfo('name'), PATHINFO_EXTENSION));
         if(in_array($extension, $ext)) return true;
@@ -211,7 +226,8 @@ class File extends \SplFileObject {
      * 检测图像文件
      * @return bool
      */
-    public function checkImg(){
+    public function checkImg()
+    {
         $extension = strtolower(pathinfo($this->getInfo('name'), PATHINFO_EXTENSION));
         if(in_array($extension, ['gif', 'jpg', 'jpeg', 'bmp', 'png', 'swf']) && !in_array($this->imageType($this->filename), [1, 2, 3, 4, 6])){
             return false;
@@ -224,7 +240,8 @@ class File extends \SplFileObject {
      * @param $image
      * @return int
      */
-    public function imageType($image){
+    public function imageType($image)
+    {
         if(function_exists('exif_imagetype')){
             return exif_imagetype($image);
         }else{
@@ -238,7 +255,8 @@ class File extends \SplFileObject {
      * @param $size
      * @return bool
      */
-    public function checkSize($size){
+    public function checkSize($size)
+    {
         if($this->getSize() > $size) return false;
         return true;
     }
@@ -248,7 +266,8 @@ class File extends \SplFileObject {
      * @param string|array $mime 合法类型
      * @return bool
      */
-    public function checkMime($mime){
+    public function checkMime($mime)
+    {
         if(is_string($mime)) $mime = explode(',', $mime);
         if(in_array(strtolower($this->getMime()), (array)$mime)) return true;
         return false;
@@ -261,7 +280,8 @@ class File extends \SplFileObject {
      * @param bool $replace
      * @return bool|File
      */
-    public function move($path, $saveName = true, $replace = true){
+    public function move($path, $saveName = true, $replace = true)
+    {
         //文件上传数百，捕获错误代码
         if(!empty($this->fileInfo['error'])){
             $this->error($this->fileInfo['error']);
@@ -316,7 +336,8 @@ class File extends \SplFileObject {
      * @param $saveName
      * @return mixed|string
      */
-    protected function saveName($saveName){
+    protected function saveName($saveName)
+    {
         if($saveName === true){
             //自动生成文件名
             if($this->nameRule instanceof \Closure){
@@ -378,7 +399,8 @@ class File extends \SplFileObject {
      * 获取上传错误信息
      * @return string
      */
-    public function getError(){
+    public function getError()
+    {
         return $this->error;
     }
 
@@ -388,7 +410,8 @@ class File extends \SplFileObject {
      * @param $args
      * @return mixed
      */
-    public function __call($method, $args){
+    public function __call($method, $args)
+    {
         return $this->hash($method);
     }
 }

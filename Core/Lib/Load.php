@@ -54,8 +54,8 @@ class Load
             'Core\\Lib' => LIB,
             'Core\\Lib\\Db'   => LIB. 'Db' . SP,
             'Core\\Lib\\Db\\Connector'   => LIB. 'Db' . SP.'Connector'.SP,
-            'Core\\Lib\\Drives\\Log'   => LIB. 'Drives' . SP.'Log'.SP,
-            'Core\\Lib\\Drives\\Config'   => LIB. 'Drives' . SP.'Config'.SP,
+            'Core\\Lib\\Driver\\Log'   => LIB. 'Driver' . SP.'Log'.SP,
+            'Core\\Lib\\Driver\\Config'   => LIB. 'Driver' . SP.'Config'.SP,
             'Core\\Lib\\Observe'   => LIB. 'Observe' . SP,
             'Core\\Lib\\Registry'   => LIB. 'Registry' . SP,
         ]);
@@ -364,7 +364,8 @@ class Load
      * @param string $path
      * @throws DragonException
      */
-    static public function  requireFile($path = COM){
+    static public function  requireFile($path = COM)
+    {
         if(is_file($path)){
             if(substr($path, strrpos($path, '.')) == '.php' && preg_match('/\.php$/', $path)){
                 require_once ($path);
@@ -388,7 +389,8 @@ class Load
      * @return array
      * @throws \Exception
      */
-    static public function build($path, $prepend = false){
+    static public function build($path, $prepend = false)
+    {
         $tree = self::dirTree($path);
         //生成框架默认用映射
         $default_psr4 = [];     //默认映射
@@ -425,7 +427,8 @@ class Load
      * @param string $path
      * @param $container
      */
-    static private function makePath($catlog, $path = '',&$container){
+    static private function makePath($catlog, $path = '',&$container)
+    {
         foreach ($catlog as $key => $val){
             if(is_array($val)){
                 $container[] = $path;  //当前级目录
@@ -443,7 +446,8 @@ class Load
      * @param string $path  目标目录
      * @return bool|array   目录结构
      */
-    static public function dirTree($path) {
+    static public function dirTree($path)
+    {
         $handle = opendir($path);
         if($handle === false){
             return false;

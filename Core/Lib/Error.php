@@ -4,7 +4,8 @@ class Error{
     /**
      * 注册错误处理
      */
-    static function registry(){
+    static function registry()
+    {
         if(DEBUG){
             ini_set('display_errors', 'on');
             //Whoops错误处理  详细用法见Github
