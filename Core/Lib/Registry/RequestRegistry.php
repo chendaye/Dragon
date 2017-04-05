@@ -41,14 +41,35 @@ class RequestRegistry extends Registry{
     }
 
     /**
+     * 静态方法获取请求对象
+     * @return bool
+     */
+    static public function getRequest(){
+        //请求对象
+        $instance = self::instance()->get('request');
+        if(!$instance) return null;
+        return $instance;
+    }
+
+    /**
+     * 储存请求对象，便于集中管理
+     * @param Request $request  路由对象，按理请求对象更合理，之后再处理
+     * @return bool
+     */
+    static public function setRequest(Request $request){
+        //请求对象
+        $instance = self::instance()->get('request');
+        if($instance) return false;
+        self::instance()->set('request',$request); //保存请求对象
+    }
+
+    /**
      * 内部方法
      * 获取请求对象的实例
      * @param string $key   数据键值
      * @return mixed    请求对象的实例
      */
-    protected function get($key)
-    {
-        // TODO: Implement get() method.
+    protected function get($key){
         if(!isset($this->request[$key])) return false;
         return $this->request[$key];
     }
@@ -60,31 +81,10 @@ class RequestRegistry extends Registry{
      * @param mixed $val    对象值
      * @return bool 是否保存成功
      */
-    protected function set($key, $val)
-    {
-        // TODO: Implement set() method.
+    protected function set($key, $val){
         if(isset($this->request[$key])) return false;
         $this->request[$key] = $val;    //保存对象
         return true;
-    }
-
-    /**
-     * 静态方法获取请求对象
-     * @return bool
-     */
-    public static function getRequest(){
-        if(!self::instance()->get('request')) return null;
-        return self::instance()->get('request');
-    }
-
-    /**
-     * 储存请求对象，便于集中管理
-     * @param Request $request  路由对象，按理请求对象更合理，之后再处理
-     * @return bool
-     */
-    public static function setRequest(Request $request){
-        if(self::instance()->get('request')) return false;
-        self::instance()->set('request',$request); //保存请求对象
     }
 }
 ?>
