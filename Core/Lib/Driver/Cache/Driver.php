@@ -167,7 +167,7 @@ abstract class Driver
         } else {
             //创建
             $key = 'tag_' . md5($name);
-            //解析标签层次
+            //解析标签层次，[filename1,filename2,......]
             if (is_string($keys)) $keys = explode(',', $keys);
             //array_map()将用户自定义函数作用到数组中的每个值上，并返回用户自定义函数作用后的带有新值的数组
             $keys = array_map([$this, 'cacheKey'], $keys);  //为每一个文件名创建具体路径
@@ -178,6 +178,7 @@ abstract class Driver
                 //追加，该标签下的缓存路径
                 $value = array_unique(array_merge($this->getTagItem($name), $keys));
             }
+            //缓存文件名拼成字符串，filename1,filename2,......
             $this->set($key, implode(',', $value));
         }
         return $this;
@@ -194,6 +195,7 @@ abstract class Driver
         if ($this->tag) {
             //标签键名，所有缓存文件名字符串集合，以逗号分隔
             $key       = 'tag_' . md5($this->tag);
+            //清除标签
             $this->tag = null;
             if ($this->exist($key)) {
                 //追加标签

@@ -11,28 +11,25 @@
 // | One letter one dream!
 // +----------------------------------------------------------------------
 
-namespace Core\Lib;
+namespace Core\Lib\Exception;
 
-/**
- * 两个抽象方法，定义核心的储存获取操作
- * Class Registry
- * @package Core\Lib
- */
-abstract class Registry
+class TemplateNotFoundException extends \RuntimeException
 {
-    /**
-     * 获取数据,大致起着全局变量的作用
-     * @param $key string
-     * @return mixed
-     */
-    abstract protected function get($key);
+    protected $template;
 
-   /**
-     *设置数据
-     * @param $key string
-     * @param $val mixed
-     * @return mixed
+    public function __construct($message, $template = '')
+    {
+        $this->message  = $message;
+        $this->template = $template;
+    }
+
+    /**
+     * 获取模板文件
+     * @access public
+     * @return string
      */
-    abstract protected function set($key, $val);
+    public function getTemplate()
+    {
+        return $this->template;
+    }
 }
-?>

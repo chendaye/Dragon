@@ -14,6 +14,7 @@
 namespace Core\Lib;
 use Core\Lib\Registry\ApplicationRegistry;
 
+
 class Dbp
 {
     protected static $config = array();   //连接参数，配置信息

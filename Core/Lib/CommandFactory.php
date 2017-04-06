@@ -12,6 +12,8 @@
 // +----------------------------------------------------------------------
 
 namespace Core\Lib;
+use Core\Lib\Exception\DragonException;
+
 
 /**
  *命令工厂

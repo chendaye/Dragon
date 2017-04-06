@@ -11,28 +11,28 @@
 // | One letter one dream!
 // +----------------------------------------------------------------------
 
-namespace Core\Lib;
+namespace Core\Lib\Exception;
 
-/**
- * 两个抽象方法，定义核心的储存获取操作
- * Class Registry
- * @package Core\Lib
- */
-abstract class Registry
+class HttpException extends \RuntimeException
 {
-    /**
-     * 获取数据,大致起着全局变量的作用
-     * @param $key string
-     * @return mixed
-     */
-    abstract protected function get($key);
+    private $statusCode;
+    private $headers;
 
-   /**
-     *设置数据
-     * @param $key string
-     * @param $val mixed
-     * @return mixed
-     */
-    abstract protected function set($key, $val);
+    public function __construct($statusCode, $message = null, \Exception $previous = null, array $headers = [], $code = 0)
+    {
+        $this->statusCode = $statusCode;
+        $this->headers    = $headers;
+
+        parent::__construct($message, $code, $previous);
+    }
+
+    public function getStatusCode()
+    {
+        return $this->statusCode;
+    }
+
+    public function getHeaders()
+    {
+        return $this->headers;
+    }
 }
-?>

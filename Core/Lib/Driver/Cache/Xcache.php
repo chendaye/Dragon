@@ -1,22 +1,22 @@
 <?php
 // +----------------------------------------------------------------------
-// | ThinkPHP [ WE CAN DO IT JUST THINK ]
+// | DragonPHP [ DO IT NOW ]
 // +----------------------------------------------------------------------
-// | Copyright (c) 2006~2016 http://thinkphp.cn All rights reserved.
+// | Copyright (c) 2016-2017 http://chen.com All rights reserved.
 // +----------------------------------------------------------------------
 // | Licensed ( http://www.apache.org/licenses/LICENSE-2.0 )
 // +----------------------------------------------------------------------
-// | Author: liu21st <liu21st@gmail.com>
+// | Author: chendaye <chendaye666@gmail.com>
+// +----------------------------------------------------------------------
+// | One letter one dream!
 // +----------------------------------------------------------------------
 
-namespace think\cache\driver;
-
-use think\cache\Driver;
-use think\Exception;
+namespace Core\Lib\Driver\Cache;
 
 /**
  * Xcache缓存驱动
- * @author    liu21st <liu21st@gmail.com>
+ * Class Xcache
+ * @package Core\Lib\Driver\Cache
  */
 class Xcache extends Driver
 {
@@ -33,12 +33,10 @@ class Xcache extends Driver
      */
     public function __construct($options = [])
     {
-        if (!function_exists('xcache_info')) {
-            throw new \BadFunctionCallException('not support: Xcache');
-        }
-        if (!empty($options)) {
-            $this->options = array_merge($this->options, $options);
-        }
+        //是否支持Xcache
+        if (!function_exists('xcache_info')) throw new \BadFunctionCallException('不支持Xcache！ ');
+        //初始配置
+        if (!empty($options)) $this->options = array_merge($this->options, $options);
     }
 
     /**
@@ -47,9 +45,10 @@ class Xcache extends Driver
      * @param string $name 缓存变量名
      * @return bool
      */
-    public function has($name)
+    public function exist($name)
     {
-        $key = $this->getCacheKey($name);
+        $key = $this->cacheKey($name);
+        //判断缓存是否存在
         return xcache_isset($key);
     }
 
@@ -62,8 +61,9 @@ class Xcache extends Driver
      */
     public function get($name, $default = false)
     {
-        $key = $this->getCacheKey($name);
-        return xcache_isset($key) ? xcache_get($key) : $default;
+        $key = $this->cacheKey($name);
+        if($this->exist($name))return xcache_get($key);
+        return $default;
     }
 
     /**
@@ -76,13 +76,13 @@ class Xcache extends Driver
      */
     public function set($name, $value, $expire = null)
     {
-        if (is_null($expire)) {
-            $expire = $this->options['expire'];
-        }
-        if ($this->tag && !$this->has($name)) {
-            $first = true;
-        }
-        $key = $this->getCacheKey($name);
+        //过期时间
+        if (is_null($expire)) $expire = $this->options['expire'];
+        //第一次缓存
+        if ($this->tag && !$this->exist($name))$first = true;
+        //缓存名
+        $key = $this->cacheKey($name);
+        //缓存
         if (xcache_set($key, $value, $expire)) {
             isset($first) && $this->setTagItem($key);
             return true;
@@ -99,7 +99,7 @@ class Xcache extends Driver
      */
     public function inc($name, $step = 1)
     {
-        $key = $this->getCacheKey($name);
+        $key = $this->cacheKey($name);
         return xcache_inc($key, $step);
     }
 
@@ -112,7 +112,7 @@ class Xcache extends Driver
      */
     public function dec($name, $step = 1)
     {
-        $key = $this->getCacheKey($name);
+        $key = $this->cacheKey($name);
         return xcache_dec($key, $step);
     }
 
@@ -122,9 +122,9 @@ class Xcache extends Driver
      * @param string $name 缓存变量名
      * @return boolean
      */
-    public function rm($name)
+    public function remove($name)
     {
-        return xcache_unset($this->getCacheKey($name));
+        return xcache_unset($this->cacheKey($name));
     }
 
     /**
@@ -135,18 +135,21 @@ class Xcache extends Driver
      */
     public function clear($tag = null)
     {
+        // 指定标签清除
         if ($tag) {
-            // 指定标签清除
             $keys = $this->getTagItem($tag);
             foreach ($keys as $key) {
                 xcache_unset($key);
             }
-            $this->rm('tag_' . md5($tag));
+            $this->remove('tag_' . md5($tag));
             return true;
         }
+        //为指定标签
         if (function_exists('xcache_unset_by_prefix')) {
+            //清除prefix下缓存
             return xcache_unset_by_prefix($this->options['prefix']);
         } else {
+            //清除所有缓存
             return false;
         }
     }

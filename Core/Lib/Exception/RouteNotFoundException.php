@@ -11,28 +11,14 @@
 // | One letter one dream!
 // +----------------------------------------------------------------------
 
-namespace Core\Lib;
+namespace Core\Lib\Exception;
 
-/**
- * 两个抽象方法，定义核心的储存获取操作
- * Class Registry
- * @package Core\Lib
- */
-abstract class Registry
+class RouteNotFoundException extends HttpException
 {
-    /**
-     * 获取数据,大致起着全局变量的作用
-     * @param $key string
-     * @return mixed
-     */
-    abstract protected function get($key);
 
-   /**
-     *设置数据
-     * @param $key string
-     * @param $val mixed
-     * @return mixed
-     */
-    abstract protected function set($key, $val);
+    public function __construct()
+    {
+        parent::__construct(404);
+    }
+
 }
-?>

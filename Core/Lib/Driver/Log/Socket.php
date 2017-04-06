@@ -13,7 +13,7 @@
 
 namespace Core\Lib\Driver\Log;
 
-use Core\Lib\DragonException;
+use Core\Lib\Exception\DragonException;
 
 /**
  * Socket 日志驱动

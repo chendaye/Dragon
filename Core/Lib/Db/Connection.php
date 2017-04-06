@@ -15,7 +15,7 @@ namespace Core\Lib\Db;
 use Core\Lib\Collection;
 use Core\Lib\Db;
 use Core\Lib\Debug;
-use Core\Lib\DragonException;
+use Core\Lib\Exception\DragonException;
 use Core\Lib\Log;
 
 /**

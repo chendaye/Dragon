@@ -12,7 +12,7 @@
 // +----------------------------------------------------------------------
 
 namespace Core\Lib\Observe;
-use Core\Lib\DragonException;
+use Core\Lib\Exception\DragonException;
 use Core\Lib\Registry\ObserveRegistry;
 use Observer\Provider;
 

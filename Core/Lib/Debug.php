@@ -12,6 +12,13 @@
 // +----------------------------------------------------------------------
 
 namespace Core\Lib;
+
+
+/**
+ * 运行状态
+ * Class Debug
+ * @package Core\Lib
+ */
 class Debug
 {
     //时间信息
@@ -164,7 +171,7 @@ class Debug
         $output = ob_get_clean();   //获取缓存值，并清空缓存
         $output = preg_replace('/\]\=\>\n(\s+)/m', '] => ', $output);   //去除特殊字符
         //环境检测
-        if (IS_CLI) {
+        if (IS_CML) {
             $output = PHP_EOL . $label . $output . PHP_EOL;     //PHP_EOL通用换行符
         } else {
             if (!extension_loaded('xdebug')) {

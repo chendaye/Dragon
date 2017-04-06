@@ -10,6 +10,8 @@
 // +----------------------------------------------------------------------
 
 namespace Core\Lib;
+use Core\Lib\Exception\DragonException;
+
 /**
  * PSR-0 \namespace\package\Class_Name => /path/to/project/lib/vendor/namespace/package/Class/Name.php
  * PSR-4 \Aura\Web\Response\Status => /path/to/aura-web/src/Response/Status.php

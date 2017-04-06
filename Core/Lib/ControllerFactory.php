@@ -13,6 +13,8 @@
 
 namespace Core\Lib;
 use Core\Lib\Registry\RequestRegistry;
+use Core\Lib\Exception\DragonException;
+
 
 /**
  * 业务逻辑工厂，获取请求对应的业务逻辑类实例；可直接执行业务逻辑类方法

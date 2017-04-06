@@ -1,22 +1,21 @@
 <?php
 // +----------------------------------------------------------------------
-// | ThinkPHP [ WE CAN DO IT JUST THINK ]
+// | DragonPHP [ DO IT NOW ]
 // +----------------------------------------------------------------------
-// | Copyright (c) 2006~2016 http://thinkphp.cn All rights reserved.
+// | Copyright (c) 2016-2017 http://chen.com All rights reserved.
 // +----------------------------------------------------------------------
 // | Licensed ( http://www.apache.org/licenses/LICENSE-2.0 )
 // +----------------------------------------------------------------------
-// | Author: liu21st <liu21st@gmail.com>
+// | Author: chendaye <chendaye666@gmail.com>
+// +----------------------------------------------------------------------
+// | One letter one dream!
 // +----------------------------------------------------------------------
 
-namespace think\cache\driver;
-
-use think\cache\Driver;
-use think\Exception;
-
+namespace Core\Lib\Driver\Cache;
 /**
  * Sqlite缓存驱动
- * @author    liu21st <liu21st@gmail.com>
+ * Class Sqlite
+ * @package Core\Lib\Driver\Cache
  */
 class Sqlite extends Driver
 {
@@ -36,13 +35,13 @@ class Sqlite extends Driver
      */
     public function __construct($options = [])
     {
-        if (!extension_loaded('sqlite')) {
-            throw new \BadFunctionCallException('not support: sqlite');
-        }
-        if (!empty($options)) {
-            $this->options = array_merge($this->options, $options);
-        }
+        //检查扩展
+        if (!extension_loaded('sqlite')) throw new \BadFunctionCallException('没开启Sqlite扩展');
+        //初始化配置项
+        if (!empty($options))$this->options = array_merge($this->options, $options);
+        //长连接
         $func          = $this->options['persistent'] ? 'sqlite_popen' : 'sqlite_open';
+        //连接
         $this->handler = $func($this->options['db']);
     }
 
@@ -52,7 +51,7 @@ class Sqlite extends Driver
      * @param string $name 缓存名
      * @return string
      */
-    protected function getCacheKey($name)
+    protected function cacheKey($name)
     {
         return $this->options['prefix'] . sqlite_escape_string($name);
     }
@@ -63,9 +62,10 @@ class Sqlite extends Driver
      * @param string $name 缓存变量名
      * @return bool
      */
-    public function has($name)
+    public function exist($name)
     {
-        $name   = $this->getCacheKey($name);
+        $name   = $this->cacheKey($name);
+        //查询数据库缓存
         $sql    = 'SELECT value FROM ' . $this->options['table'] . ' WHERE var=\'' . $name . '\' AND (expire=0 OR expire >' . $_SERVER['REQUEST_TIME'] . ') LIMIT 1';
         $result = sqlite_query($this->handler, $sql);
         return sqlite_num_rows($result);
@@ -80,17 +80,19 @@ class Sqlite extends Driver
      */
     public function get($name, $default = false)
     {
-        $name   = $this->getCacheKey($name);
+        $name   = $this->cacheKey($name);
+        //查询数据库缓存
         $sql    = 'SELECT value FROM ' . $this->options['table'] . ' WHERE var=\'' . $name . '\' AND (expire=0 OR expire >' . $_SERVER['REQUEST_TIME'] . ') LIMIT 1';
         $result = sqlite_query($this->handler, $sql);
+        //缓存不为空，解压，反序列化返回
         if (sqlite_num_rows($result)) {
             $content = sqlite_fetch_single($result);
-            if (function_exists('gzcompress')) {
-                //启用数据压缩
-                $content = gzuncompress($content);
-            }
+            //解压数据
+            if (function_exists('gzcompress')) $content = gzuncompress($content);
+            //反序列化并返回
             return unserialize($content);
         }
+        //缓存不存在，返回默认值
         return $default;
     }
 
@@ -104,26 +106,27 @@ class Sqlite extends Driver
      */
     public function set($name, $value, $expire = null)
     {
-        $name  = $this->getCacheKey($name);
+        $name  = $this->cacheKey($name);
+        //保存缓存
         $value = sqlite_escape_string(serialize($value));
-        if (is_null($expire)) {
-            $expire = $this->options['expire'];
-        }
-        $expire = (0 == $expire) ? 0 : ($_SERVER['REQUEST_TIME'] + $expire); //缓存有效期为0表示永久缓存
-        if (function_exists('gzcompress')) {
-            //数据压缩
-            $value = gzcompress($value, 3);
-        }
+        //过期时间
+        if (is_null($expire)) $expire = $this->options['expire'];
+        //缓存有效期为0表示永久缓存
+        $expire = ($expire == 0) ? 0 : ($_SERVER['REQUEST_TIME'] + $expire);
+        //数据压缩
+        if (function_exists('gzcompress'))  $value = gzcompress($value, 3);
+        //标签
         if ($this->tag) {
             $tag       = $this->tag;
             $this->tag = null;
         } else {
             $tag = '';
         }
+        //存储数据的SQL
         $sql = 'REPLACE INTO ' . $this->options['table'] . ' (var, value, expire, tag) VALUES (\'' . $name . '\', \'' . $value . '\', \'' . $expire . '\', \'' . $tag . '\')';
-        if (sqlite_query($this->handler, $sql)) {
-            return true;
-        }
+        //存储数据
+        if (sqlite_query($this->handler, $sql))return true;
+        //失败返回FALSE
         return false;
     }
 
@@ -136,7 +139,7 @@ class Sqlite extends Driver
      */
     public function inc($name, $step = 1)
     {
-        if ($this->has($name)) {
+        if ($this->exist($name)) {
             $value = $this->get($name) + $step;
         } else {
             $value = $step;
@@ -153,7 +156,7 @@ class Sqlite extends Driver
      */
     public function dec($name, $step = 1)
     {
-        if ($this->has($name)) {
+        if ($this->exist($name)) {
             $value = $this->get($name) - $step;
         } else {
             $value = $step;
@@ -167,9 +170,10 @@ class Sqlite extends Driver
      * @param string $name 缓存变量名
      * @return boolean
      */
-    public function rm($name)
+    public function remove($name)
     {
-        $name = $this->getCacheKey($name);
+        $name = $this->cacheKey($name);
+        //从数据库中删除缓存
         $sql  = 'DELETE FROM ' . $this->options['table'] . ' WHERE var=\'' . $name . '\'';
         sqlite_query($this->handler, $sql);
         return true;
@@ -183,12 +187,14 @@ class Sqlite extends Driver
      */
     public function clear($tag = null)
     {
+        //删除指定标签的缓存
         if ($tag) {
             $name = sqlite_escape_string($tag);
             $sql  = 'DELETE FROM ' . $this->options['table'] . ' WHERE tag=\'' . $name . '\'';
             sqlite_query($this->handler, $sql);
             return true;
         }
+        //删除所有缓存
         $sql = 'DELETE FROM ' . $this->options['table'];
         sqlite_query($this->handler, $sql);
         return true;

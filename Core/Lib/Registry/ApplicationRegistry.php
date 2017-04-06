@@ -12,7 +12,7 @@
 // +----------------------------------------------------------------------
 
 namespace Core\Lib\Registry;
-use Core\Lib\DragonException;
+use Core\Lib\Exception\DragonException;
 
 
 /**

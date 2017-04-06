@@ -13,6 +13,7 @@
 
 namespace Core\Lib;
 
+
 /**
  * 获取框架配置信息
  * Class Conf
@@ -35,7 +36,8 @@ class Conf
     static public function get($name = NULL, $range = '')
     {
         $range = $range?:self::$range;
-        if($name === NULL) return isset(self::$config[$range])?self::$config[$range]:NULL;  //不指定配置名称获取所有配置
+        //不指定配置名称获取所有配置
+        if($name === NULL) return isset(self::$config[$range])?self::$config[$range]:NULL;  
         $config = self::exist($name, $range);
         return $config;
     }
@@ -47,7 +49,7 @@ class Conf
      * @param string $range  配置作用范围
      * @return mixed|void  获取的配置
      */
-    static public function cfgFile($filename, $name = '', $range = '')
+    static public function init($filename, $name = '', $range = '')
     {
         $range = $range?:self::$range;
         if(!isset(self::$config[$range])) self::$config[$range] = []; //配置数组
@@ -72,9 +74,8 @@ class Conf
     static public function setRange($range)
     {
         self::$range = $range;
-        if(!isset(self::$config[$range])){
-            self::$config[$range] = [];
-        }
+        //初始化作用域数组
+        if(!isset(self::$config[$range]))self::$config[$range] = [];
     }
 
     /**
@@ -85,11 +86,12 @@ class Conf
      */
     static public function analysis($conf, $type = '')
     {
-        if(!$type){
-            $type = pathinfo($conf, PATHINFO_EXTENSION);    //获取配置文件扩展名
-        }
+        //获取配置文件扩展名
+        if(!$type)$type = pathinfo($conf, PATHINFO_EXTENSION);
+        //配置文件驱动
         $driver = 'Core\\Lib\\Drives\\Config\\'.ucwords($type);
         $instance = new $driver();
+        //解析后的内容
         return $instance->resolve($conf);
     }
 
@@ -101,21 +103,27 @@ class Conf
      */
     static public function set($name, $value = null, $range)
     {
+        //作用域
         $range = $range?:self::$range;
-        if(!isset(self::$config[$range])) self::$config[$range] = []; //配置数组
-        if(is_array($value)) (new Collection())->keyToCase($value);  //配置键名转化为大写
+        //配置数组
+        if(!isset(self::$config[$range])) self::$config[$range] = [];
+        //配置键名转化为大写
+        if(is_array($value)) (new Collection())->keyToCase($value);
+        //未指定配置名，默认赋值给当前作用域
         if(empty($name)) {
             self::$config[$range] = $value;
             return;
         }
-        $name = strtoupper($name);  //配置名转化成大写
+        //配置名转化成大写
+        $name = strtoupper($name);
         //单个设置
         if(is_string($value) || is_numeric($value) || is_bool($value)){
             if(!strpos($name, '.')){
                 self::$config[$range][$name] = $value;
             }else{
+                //支持二级数组，名称用点号分割
                 $name = explode('.', $name);
-                self::$config[$range][$name[0]][$name[1]] = $value;     //支持二级数组，名称用点号分割
+                self::$config[$range][$name[0]][$name[1]] = $value;
             }
             return;
         }
@@ -123,14 +131,17 @@ class Conf
         if(is_array($value)){
             if(!empty($name)){
                 if(isset(self::$config[$range][$name])){
-                    self::$config[$range][$name] = array_merge(self::$config[$range][$name], $value);   //覆盖
+                    //覆盖
+                    self::$config[$range][$name] = array_merge(self::$config[$range][$name], $value);
                 }else{
-                    self::$config[$range][$name] = $value;  //设置
+                    //设置
+                    self::$config[$range][$name] = $value;
                 }
                 return self::$config[$range][$name];
             }
         }
-        return self::$config[$range];   //配置值为空，直接返回范围配置数组
+        //配置值为空，直接返回范围配置数组
+        return self::$config[$range];
     }
 
     /**
@@ -146,11 +157,17 @@ class Conf
         //是否存在
         if(strpos($name, '.')){
             $name = explode('.', $name);
-            if(isset(self::$config[$range][$name[0]][$name[1]])) return self::$config[$range][$name[0]][$name[1]];
+            if(isset(self::$config[$range][$name[0]][$name[1]])) $content =  self::$config[$range][$name[0]][$name[1]];
         }else{
-            if(isset(self::$config[$range][$name])) return self::$config[$range][$name];
+            if(isset(self::$config[$range][$name])) $content = self::$config[$range][$name];
         }
-        return NULL;
+        //键名转化为小写
+        if(isset($content)){
+            if(is_array($content)) (new Collection())->keyToCase($content,CASE_LOWER);
+            return $content;
+        }else{
+            return null;
+        }
     }
 
     /**
@@ -161,7 +178,8 @@ class Conf
     {
         $range = $range?:self::$range;
         if($range === true){
-            self::$config = []; //重置全部配置
+            //重置全部配置
+            self::$config = [];
         }else{
             if(isset(self::$config[$range])) self::$config[$range] = [];
         }

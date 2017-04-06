@@ -13,6 +13,8 @@
 
 namespace Core\Lib;
 use Core\Lib\Registry\RequestRegistry;
+use Core\Lib\Exception\DragonException;
+
 
 /**
  * 视图类，为命令加载相应的视图

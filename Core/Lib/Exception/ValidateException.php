@@ -11,28 +11,25 @@
 // | One letter one dream!
 // +----------------------------------------------------------------------
 
-namespace Core\Lib;
+namespace Core\Lib\Exception;
 
-/**
- * 两个抽象方法，定义核心的储存获取操作
- * Class Registry
- * @package Core\Lib
- */
-abstract class Registry
+class ValidateException extends \RuntimeException
 {
-    /**
-     * 获取数据,大致起着全局变量的作用
-     * @param $key string
-     * @return mixed
-     */
-    abstract protected function get($key);
+    protected $error;
 
-   /**
-     *设置数据
-     * @param $key string
-     * @param $val mixed
-     * @return mixed
+    public function __construct($error)
+    {
+        $this->error   = $error;
+        $this->message = is_array($error) ? implode("\n\r", $error) : $error;
+    }
+
+    /**
+     * 获取验证错误信息
+     * @access public
+     * @return array|string
      */
-    abstract protected function set($key, $val);
+    public function getError()
+    {
+        return $this->error;
+    }
 }
-?>

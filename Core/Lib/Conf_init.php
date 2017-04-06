@@ -12,6 +12,8 @@
 // +----------------------------------------------------------------------
 
 namespace Core\Lib;
+use Core\Lib\Exception\DragonException;
+
 /**
  * 配置文件解析类
  * Class Conf

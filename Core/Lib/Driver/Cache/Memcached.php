@@ -13,6 +13,11 @@
 
 namespace Core\Lib\Driver\Cache;
 
+/**
+ * Memcached缓存驱动
+ * Class Memcached
+ * @package Core\Lib\Driver\Cache
+ */
 class Memcached extends Driver
 {
     protected $options = [

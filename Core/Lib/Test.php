@@ -63,7 +63,7 @@ class Test
 
         //E(\Core\Lib\Conf::analysis(json_encode(123),'json'));
 
-        \Core\Lib\Conf::cfgFile('Config.php', '');
+        \Core\Lib\Conf::init('Config.php', '');
 
 
 
@@ -173,7 +173,7 @@ class Test
 //                <input name=\"aaa\" type=\"hidden\" value=\"6669879879\">
 //                <input type=\"submit\">
 //            </form>";
-        \Core\Lib\Conf::cfgFile('Config.php', '');
+        \Core\Lib\Conf::init('Config.php', '');
         $req = new Request();
 
         //$req->none('ddd');
@@ -305,23 +305,37 @@ class Test
 
     static public function cache()
     {
-        $driver = new File([
-            'expire'        => 3600,   //缓存过期时间，0：不过期
-            'subdirectory'  => true,   //启用子目录
-            'prefix'        => 'chen',  //缓存前级目录
-            'path'          => CACHE,   //缓存路径
-            'compress' => false,   //是否压缩文件
-        ]);
-       // dump($driver);
-        $driver->set('exporeTest', ['a'=>'666', 'b'=>'888', 'c'=> '555e']);
-
-        E($driver->get('exporeTest', 'exporeTest', [new self(),'exporeTest']));
+//        $driver = new File([
+//            'expire'        => 3600,   //缓存过期时间，0：不过期
+//            'subdirectory'  => true,   //启用子目录
+//            'prefix'        => 'chen',  //缓存前级目录
+//            'path'          => CACHE,   //缓存路径
+//            'compress' => false,   //是否压缩文件
+//        ]);
+//       // dump($driver);
+//        $driver->set('exporeTest', ['a'=>'666', 'b'=>'888', 'c'=> '555e']);
+//
+//        E($driver->get('exporeTest', 'exporeTest', [new self(),'exporeTest']));
         //E($driver->getTagItem('chen'));
+        //E(md5(serialize(false)));
+        //E(Conf::get('cache.redis'));
+
+        //Cache::init([]);
+        Cache::set('DRAGON', ['file','driver', 'success']);
+        E(Cache::get('DRAGON'));
+        Cache::remove('DRAGON');
+        E(Cache::get('DRAGON'));
+        Cache::tag('tag', 'chen,da,ye',true);
+        E(Cache::get('tag_'.md5('tag')));
+
+        //dump(Cache::test());
+
         exit;
     }
 
     static function exporeTest($filename){
         if($filename) return true;
+
     }
 }
 ?>

@@ -1,22 +1,21 @@
 <?php
 // +----------------------------------------------------------------------
-// | ThinkPHP [ WE CAN DO IT JUST THINK ]
+// | DragonPHP [ DO IT NOW ]
 // +----------------------------------------------------------------------
-// | Copyright (c) 2006~2016 http://thinkphp.cn All rights reserved.
+// | Copyright (c) 2016-2017 http://chen.com All rights reserved.
 // +----------------------------------------------------------------------
 // | Licensed ( http://www.apache.org/licenses/LICENSE-2.0 )
 // +----------------------------------------------------------------------
-// | Author: liu21st <liu21st@gmail.com>
+// | Author: chendaye <chendaye666@gmail.com>
+// +----------------------------------------------------------------------
+// | One letter one dream!
 // +----------------------------------------------------------------------
 
-namespace think\cache\driver;
-
-use think\cache\Driver;
-use think\Exception;
-
+namespace Core\Lib\Driver\Cache;
 /**
  * Wincache缓存驱动
- * @author    liu21st <liu21st@gmail.com>
+ * Class Wincache
+ * @package Core\Lib\Driver\Cache
  */
 class Wincache extends Driver
 {
@@ -26,19 +25,17 @@ class Wincache extends Driver
     ];
 
     /**
-     * 架构函数
+     * 构造函数
      * @param array $options 缓存参数
      * @throws Exception
      * @access public
      */
     public function __construct($options = [])
     {
-        if (!function_exists('wincache_ucache_info')) {
-            throw new \BadFunctionCallException('not support: WinCache');
-        }
-        if (!empty($options)) {
-            $this->options = array_merge($this->options, $options);
-        }
+        //检查是否支持
+        if (!function_exists('wincache_ucache_info')) throw new \BadFunctionCallException('不支持WinCache！ ');
+        //初始配置
+        if (!empty($options))$this->options = array_merge($this->options, $options);
     }
 
     /**
@@ -47,9 +44,9 @@ class Wincache extends Driver
      * @param string $name 缓存变量名
      * @return bool
      */
-    public function has($name)
+    public function exist($name)
     {
-        $key = $this->getCacheKey($name);
+        $key = $this->cacheKey($name);
         return wincache_ucache_exists($key);
     }
 
@@ -62,7 +59,8 @@ class Wincache extends Driver
      */
     public function get($name, $default = false)
     {
-        $key = $this->getCacheKey($name);
+        $key = $this->cacheKey($name);
+        //获取缓存
         return wincache_ucache_exists($key) ? wincache_ucache_get($key) : $default;
     }
 
@@ -76,13 +74,12 @@ class Wincache extends Driver
      */
     public function set($name, $value, $expire = null)
     {
-        if (is_null($expire)) {
-            $expire = $this->options['expire'];
-        }
-        $key = $this->getCacheKey($name);
-        if ($this->tag && !$this->has($name)) {
-            $first = true;
-        }
+        //过期时间
+        if (is_null($expire))$expire = $this->options['expire'];
+        $key = $this->cacheKey($name);
+        //标签
+        if ($this->tag && !$this->exist($name))  $first = true;
+        //保存缓存
         if (wincache_ucache_set($key, $value, $expire)) {
             isset($first) && $this->setTagItem($key);
             return true;
@@ -99,7 +96,7 @@ class Wincache extends Driver
      */
     public function inc($name, $step = 1)
     {
-        $key = $this->getCacheKey($name);
+        $key = $this->cacheKey($name);
         return wincache_ucache_inc($key, $step);
     }
 
@@ -112,7 +109,7 @@ class Wincache extends Driver
      */
     public function dec($name, $step = 1)
     {
-        $key = $this->getCacheKey($name);
+        $key = $this->cacheKey($name);
         return wincache_ucache_dec($key, $step);
     }
 
@@ -122,9 +119,9 @@ class Wincache extends Driver
      * @param string $name 缓存变量名
      * @return boolean
      */
-    public function rm($name)
+    public function remove($name)
     {
-        return wincache_ucache_delete($this->getCacheKey($name));
+        return wincache_ucache_delete($this->cacheKey($name));
     }
 
     /**
@@ -135,14 +132,17 @@ class Wincache extends Driver
      */
     public function clear($tag = null)
     {
+        //清除标签下的所有缓存
         if ($tag) {
             $keys = $this->getTagItem($tag);
             foreach ($keys as $key) {
                 wincache_ucache_delete($key);
             }
-            $this->rm('tag_' . md5($tag));
+            //删除标签
+            $this->remove('tag_' . md5($tag));
             return true;
         } else {
+            //清除所有缓存
             return wincache_ucache_clear();
         }
     }

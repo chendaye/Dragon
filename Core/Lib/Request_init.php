@@ -12,6 +12,8 @@
 // +----------------------------------------------------------------------
 
 namespace Core\Lib;
+use Core\Lib\Exception\DragonException;
+
 /**
  * 请求类获取请求信息
  * Class Request

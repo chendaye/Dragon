@@ -13,6 +13,8 @@
 
 namespace Core\Lib;
 use Core\Lib\Registry\RequestRegistry;
+use Core\Lib\Exception\DragonException;
+
 
 /**
  * 命令解析器，解析请求获取对应的命令类实例

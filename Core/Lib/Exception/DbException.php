@@ -11,28 +11,32 @@
 // | One letter one dream!
 // +----------------------------------------------------------------------
 
-namespace Core\Lib;
+namespace Core\Lib\Exception;
 
 /**
- * 两个抽象方法，定义核心的储存获取操作
- * Class Registry
- * @package Core\Lib
+ * Database相关异常处理类
  */
-abstract class Registry
+class DbException extends Exception
 {
     /**
-     * 获取数据,大致起着全局变量的作用
-     * @param $key string
-     * @return mixed
+     * DbException constructor.
+     * @param string    $message
+     * @param array     $config
+     * @param string    $sql
+     * @param int       $code
      */
-    abstract protected function get($key);
+    public function __construct($message, array $config, $sql, $code = 10500)
+    {
+        $this->message = $message;
+        $this->code    = $code;
 
-   /**
-     *设置数据
-     * @param $key string
-     * @param $val mixed
-     * @return mixed
-     */
-    abstract protected function set($key, $val);
+        $this->setData('Database Status', [
+            'Error Code'    => $code,
+            'Error Message' => $message,
+            'Error SQL'     => $sql,
+        ]);
+
+        $this->setData('Database Config', $config);
+    }
+
 }
-?>

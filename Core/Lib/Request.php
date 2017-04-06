@@ -12,10 +12,15 @@
 // +----------------------------------------------------------------------
 
 namespace Core\Lib;
+use Core\Lib\Exception\DragonException;
+use Core\Lib\Exception\HttpResponseException;
 
+/**
+ * Class Request
+ * @package Core\Lib
+ */
 class Request
 {
-
     //对象实例
     protected $instance;
 
@@ -1280,6 +1285,123 @@ class Request
         if($this->isAjax())header($name.':'.$token);
         Session::set($name, $token);
         return $token;
+    }
+
+    /**
+     * 设置当前地址的请求缓存
+     * @access public
+     * @param string $key 缓存标识，支持变量规则 ，例如 item/:name/:id
+     * @param mixed  $expire 缓存有效期
+     * @return void
+     */
+    public function cache($key, $expire = null)
+    {
+        if($key !== false && $this->isGet() && !$this->checkCache){
+            //设置缓存请求检查，缓存之后为true
+            $this->checkCache = true;
+            //关闭缓存
+            if($expire === false) return;
+            //如果key是匿名函数
+            if($key instanceof \Closure){
+                //调用匿名函数
+                $key = call_user_func_array($key, [$this]);
+            }elseif ($key === true){
+                //自动缓存
+                $key = '__URL__';
+            }elseif (strpos($key, '|')){
+                list($key,$fun) = explode('|', $key);
+            }
+            //特殊规则替换
+            if(strpos($key, '__') !== false){
+                //后者替换前者
+                $key = str_replace(['__MODULE__','__COMMAND__', '__CONTROLLER__', '__URL__'], [$this->module,$this->command, $this->controller, md5($this->url())], $key);
+            }
+
+            if (strpos($key, ':') !== false) {
+                $param = $this->param();
+                foreach ($param as $item => $val) {
+                    if (is_string($val) && false !== strpos($key, ':' . $item)) {
+                        $key = str_replace(':' . $item, $val, $key);
+                    }
+                }
+            } elseif (strpos($key, ']')) {
+                if ('[' . $this->ext() . ']' == $key) {
+                    // 缓存某个后缀的请求
+                    $key = md5($this->url());
+                } else {
+                    return;
+                }
+            }
+            //调用函数
+            if (isset($fun))  $key = $fun($key);
+
+            if (strtotime($this->server('HTTP_IF_MODIFIED_SINCE')) + $expire > $_SERVER['REQUEST_TIME']) {
+                // 读取缓存
+                //304 的标准解释是：Not Modified 客户端有缓冲的文档并发出了一个条件性的请求
+                //（一般是提供If-Modified-Since头表示客户只想比指定日期更新的文档）。服务器告诉客户，原来缓冲的文档还可以继续使用。
+                $response = Response::create()->code(304);
+                throw new HttpResponseException($response);
+            } elseif (Cache::exist($key)) {
+                list($content, $header) = Cache::get($key);
+                $response = Response::create($content)->header($header);
+                throw new HttpResponseException($response);
+            } else {
+                $this->cache = [$key, $expire];
+            }
+        }
+    }
+
+    /**
+     * 获取缓存
+     * @return mixed
+     */
+    public function getCache()
+    {
+        return $this->cache;
+    }
+
+    /**
+     * 设置当前请求绑定的对象实例
+     * @param string $name 绑定对象标识
+     * @param null $obj   绑定对象实例
+     */
+    public function bind($name, $obj = null)
+    {
+        if(is_array($name)){
+            $this->bind = array_merge($this->bind, $name);
+        }else{
+            $this->bind[$name] = $obj;
+        }
+    }
+
+    /**
+     * 向一个不能访问的属性赋值的时候 __set() 方法被调用
+     * @param $name
+     * @param $value
+     */
+    public function __set($name, $value)
+    {
+        $this->bind[$name] = $value;
+    }
+
+    /**
+     * 从一个不能访问的属性读取数据的时候 __get() 方法被调用
+     * @param $name
+     * @return mixed|null
+     */
+    public function __get($name)
+    {
+        return isset($this->bind[$name]) ? $this->bind[$name] : null;
+    }
+
+    /**
+     * 用isset() 判断对象不可见的属性时(protected/private/不存在的属性),__isset()被调用
+     * @param $name
+     * @return bool
+     */
+    public function __isset($name)
+    {
+        return isset($this->bind[$name]);
     }
 
 

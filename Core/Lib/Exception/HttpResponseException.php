@@ -11,28 +11,24 @@
 // | One letter one dream!
 // +----------------------------------------------------------------------
 
-namespace Core\Lib;
+namespace Core\Lib\Exception;
+use Core\Lib\Response;
 
-/**
- * 两个抽象方法，定义核心的储存获取操作
- * Class Registry
- * @package Core\Lib
- */
-abstract class Registry
+class HttpResponseException extends \RuntimeException
 {
     /**
-     * 获取数据,大致起着全局变量的作用
-     * @param $key string
-     * @return mixed
+     * @var Response
      */
-    abstract protected function get($key);
+    protected $response;
 
-   /**
-     *设置数据
-     * @param $key string
-     * @param $val mixed
-     * @return mixed
-     */
-    abstract protected function set($key, $val);
+    public function __construct(Response $response)
+    {
+        $this->response = $response;
+    }
+
+    public function getResponse()
+    {
+        return $this->response;
+    }
+
 }
-?>

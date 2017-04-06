@@ -11,28 +11,24 @@
 // | One letter one dream!
 // +----------------------------------------------------------------------
 
-namespace Core\Lib;
+namespace Core\Lib\Exception;
 
-/**
- * 两个抽象方法，定义核心的储存获取操作
- * Class Registry
- * @package Core\Lib
- */
-abstract class Registry
+class ClassNotFoundException extends \RuntimeException
 {
-    /**
-     * 获取数据,大致起着全局变量的作用
-     * @param $key string
-     * @return mixed
-     */
-    abstract protected function get($key);
+    protected $class;
+    public function __construct($message, $class = '')
+    {
+        $this->message = $message;
+        $this->class   = $class;
+    }
 
-   /**
-     *设置数据
-     * @param $key string
-     * @param $val mixed
-     * @return mixed
+    /**
+     * 获取类名
+     * @access public
+     * @return string
      */
-    abstract protected function set($key, $val);
+    public function getClass()
+    {
+        return $this->class;
+    }
 }
-?>

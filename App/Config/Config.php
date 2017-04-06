@@ -178,13 +178,71 @@ return [
 
     'CACHE'                  => [
         // 驱动方式
-        'TYPE'   => 'File',
-        // 缓存保存目录
-        'PATH'   => '',
-        // 缓存前缀
-        'PREFIX' => '',
-        // 缓存有效期 0表示永久缓存
-        'EXPIRE' => 0,
+        'TYPE'   => 'default',
+        //默认缓存配置
+        'FILE' =>[
+            'TYPE'          => 'File',
+            'EXPIRE'        => 3600,   //缓存过期时间，0：不过期
+            'SUBDIRECTORY'  => true,   //启用子目录
+            'PREFIX'        => 'dragon',  //缓存前级目录
+            'PATH'          => CACHE,   //缓存路径
+            'COMPRESS'      => false,   //是否压缩文件
+        ],
+        'MEMCACHE' => [
+            'TYPE'       => 'Memcache',
+            'HOST'       => '127.0.0.1',
+            'PORT'       => 11211,
+            'EXPIRE'     => 0,
+            'TIMEOUT'    => 0, // 超时时间（单位：毫秒）
+            'PERSISTENT' => true,
+            'PREFIX'     => '',
+        ],
+        'MEMCACHED' => [
+            'TYPE'     => 'Memcached',
+            'HOST'     => '127.0.0.1',
+            'PORT'     => 11211,
+            'EXPIRE'   => 0,
+            'TIMEOUT'  => 0, // 超时时间（单位：毫秒）
+            'PREFIX'   => '',
+            'USERNAME' => '', //账号
+            'PASSWORD' => '', //密码
+            'OPTION'   => [],
+        ],
+        'LITE' => [
+            'TYPE'   => 'Lite',
+            'PREFIX' => '',
+            'PATH'   => '',
+            'EXPIRE' => 0, // 等于 10*365*24*3600（10年）
+        ],
+        'REDIS' => [
+            'TYPE'       => 'Redis',
+            'HOST'       => '127.0.0.1',
+            'PORT'       => 6379,   //端口
+            'PASSWORD'   => '',
+            'SELECT'     => 0,
+            'TIMEOUT'    => 0,  //超时时间
+            'EXPIRE'     => 0,  //缓存过期时间
+            'PERSISTENT' => false,  //长连接
+            'PREFIX'     => '',
+        ],
+        'SQLITE'=> [
+            'TYPE'       => 'Sqlite',
+            'DB'         => ':memory:',
+            'TABLE'      => 'sharedmemory',
+            'PREFIX'     => '',
+            'EXPIRE'     => 0,
+            'PERSISTENT' => false,
+        ],
+        'WINCACHE' => [
+            'TYPE'   => 'Wincache',
+            'PREFIX' => '',
+            'EXPIRE' => 0,
+        ],
+        'XCACHE' => [
+            'TYPE'   => 'Xcache',
+            'PREFIX' => '',
+            'EXPIRE' => 0,
+        ],
     ],
 
     // +----------------------------------------------------------------------

@@ -13,7 +13,7 @@
 
 namespace Core\Lib\Registry;
 use Core\Lib\Conf;
-use Core\Lib\DragonException;
+use Core\Lib\Exception\DragonException;
 
 /**
  *读取系统配置文件内容，并在注册表中注册

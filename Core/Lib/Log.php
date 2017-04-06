@@ -12,6 +12,8 @@
 // +----------------------------------------------------------------------
 
 namespace Core\Lib;
+use Core\Lib\Exception\ClassNotFoundException;
+
 
 class Log
 {
@@ -37,7 +39,7 @@ class Log
         $drive = 'Core\Lib\Drives\Log\\'.ucwords($logtype);   //驱动类
         self::$config = $config;
         unset($config['TYPE']);
-        DragonException::error(class_exists($drive), "类{$drive}不存在！");
+        if(!class_exists($drive))throw new ClassNotFoundException("类{$drive}不存在！", $drive);
         self::$drive = new $drive($config);   //日志驱动
         //记录日志驱动初始化信息
         static::log('[ LOG ] INIT'.$logtype, 'info');

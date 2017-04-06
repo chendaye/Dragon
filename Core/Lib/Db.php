@@ -13,6 +13,8 @@
 
 namespace Core\Lib;
 use Core\Lib\Registry\ApplicationRegistry;
+use Core\Lib\Exception\DragonException;
+
 
 /**
  * 该类类似于一个Client, 通过Db::table(xxx),来进行链式操作

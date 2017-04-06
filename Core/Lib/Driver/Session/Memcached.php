@@ -12,7 +12,7 @@
 // +----------------------------------------------------------------------
 
 namespace Core\Lib\Driver\Session;
-use Core\Lib\DragonException;
+use Core\Lib\Exception\DragonException;
 
 class Memcached extends \SessionHandler
 {

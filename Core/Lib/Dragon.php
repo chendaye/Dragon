@@ -12,11 +12,11 @@
 // +----------------------------------------------------------------------
 
 namespace Core\Lib;
-use Core\Base;
 use Core\Lib\Registry\ApplicationHelper;
 use Core\Lib\Registry\ObserveHelper;
 use Core\Lib\Registry\RequestHelper;
 use Core\Lib\Registry\RequestRegistry;
+
 
 /**
  * 前端控制器启动类
@@ -30,7 +30,7 @@ class Dragon
     static public function Test()
     {
         //todo:test
-        Conf::cfgFile('Config.php', '');
+        Conf::init('Config.php', '');
         Test::test();
         exit;
     }
