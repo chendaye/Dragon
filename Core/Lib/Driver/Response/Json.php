@@ -15,6 +15,11 @@ namespace Core\Lib\Driver\Response;
 
 use Core\Lib\Response;
 
+/**
+ * 响应json数据
+ * Class Json
+ * @package Core\Lib\Driver\Response
+ */
 class Json extends Response
 {
     // 输出参数
@@ -36,16 +41,12 @@ class Json extends Response
         try {
             // 返回JSON数据格式到客户端 包含状态信息
             $data = json_encode($data, $this->options['json_encode_param']);
-
-            if ($data === false) {
-                throw new \InvalidArgumentException(json_last_error_msg());
-            }
-
+            //编码错误抛出异常
+            if ($data === false) throw new \InvalidArgumentException(json_last_error_msg());
             return $data;
         } catch (\Exception $e) {
-            if ($e->getPrevious()) {
-                throw $e->getPrevious();
-            }
+            //获取上一个异常
+            if ($e->getPrevious()) throw $e->getPrevious();
             throw $e;
         }
     }

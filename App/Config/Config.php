@@ -101,10 +101,16 @@ return [
     'VAR_AJAX'               => '_ajax',
     // 表单pjax伪装变量
     'VAR_PJAX'               => '_pjax',
+
     // 是否开启请求缓存 true自动缓存 支持设置请求缓存规则
     'REQUEST_CACHE'          => false,
     // 请求缓存有效期
     'REQUEST_CACHE_EXPIRE'   => null,
+    //排除指定的URL缓存
+    'REQUEST_CACHE_EXCEPT' =>    [
+        '/blog/index',
+        '/user/member'
+    ],
 
     // +----------------------------------------------------------------------
     // | 模板设置

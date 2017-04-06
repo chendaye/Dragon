@@ -2,6 +2,8 @@
 namespace Core\Lib;
 use Core\Lib\Driver\Cache\File;
 use Core\Lib\Driver\Session\Memcache;
+use Core\Lib\Exception\Exception;
+use Core\Lib\Exception\HttpResponseException;
 use Core\Lib\Registry\RequestHelper;
 use Core\Lib\Registry\RequestRegistry;
 
@@ -18,7 +20,7 @@ class Test
      */
     static public function test()
     {
-        self::cache();
+        //self::cache();
         self::request();
         self::aoutload();
         self::conf();
@@ -185,9 +187,19 @@ class Test
         RequestHelper::instance()->create('http://username:password@www.dragon-god.com:80/Dragon/Login/login.htmll?d=888&user=chen&pass=daye','delete',$param = ['a'=>1,'b'=>2]);
         //RequestHelper::instance()->init();
        //$_SESSION = $_COOKIE = $_POST = $_GET;
-        \Core\Lib\Session::set('fff', 'Dragon', 'Dragon');
-        //E(\Core\Lib\Session::get());
+//        \Core\Lib\Session::set('fff', 'Dragon', 'Dragon');
+//        E(\Core\Lib\Session::get());
        // E($_ENV);
+//        try{
+//            dump(RequestRegistry::getRequest()->cache(true));
+//            $r = (new HttpResponseException())->getResponse();
+//            dump($r);exit;
+//        }catch (Exception $exception){
+//            dump($exception);exit;
+//        }
+        RequestRegistry::getRequest()->bind('chendaye', '666');
+        dump(RequestRegistry::getRequest()->chendaye);
+        exit;
         dump(RequestRegistry::getRequest()->session($name = '', $default = 'chendaye', $filter = ''));
         //E($_SESSION);
         dump(RequestRegistry::getRequest()->cookie($name = '', $default = 'chendaye', $filter = ''));
@@ -296,6 +308,7 @@ class Test
         dump(RequestRegistry::getRequest()->getContent());
         dump(RequestRegistry::getRequest()->getInput());
         dump(RequestRegistry::getRequest()->token());
+
         E(Session::get());
 
         E(substr('123456789', 2,1));
@@ -337,5 +350,7 @@ class Test
         if($filename) return true;
 
     }
+
+
 }
 ?>

@@ -17,7 +17,7 @@ use Core\Lib\Registry\RequestRegistry;
 
 
 /**
- * 请求响应类
+ * 响应客户端请求
  * Class Response
  * @package Core\Lib
  */
@@ -92,11 +92,12 @@ class Response
             }
         }
         if($this->code == 200){
-            //获取请求缓存
+            //获取缓存的客户端请求
             $cache = RequestRegistry::getRequest()->getCache();
             if($cache){
                 //Cache-Control   用于指定缓存指令，缓存指令是单向的（响应中出现的缓存指令在请求中未必会出现），
                 //且是独立的（一个消息的缓存指令不会影响另一个消息处理的缓存机制），HTTP1.0使用的类似的报头域为Pragma。
+                //max-age指示客户机可以接收生存期不大于指定时间（以秒为单位）的响应
                 header('Cache-Control: max-age=' . $cache[1] . ',must-revalidate');
                 //Last-Modified实体报头域用于指示资源的最后修改日期和时间
                 header('Last-Modified:' . gmdate('D, d M Y H:i:s') . ' GMT');
@@ -104,7 +105,7 @@ class Response
                 header('Expires:' . gmdate('D, d M Y H:i:s', $_SERVER['REQUEST_TIME'] + $cache[1]) . ' GMT');
                 //资源类型
                 $header['Content-Type'] = $this->header['Content-Type'];
-                //缓存输出数据，类型
+                //缓存 key  data  expire
                 Cache::set($cache[0], [$data, $header], $cache[1]);
             }
         }
@@ -143,7 +144,7 @@ class Response
     public function content($content)
     {
         if (null !== $content && !is_string($content) && !is_numeric($content) && !is_callable([$content, '__toString',])) {
-            throw new \InvalidArgumentException(sprintf('variable type error： %s', gettype($content)));
+            throw new \InvalidArgumentException(sprintf('变量类型错误： %s', gettype($content)));
         }
         //设置页面输出内容
         $this->content = (string) $content;
@@ -164,7 +165,7 @@ class Response
      * 处理数据
      * @return mixed
      */
-    public function output()
+    protected function output()
     {
         return $this->data;
     }

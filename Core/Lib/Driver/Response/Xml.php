@@ -1,24 +1,30 @@
 <?php
 // +----------------------------------------------------------------------
-// | ThinkPHP [ WE CAN DO IT JUST THINK ]
+// | DragonPHP [ DO IT NOW ]
 // +----------------------------------------------------------------------
-// | Copyright (c) 2006~2016 http://thinkphp.cn All rights reserved.
+// | Copyright (c) 2016-2017 http://chen.com All rights reserved.
 // +----------------------------------------------------------------------
 // | Licensed ( http://www.apache.org/licenses/LICENSE-2.0 )
 // +----------------------------------------------------------------------
-// | Author: liu21st <liu21st@gmail.com>
+// | Author: chendaye <chendaye666@gmail.com>
+// +----------------------------------------------------------------------
+// | One letter one dream!
 // +----------------------------------------------------------------------
 
-namespace think\response;
+namespace Core\Lib\Driver\Response;
+use Core\Lib\Response;
 
-use think\Response;
-
+/**
+ * 响应xml数据
+ * Class Xml
+ * @package Core\Lib\Driver\Response
+ */
 class Xml extends Response
 {
     // 输出参数
     protected $options = [
         // 根节点名
-        'root_node' => 'think',
+        'root_node' => 'dragon',
         // 根节点属性
         'root_attr' => '',
         //数字索引的子节点名
@@ -44,7 +50,7 @@ class Xml extends Response
     }
 
     /**
-     * XML编码
+     * XML编码,拼接小毛驴数据
      * @param mixed $data 数据
      * @param string $root 根节点名
      * @param string $item 数字索引的子节点名
@@ -82,11 +88,13 @@ class Xml extends Response
     {
         $xml = $attr = '';
         foreach ($data as $key => $val) {
+            //如果键名是数字
             if (is_numeric($key)) {
                 $id && $attr = " {$id}=\"{$key}\"";
                 $key         = $item;
             }
             $xml .= "<{$key}{$attr}>";
+            //递归
             $xml .= (is_array($val) || is_object($val)) ? $this->dataToXml($val, $item, $id) : $val;
             $xml .= "</{$key}>";
         }

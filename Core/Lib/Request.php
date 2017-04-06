@@ -96,10 +96,10 @@ class Request
     //全局过滤规则
     protected $filter;
 
-    //Hook扩展方法
+    //Hook注入扩展方法
     static protected $hook = [];
 
-    //绑定属性
+    //注入属性
     protected $bind = [];
 
     //php://input
@@ -132,6 +132,7 @@ class Request
     }
 
     /**
+     * 可以动态注入当前Request对象的方法
      * 魔术方法，调用不类存在的方法时，指定调用某个方法
      * @param $name
      * @param $arguments
@@ -149,6 +150,7 @@ class Request
     }
 
     /**
+     * 方法注入
      * 注册Hook方法（钩子），支持单个和数组两种注册方式
      * @param $method
      * @param null $callback
@@ -1288,13 +1290,20 @@ class Request
     }
 
     /**
-     * 设置当前地址的请求缓存
+     * 请求地址设置缓存访问，并设置有效期
+     * 第二次访问相同的路由地址的时候，会自动获取请求缓存的数据响应输出，并发送304状态码。
+     *默认请求缓存的标识为当前访问的pathinfo地址，
+     * 可以定义请求缓存的标识
+     * cache('blog/:id',3600) 对blog/:id定义的动态访问地址进行3600秒的请求缓存
+     * cache('__URL__',600)  使用当前的URL地址作为缓存标识
+     * cache('[html]',600)  对某个URL后缀的请求进行缓存
      * @access public
      * @param string $key 缓存标识，支持变量规则 ，例如 item/:name/:id
+     * @param array $except 排除指定 URL
      * @param mixed  $expire 缓存有效期
      * @return void
      */
-    public function cache($key, $expire = null)
+    public function cache($key, $expire = null, $except = [])
     {
         if($key !== false && $this->isGet() && !$this->checkCache){
             //设置缓存请求检查，缓存之后为true
@@ -1303,10 +1312,14 @@ class Request
             if($expire === false) return;
             //如果key是匿名函数
             if($key instanceof \Closure){
-                //调用匿名函数
+                //调用匿名函数,获取缓存的标识名
                 $key = call_user_func_array($key, [$this]);
             }elseif ($key === true){
-                //自动缓存
+                //排除指定的URL缓存
+                foreach ($except as $rule) {
+                    if (strpos($this->url(), $rule) === 0) return;
+                }
+                //自动缓存，默认缓存标识__URL__
                 $key = '__URL__';
             }elseif (strpos($key, '|')){
                 list($key,$fun) = explode('|', $key);
@@ -1317,14 +1330,17 @@ class Request
                 $key = str_replace(['__MODULE__','__COMMAND__', '__CONTROLLER__', '__URL__'], [$this->module,$this->command, $this->controller, md5($this->url())], $key);
             }
 
+            //blog/:id
             if (strpos($key, ':') !== false) {
                 $param = $this->param();
+                //参数值替换参数名
                 foreach ($param as $item => $val) {
-                    if (is_string($val) && false !== strpos($key, ':' . $item)) {
+                    if (is_string($val) && strpos($key, ':' . $item) !== false) {
                         $key = str_replace(':' . $item, $val, $key);
                     }
                 }
             } elseif (strpos($key, ']')) {
+                //[html]
                 if ('[' . $this->ext() . ']' == $key) {
                     // 缓存某个后缀的请求
                     $key = md5($this->url());
@@ -1332,17 +1348,17 @@ class Request
                     return;
                 }
             }
-            //调用函数
+            //调用函数，获取缓存键值
             if (isset($fun))  $key = $fun($key);
-
+            //如果请求时间小于，资源最后修改时间+资源过期时间，则客户端缓存有效
             if (strtotime($this->server('HTTP_IF_MODIFIED_SINCE')) + $expire > $_SERVER['REQUEST_TIME']) {
-                // 读取缓存
-                //304 的标准解释是：Not Modified 客户端有缓冲的文档并发出了一个条件性的请求
-                //（一般是提供If-Modified-Since头表示客户只想比指定日期更新的文档）。服务器告诉客户，原来缓冲的文档还可以继续使用。
+                //告知客户端可以直接读取缓存
                 $response = Response::create()->code(304);
                 throw new HttpResponseException($response);
             } elseif (Cache::exist($key)) {
+                //如果有缓存的请求，用缓存的请求创建响应实例
                 list($content, $header) = Cache::get($key);
+                //链式调用
                 $response = Response::create($content)->header($header);
                 throw new HttpResponseException($response);
             } else {
@@ -1361,11 +1377,12 @@ class Request
     }
 
     /**
+     * 可以动态注入当前Request对象的属性
      * 设置当前请求绑定的对象实例
-     * @param string $name 绑定对象标识
-     * @param null $obj   绑定对象实例
+     * @param string $name 注入对象属性标识
+     * @param null $obj   注入属性、对象实例
      */
-    public function bind($name, $obj = null)
+    public function attrInj($name, $obj = null)
     {
         if(is_array($name)){
             $this->bind = array_merge($this->bind, $name);

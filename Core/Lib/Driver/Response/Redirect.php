@@ -1,29 +1,40 @@
 <?php
 // +----------------------------------------------------------------------
-// | ThinkPHP [ WE CAN DO IT JUST THINK ]
+// | DragonPHP [ DO IT NOW ]
 // +----------------------------------------------------------------------
-// | Copyright (c) 2006~2016 http://thinkphp.cn All rights reserved.
+// | Copyright (c) 2016-2017 http://chen.com All rights reserved.
 // +----------------------------------------------------------------------
 // | Licensed ( http://www.apache.org/licenses/LICENSE-2.0 )
 // +----------------------------------------------------------------------
-// | Author: liu21st <liu21st@gmail.com>
+// | Author: chendaye <chendaye666@gmail.com>
+// +----------------------------------------------------------------------
+// | One letter one dream!
 // +----------------------------------------------------------------------
 
-namespace think\response;
+namespace Core\Lib\Driver\Response;
+use Core\Lib\Registry\RequestRegistry;
+use Core\Lib\Response;
+use Core\Lib\Session;
+use Core\Lib\UrlResolver;
 
-use think\Request;
-use think\Response;
-use think\Session;
-use think\Url;
-
+/**
+ * 重定向到新的地址
+ * Class Redirect
+ * @package Core\Lib\Driver\Response
+ */
 class Redirect extends Response
 {
-
     protected $options = [];
-
     // URL参数
     protected $params = [];
 
+    /**
+     * Redirect constructor.
+     * @param string $data 响应数据
+     * @param int $code 302 重定向
+     * @param array $header 头信息
+     * @param array $options  参数信息
+     */
     public function __construct($data = '', $code = 302, array $header = [], array $options = [])
     {
         parent::__construct($data, $code, $header, $options);
@@ -67,9 +78,14 @@ class Redirect extends Response
      */
     public function getTargetUrl()
     {
-        return (strpos($this->data, '://') || 0 === strpos($this->data, '/')) ? $this->data : Url::build($this->data, $this->params);
+        return (strpos($this->data, '://') || strpos($this->data, '/') === 0) ? $this->data : UrlResolver::build($this->data, $this->params);
     }
 
+    /**
+     * 设置参数
+     * @param array $params
+     * @return $this
+     */
     public function params($params = [])
     {
         $this->params = $params;
@@ -81,7 +97,7 @@ class Redirect extends Response
      */
     public function remember()
     {
-        Session::set('redirect_url', Request::instance()->url());
+        Session::set('redirect_url', RequestRegistry::getRequest()->url());
     }
 
     /**
@@ -89,7 +105,7 @@ class Redirect extends Response
      */
     public function restore()
     {
-        if (Session::has('redirect_url')) {
+        if (Session::exist('redirect_url')) {
             $this->data = Session::get('redirect_url');
             Session::delete('redirect_url');
         }

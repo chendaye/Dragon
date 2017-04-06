@@ -1,20 +1,25 @@
 <?php
 // +----------------------------------------------------------------------
-// | ThinkPHP [ WE CAN DO IT JUST THINK ]
+// | DragonPHP [ DO IT NOW ]
 // +----------------------------------------------------------------------
-// | Copyright (c) 2006~2016 http://thinkphp.cn All rights reserved.
+// | Copyright (c) 2016-2017 http://chen.com All rights reserved.
 // +----------------------------------------------------------------------
 // | Licensed ( http://www.apache.org/licenses/LICENSE-2.0 )
 // +----------------------------------------------------------------------
-// | Author: liu21st <liu21st@gmail.com>
+// | Author: chendaye <chendaye666@gmail.com>
+// +----------------------------------------------------------------------
+// | One letter one dream!
 // +----------------------------------------------------------------------
 
-namespace think\response;
+namespace Core\Lib\Driver\Response;
+use Core\Lib\Conf;
+use Core\Lib\Response;
 
-use think\Config;
-use think\Response;
-use think\View as ViewTemplate;
-
+/**
+ * 视图响应
+ * Class View
+ * @package Core\Lib\Driver\Response
+ */
 class View extends Response
 {
     // 输出参数
@@ -32,7 +37,7 @@ class View extends Response
     protected function output($data)
     {
         // 渲染模板输出
-        return ViewTemplate::instance(Config::get('template'), Config::get('view_replace_str'))
+        return ViewTemplate::instance(Conf::get('template'), Conf::get('view_replace_str'))
             ->fetch($data, $this->vars, $this->replace);
     }
 
