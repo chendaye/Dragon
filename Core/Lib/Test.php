@@ -199,6 +199,13 @@ class Test
 //        }
         RequestRegistry::getRequest()->attrInj('chendaye', '666');
         dump(RequestRegistry::getRequest()->chendaye);
+
+
+        RequestRegistry::getRequest()->hook('key', 'hk');
+
+        dump(RequestRegistry::getRequest()->getCacheKey(function ($obj)  { return $obj->key('chendaye');}));
+        dump(RequestRegistry::getRequest()->getCacheKey('rrrr|fffff'));
+        dump(RequestRegistry::getRequest()->getCacheKey('__URL__'));
         exit;
         dump(RequestRegistry::getRequest()->session($name = '', $default = 'chendaye', $filter = ''));
         //E($_SESSION);
@@ -309,7 +316,8 @@ class Test
         dump(RequestRegistry::getRequest()->getInput());
         dump(RequestRegistry::getRequest()->token());
 
-        E(Session::get());
+
+        //E(Session::get());
 
         E(substr('123456789', 2,1));
 

@@ -137,20 +137,23 @@ class Request
      * @param $name
      * @param $arguments
      * @throws DragonException
+     * @return  mixed
      */
     public function __call($name, $arguments)
     {
-        //检查扩展方法是否存在
+        //检查扩展方法是否存在，注入的方法存入扩展数组中
         if(array_key_exists($name, self::$hook)){
-            array_unshift($arguments, $this);   //在数组开头插入元素
-            call_user_func_array(self::$hook[$name], $arguments);
+            //当前请求对象加入参数数组中,放在开头
+            array_unshift($arguments, $this);
+            //返回扩展函数的值,参数值是顺序赋值的
+            return call_user_func_array(self::$hook[$name], $arguments);
         }else{
             throw  new DragonException("方法不存在：".__CLASS__."->$name");
         }
     }
 
     /**
-     * 方法注入
+     * 方法注入。 当在类中调用不存在的  方法 method时， 会自动调用 method 对应的实际方法 callback
      * 注册Hook方法（钩子），支持单个和数组两种注册方式
      * @param $method
      * @param null $callback
@@ -511,13 +514,16 @@ class Request
                 default:
                     $vars  = [];
             }
+            //合并 get post patch route参数
             $this->param = array_merge($this->get(false), $vars, $this->route(false));
         }
+        //文件上传参数
         if($name === true){
             $file = $this->file();
             $data = array_merge($this->param, $file);
             return $this->obtain($data, '', $default, $filter);
         }
+        //综合所有请求参数，获取指定的过滤
         return $this->obtain($this->param, $name, $default, $filter);
     }
 
@@ -1305,67 +1311,102 @@ class Request
      */
     public function cache($key, $expire = null, $except = [])
     {
-        if($key !== false && $this->isGet() && !$this->checkCache){
-            //设置缓存请求检查，缓存之后为true
-            $this->checkCache = true;
-            //关闭缓存
-            if($expire === false) return;
-            //如果key是匿名函数
-            if($key instanceof \Closure){
-                //调用匿名函数,获取缓存的标识名
-                $key = call_user_func_array($key, [$this]);
-            }elseif ($key === true){
-                //排除指定的URL缓存
-                foreach ($except as $rule) {
-                    if (strpos($this->url(), $rule) === 0) return;
-                }
-                //自动缓存，默认缓存标识__URL__
-                $key = '__URL__';
-            }elseif (strpos($key, '|')){
-                list($key,$fun) = explode('|', $key);
-            }
-            //特殊规则替换
-            if(strpos($key, '__') !== false){
-                //后者替换前者
-                $key = str_replace(['__MODULE__','__COMMAND__', '__CONTROLLER__', '__URL__'], [$this->module,$this->command, $this->controller, md5($this->url())], $key);
-            }
+        //只缓存get请求
+        if($key === false || !$this->isGet() || $this->checkCache) return;
+        //设置缓存请求检查，缓存之后为true
+        $this->checkCache = true;
+        //关闭缓存
+        if($expire === false) return;
+        //获取缓存key
+        $keyInfo = $this->getCacheKey($key, $except);
+        $key = $keyInfo['key'];
+        $fun = $keyInfo['fun'];
+        if($key === null) return;
+        //解析缓存key 的形式
+        $key = $this->parseCacheKey($key);
+        if(is_null($key)) return;
+        //调用函数，获取缓存键值
+        if (!is_null($fun))  $key = $fun($key);
+        //如果请求时间小于，资源最后修改时间+资源过期时间，则客户端缓存有效
+        if (strtotime($this->server('HTTP_IF_MODIFIED_SINCE')) + $expire > $_SERVER['REQUEST_TIME']) {
+            //告知客户端可以直接读取缓存
+            $response = Response::create()->code(304);
+            throw new HttpResponseException($response);
+        } elseif (Cache::exist($key)) {
+            //如果有缓存的请求，用缓存的请求创建响应实例
+            list($content, $header) = Cache::get($key);
+            //链式调用
+            $response = Response::create($content)->header($header);
+            throw new HttpResponseException($response);
+        } else {
+            $this->cache = [$key, $expire];
+        }
 
-            //blog/:id
-            if (strpos($key, ':') !== false) {
-                $param = $this->param();
-                //参数值替换参数名
-                foreach ($param as $item => $val) {
-                    if (is_string($val) && strpos($key, ':' . $item) !== false) {
-                        $key = str_replace(':' . $item, $val, $key);
-                    }
-                }
-            } elseif (strpos($key, ']')) {
-                //[html]
-                if ('[' . $this->ext() . ']' == $key) {
-                    // 缓存某个后缀的请求
-                    $key = md5($this->url());
-                } else {
-                    return;
+    }
+
+    /**
+     *
+     * @param $key
+     * @param array $except
+     * @return array|void
+     */
+    public function getCacheKey($key, $except = [])
+    {
+        //如果key是匿名函数
+        if($key instanceof \Closure){
+            //调用闭包匿名函数,获取缓存的标识名
+            $key = call_user_func_array($key, [$this]);
+        }elseif ($key === true){
+            //排除指定的URL缓存
+            foreach ($except as $rule) {
+                if (strpos($this->url(), $rule) === 0) null;
+            }
+            //自动缓存，默认缓存标识__URL__,true为自动根据当前URL缓存
+            $key = '__URL__';
+        }elseif (strpos($key, '|')){
+            list($key,$fun) = explode('|', $key);
+        }
+        //特殊规则替换
+        if(strpos($key, '__') !== false){
+            //后者替换前者
+            $key = str_replace(['__MODULE__','__COMMAND__', '__CONTROLLER__', '__URL__'], [$this->module,$this->command, $this->controller, md5($this->url())], $key);
+        }
+        return [
+            'key' => $key,
+            'fun' => !isset($fun)?null:$fun,
+        ];
+
+    }
+
+    /**
+     * 解析缓存key 是  blog/:id 形式  还是 [html] 形式
+     * @param $key
+     * @return mixed|null|string
+     */
+    public function parseCacheKey($key)
+    {
+        //blog/:id
+        if (strpos($key, ':') !== false) {
+            $param = $this->param();
+            //参数值替换参数名
+            foreach ($param as $item => $val) {
+                if (is_string($val) && strpos($key, ':' . $item) !== false) {
+                    //把key里面的参数名替换成参数值
+                    $key = str_replace(':' . $item, $val, $key);
                 }
             }
-            //调用函数，获取缓存键值
-            if (isset($fun))  $key = $fun($key);
-            //如果请求时间小于，资源最后修改时间+资源过期时间，则客户端缓存有效
-            if (strtotime($this->server('HTTP_IF_MODIFIED_SINCE')) + $expire > $_SERVER['REQUEST_TIME']) {
-                //告知客户端可以直接读取缓存
-                $response = Response::create()->code(304);
-                throw new HttpResponseException($response);
-            } elseif (Cache::exist($key)) {
-                //如果有缓存的请求，用缓存的请求创建响应实例
-                list($content, $header) = Cache::get($key);
-                //链式调用
-                $response = Response::create($content)->header($header);
-                throw new HttpResponseException($response);
+        } elseif (strpos($key, ']')) {
+            //[html]
+            if ('[' . $this->ext() . ']' == $key) {
+                // 缓存某个后缀的请求
+                $key = md5($this->url());
             } else {
-                $this->cache = [$key, $expire];
+                $key = null;
             }
         }
+        return $key;
     }
+
 
     /**
      * 获取缓存
