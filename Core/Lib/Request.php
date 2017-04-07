@@ -481,37 +481,60 @@ class Request{
         if($name === true){
             $file = $this->file();
             $data = array_merge($this->param, $file);
-            return $this->input($data, '', $default, $filter);
+            return $this->obtain($data, '', $default, $filter);
         }
-        return $this->input($this->param, $name, $default, $filter);
+        return $this->obtain($this->param, $name, $default, $filter);
     }
 
     public function put($name = '', $default = null, $filter = ''){
 
     }
 
-    public function input($data = [], $name = '', $default = null, $filter = ''){
+    /**
+     * 设置获取post参数
+     * @param string $name  post参数名，为空返回整个post数组
+     * @param null $default  参数过滤默认值
+     * @param string $filter  过滤方式
+     * @return array|mixed
+     */
+    public function post($name = '', $default = null, $filter = ''){
+        if(empty($this->post)) $this->post = $_POST;
+        if(is_array($name)){
+            $this->param = [];
+            //设置post参数
+            return $this->post = array_merge($this->post, $name);
+        }
+        //过滤、获取post参数，支持多重名称a.b.c@s
+        return $this->obtain($this->post, $name, $default, $filter);
+    }
+
+    /**
+     * 过滤并获取数据，支持整体过滤（name为空） 也支持单个元素过滤（name不为空）
+     * @param array $data
+     * @param string $name
+     * @param null $default
+     * @param string $filter
+     * @return array|mixed
+     */
+    public function obtain($data = [], $name = '', $default = null, $filter = ''){
         //返回原始数据
-        if($name = false) return $data;
+        if($name === false) return $data;
         $name = (string)$name;
-        //name不为空
+        //name不为空 a.b.c@s，获取指定的元素
         if($name != ''){
             //解析name
-            if(strpos($name, '/')){
-                list($name, $type) = explode('/', $name);
-            }else{
-                $type = 's';
+            if(empty($type)) $type = 's';   //变量默认转化为字符串
+            if(strpos($name, '@'))list($name, $type) = explode('@', $name);
+            //获取要过滤的值
+            $name = explode('.', $name);
+            foreach ($name as $val){
+                if(!isset($data[$val])) return $default;
+                $data = $data[$val];
             }
-            //按 . 把名称拆成数组
-            foreach (explode('.', $name) as $val){
-                if(isset($data[$val])){
-                    $data = $data[$val];
-                }else{
-                    return $default;
-                }
-            }
+            //如果是对象，直接返回
             if(is_object($data)) return $data;
         }
+
         //解析过滤器
         if(is_null($filter)){
             $filter = [];
@@ -543,26 +566,22 @@ class Request{
      * 递归过滤给定的值，必须满足所有过滤条件
      * @param mixed $value  待过滤的值
      * @param array $filter  过滤方法（函数+正则匹配）+默认值
-     * @return mixed
+     * @return array
      */
     public function filter(&$value, $filter){
         //弹出并返回 array 数组的最后一个单元，并将数组 array 的长度减一
         $default = array_pop($filter);
         //变量要满足所有的过滤条件
         foreach ($filter as $method){
-            //匹配规则是方法，过滤非标量
+            //匹配规则是方法，过滤非标量,/调用函数或方法过滤
             if(is_callable($method)){
-                //调用函数或方法过滤
                 $value = call_user_func($method, $value);
-                continue;
-            }
-            //匹配规则不是方法，并且变量是标量
-            if(is_scalar($value)){
+            }else {
+                if(!is_scalar($value)) continue;
                 //检测变量是否是一个标量; integer、float、string 或 boolean是标量，而 array、object 和 resource 则不是标量。
-                if(strpos($method, '/')){
-                    E($method,true);
+                if(strpos($method, '/') !== false){
                     //正则过滤，值是否匹配正则表达式
-                    if(!preg_match($filter, $value)){
+                    if(!preg_match($method, $value)){
                         $value = $default;
                         break;  //不匹配退出循环过滤，返回默认值
                     }
@@ -577,10 +596,10 @@ class Request{
                         break;  //不匹配退出循环过滤，返回默认值
                     }
                 }
-                continue;
             }
         }
-        return $this->filterExp($value);
+        //过滤SQL注入字段
+        $this->filterExp($value);
     }
 
     /**

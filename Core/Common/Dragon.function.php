@@ -30,14 +30,4 @@ function E($var, $exit=false){
     if($exit) exit;
 }
 
-function filtertest($value){
-    if(is_array($value)){
-        $value = '数组';
-    }elseif (is_object($value)){
-        $value = '对象';
-    }else{
-        $value = '字符串';
-    }
-    return $value;
-}
 ?>

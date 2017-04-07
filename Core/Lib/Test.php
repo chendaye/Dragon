@@ -196,12 +196,23 @@ class Test{
 
 
         $reg = '/^qwer$/i';
-
-        $filter = ['filtertest',$reg];
+        $filter = ['filtertest',$reg,1];
         $filter[] = 'default';
-        $var = 'qwerq';
-        $ret = RequestRegistry::getRequest()->filter($var, $filter);
-        E($var, $ret);
+        $var = 'fdgwer';
+        //$ret = RequestRegistry::getRequest()->filter($var, $filter);
+        //E([$var, $ret]);
+        //$r = RequestRegistry::getRequest()->input(['a'=>['b'=>['c'=>666]],'b'=>'qwer'],'a.b.c/a','default', ['filtertest',$reg,1]);
+        $var = '456';
+       $ret =  RequestRegistry::getRequest()->obtain($var,'','过滤未通过', ['filtertest',$reg]);
+        E([$ret,$var]);
+
+        function a(){
+            for($i = 0; $i<5; $i++){
+                if($i==2) break;
+            }
+            E($i);
+        }
+        a();
         exit;
     }
 

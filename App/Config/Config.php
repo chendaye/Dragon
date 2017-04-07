@@ -61,7 +61,7 @@ return [
     // 自动搜索命令
     'COMMAND_SEARCH'        => false,
     //全局过滤
-    'DEFAULT_FILTER'        => 'DEFAULT_FILTER',
+    'DEFAULT_FILTER'        => '/^qwer$/i',
 
     // +----------------------------------------------------------------------
     // | URL设置
