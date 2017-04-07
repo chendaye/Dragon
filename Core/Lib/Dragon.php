@@ -25,7 +25,7 @@ use Core\Lib\Registry\RequestRegistry;
  */
 class Dragon
 {
-    
+
     //TODO:test
     static public function Test()
     {
@@ -72,8 +72,7 @@ class Dragon
         $observeHelper->init();
         //启动日志类
         Log::init();    //初始化
-        //加载框架公共函数
-        Base::requireFile();
+
     }
 
     /**

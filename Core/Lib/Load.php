@@ -20,6 +20,8 @@ use Core\Lib\Exception\DragonException;
  */
 class Load
 {
+    //类实例
+    static protected $instance = [];
     // 类名映射
     static protected  $map = [];
 

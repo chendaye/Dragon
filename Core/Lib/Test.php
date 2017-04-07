@@ -197,7 +197,7 @@ class Test
 //        }catch (Exception $exception){
 //            dump($exception);exit;
 //        }
-        RequestRegistry::getRequest()->bind('chendaye', '666');
+        RequestRegistry::getRequest()->attrInj('chendaye', '666');
         dump(RequestRegistry::getRequest()->chendaye);
         exit;
         dump(RequestRegistry::getRequest()->session($name = '', $default = 'chendaye', $filter = ''));

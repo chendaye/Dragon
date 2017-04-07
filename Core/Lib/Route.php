@@ -93,26 +93,37 @@ class Route
     static public  function domain($domain, $rule = '', $option = [], $pattern = [])
     {
         if (is_array($domain)) {
+            //数组批量设置，使用递归
             foreach ($domain as $key => $item) {
                 self::domain($key, $item, $option, $pattern);
             }
-        } elseif ($rule instanceof \Closure) {
-            // 执行闭包
-            self::setDomain($domain);
-            call_user_func_array($rule, []);
-            self::setDomain(null);
-        } elseif (is_array($rule)) {
-            self::setDomain($domain);
-            self::group('', function () use ($rule) {
-                // 动态注册域名的路由规则
-                self::registerRules($rule);
-            }, $option, $pattern);
-            self::setDomain(null);
-        } else {
-            self::$rules['domain'][$domain]['[bind]'] = [$rule, $option, $pattern];
+        } else{
+            if ($rule instanceof \Closure) {
+                self::setDomain($domain);
+                // 执行闭包，$rule 闭包匿名函数
+                call_user_func_array($rule, []);
+                self::setDomain(null);
+            } elseif (is_array($rule)) {
+                self::setDomain($domain);
+                //匿名函数
+                $func = function () use ($rule) {
+                    // 动态注册域名的路由规则，闭包
+                    self::registerRules($rule);
+                };
+                //批量处理
+                self::group('', $func, $option, $pattern);
+                self::setDomain(null);
+            } else {
+                //如果$rule非匿名函数，非数组，直接设置部署规则
+                self::$rules['domain'][$domain]['[bind]'] = [$rule, $option, $pattern];
+            }
         }
     }
 
+    /**
+     * 设置域名
+     * @param $domain
+     */
     static private function setDomain($domain)
     {
         self::$domain = $domain;
@@ -150,7 +161,7 @@ class Route
     }
 
     /**
-     * 读取路由绑定
+     * 读取路由绑定信息
      * @access public
      * @param string    $type 绑定类型
      * @return mixed
