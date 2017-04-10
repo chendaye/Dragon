@@ -127,7 +127,7 @@ class Response
     public function getContent()
     {
         if($this->content === null){
-            $content = $this->output();
+            $content = $this->output($this->data);
             if(!is_string($content) && !is_numeric($content) && $content !== null && !is_callable([$content,'__toString'])){
                 throw new  \InvalidArgumentException(sprintf('变量类型错误： %s', gettype($content)));
             }
@@ -162,12 +162,13 @@ class Response
 
 
     /**
-     * 处理数据
+     * 处理数据为特定格式
+     * @param $data
      * @return mixed
      */
-    protected function output()
+    protected function output($data)
     {
-        return $this->data;
+        return $data;
     }
 
     /**

@@ -1,6 +1,8 @@
 <?php
 namespace Core\Lib;
 use Core\Lib\Driver\Cache\File;
+use Core\Lib\Driver\Response\Json;
+use Core\Lib\Driver\Response\Xml;
 use Core\Lib\Driver\Session\Memcache;
 use Core\Lib\Exception\Exception;
 use Core\Lib\Exception\HttpResponseException;
@@ -20,7 +22,9 @@ class Test
      */
     static public function test()
     {
-        //self::cache();
+        self::route();
+        self::response();
+        self::cache();
         self::request();
         self::aoutload();
         self::conf();
@@ -184,7 +188,7 @@ class Test
 //        Request::test();
 
        // E($_SERVER);
-        RequestHelper::instance()->create('http://username:password@www.dragon-god.com:80/Dragon/Login/login.htmll?d=888&user=chen&pass=daye','delete',$param = ['a'=>1,'b'=>2]);
+        RequestHelper::instance()->create('http://username:password@www.dragon-god.com:80/Dragon/Login/login.html?d=888&user=chen&pass=daye','delete',$param = ['id'=>123,'name'=>2]);
         //RequestHelper::instance()->init();
        //$_SESSION = $_COOKIE = $_POST = $_GET;
 //        \Core\Lib\Session::set('fff', 'Dragon', 'Dragon');
@@ -201,11 +205,13 @@ class Test
         dump(RequestRegistry::getRequest()->chendaye);
 
 
-        RequestRegistry::getRequest()->hook('key', 'hk');
-
-        dump(RequestRegistry::getRequest()->getCacheKey(function ($obj)  { return $obj->key('chendaye');}));
-        dump(RequestRegistry::getRequest()->getCacheKey('rrrr|fffff'));
-        dump(RequestRegistry::getRequest()->getCacheKey('__URL__'));
+//        RequestRegistry::getRequest()->hook('key', 'hk');
+//
+//        dump(RequestRegistry::getRequest()->getCacheKey(function ($obj)  { return $obj->key('chendaye');}));
+//        dump(RequestRegistry::getRequest()->getCacheKey('rrrr|fffff'));
+//        dump(RequestRegistry::getRequest()->getCacheKey('__URL__'));
+       dump(RequestRegistry::getRequest()->parseCacheKey('blog/:id'));
+       dump(RequestRegistry::getRequest()->parseCacheKey('[html]'));
         exit;
         dump(RequestRegistry::getRequest()->session($name = '', $default = 'chendaye', $filter = ''));
         //E($_SESSION);
@@ -351,6 +357,50 @@ class Test
 
         //dump(Cache::test());
 
+        exit;
+    }
+
+    /**
+     * 响应测试
+     */
+    static public function response(){
+        \Core\Lib\Conf::init('Config.php', '');
+        ini_set('date.timezone','Asia/Shanghai');
+        RequestHelper::instance()->create('http://username:password@www.dragon-god.com:80/Dragon/Login/login.html?d=888&user=chen&pass=daye','delete',$param = ['id'=>123,'name'=>2]);
+
+        //dump($res = new Json(['测试数据','6666']));
+        //dump($res = new Xml(['测试数据','6666']));
+        //dump($res = Json::create(['测试数据'],'json'));
+       // E($res->getContent());
+
+//        dump($res->content(json_encode(4564)));
+//        dump($res->getCode());
+//        dump($res->options([1=>2,2=>3]));
+//        dump($res->header([1=>2,2=>3]));
+        $res = Json::create(['测试数据'],'json');
+       $res->lastModified(3306);
+       $res->expires(3306);
+       $res->eTag(3306);
+       $res->cacheControl(3306);
+        dump($res->getHeader());
+        $res->send();
+        exit;
+    }
+
+    static public function route(){
+        \Core\Lib\Conf::init('Config.php', '');
+        ini_set('date.timezone','Asia/Shanghai');
+        RequestHelper::instance()->create('http://username:password@www.dragon-god.com:80/Dragon/Login/login.html?d=888&user=chen&pass=daye','delete',$param = ['id'=>123,'name'=>2]);
+
+        $route = Route::name([1,'sad']);
+        $route = Route::name(1);
+        $route = Route::getBind('command');
+        $route = Route::test('blog/read/:id');
+        $route = Route::test('blog/read/[:id]/:name/:ff');
+        //$route = Route::test('blog/read/<a>');
+        dump($route);
+        E(substr('$name', 0, -1));
+        Route::group('blog',[':id'   => ['Blog/read', [], ['id' => '\d+']], ':name' => ['Blog/read', []]],['method'=>'get','ext'=>'html']);
         exit;
     }
 

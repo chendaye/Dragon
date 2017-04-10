@@ -1350,7 +1350,7 @@ class Request
      * @param array $except
      * @return array|void
      */
-    public function getCacheKey($key, $except = [])
+    protected function getCacheKey($key, $except = [])
     {
         //如果key是匿名函数
         if($key instanceof \Closure){
@@ -1383,21 +1383,21 @@ class Request
      * @param $key
      * @return mixed|null|string
      */
-    public function parseCacheKey($key)
+    protected function parseCacheKey($key)
     {
         //blog/:id
         if (strpos($key, ':') !== false) {
             $param = $this->param();
             //参数值替换参数名
             foreach ($param as $item => $val) {
-                if (is_string($val) && strpos($key, ':' . $item) !== false) {
+                if ((is_string($val) || is_numeric($val)) && strpos($key, ':' . $item) !== false) {
                     //把key里面的参数名替换成参数值
                     $key = str_replace(':' . $item, $val, $key);
                 }
             }
-        } elseif (strpos($key, ']')) {
-            //[html]
-            if ('[' . $this->ext() . ']' == $key) {
+        } elseif (strpos($key, '>')) {
+            //<html>
+            if ('<' . $this->ext() . '>' == $key) {
                 // 缓存某个后缀的请求
                 $key = md5($this->url());
             } else {
