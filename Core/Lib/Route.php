@@ -427,7 +427,7 @@ class Route
             $option = $name;
             $name   = isset($option['name']) ? $option['name'] : '';
         }
-        
+
         // 当前分组名称信息
         $currentGroup = self::getGroup('name');
         //分组名称
