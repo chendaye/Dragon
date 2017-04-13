@@ -16,6 +16,10 @@ namespace Core\Lib;
 use Core\Lib\Exception\HttpException;
 use Core\Lib\Registry\RequestRegistry;
 
+/**
+ * Class Route
+ * @package Core\Lib
+ */
 class Route
 {
     // 路由规则
@@ -237,6 +241,7 @@ class Route
 
     /**
      * 注册路由规则
+     * 完整的路由  Route::rule(['new/:id'=>'News/read','blog/:name'=>['Blog/detail',POST, [], []]， ['new/:id', 'News/read', 'POST', [], []]], '', 'GET', [], [])
      * @access public
      * @param string    $rule 路由规则
      * @param string    $route 路由地址
@@ -248,32 +253,49 @@ class Route
     static public  function rule($rule, $route = '', $type = '*', $option = [], $pattern = [])
     {
         $group = self::getGroup('name');
-
         if (!is_null($group)) {
-            // 路由分组
+            // 路由分组,参数项  匹配模式
             $option  = array_merge(self::getGroup('option'), $option);
             $pattern = array_merge(self::getGroup('pattern'), $pattern);
         }
-
         $type = strtolower($type);
-
+        //注册多种方法
         if (strpos($type, '|')) {
             $option['method'] = $type;
             $type             = '*';
         }
+        //批量注册路由
         if (is_array($rule) && empty($route)) {
             foreach ($rule as $key => $val) {
-                if (is_numeric($key)) {
-                    $key = array_shift($val);
-                }
-                if (is_array($val)) {
-                    $route    = $val[0];
-                    $option1  = array_merge($option, $val[1]);
-                    $pattern1 = array_merge($pattern, isset($val[2]) ? $val[2] : []);
-                } else {
+                //路由以非数组形式给出
+                if (!is_array($val)) {
                     $route = $val;
+                    //路由类型为批量类型
+                    $son_type = $type;
+                } else {
+                    //删除并返回第一个元素
+                    if (is_numeric($key)) $key = array_shift($val);
+                    //路由
+                    $route    = $val[0];
+                    //路由类型
+                    if(!empty($val[1])){
+                        $val[1] = strtolower($val[1]);
+                        if(strpos($val[1], '|')){
+                            $val[2]['method'] = $val[1];
+                            $son_type = '*';
+                        }else{
+                            $son_type = $val[1];
+                        }
+                    }else{
+                        $son_type = $type;
+                    }
+                    //路由参数
+                    $option1  = array_merge($option, isset($val[2])?$val[2]:[]);
+                    //匹配模式
+                    $pattern1 = array_merge($pattern, isset($val[3]) ? $val[3] : []);
                 }
-                self::setRule($key, $route, $type, isset($option1) ? $option1 : $option, isset($pattern1) ? $pattern1 : $pattern, $group);
+                //设置路由
+                self::setRule($key, $route, $son_type, isset($option1) ? $option1 : $option, isset($pattern1) ? $pattern1 : $pattern, $group);
             }
         } else {
             self::setRule($rule, $route, $type, $option, $pattern, $group);
