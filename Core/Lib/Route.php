@@ -270,29 +270,43 @@ class Route
                 //路由以非数组形式给出
                 if (!is_array($val)) {
                     $route = $val;
-                    //路由类型为批量类型
+                    //子类型
                     $son_type = $type;
                 } else {
                     //删除并返回第一个元素
                     if (is_numeric($key)) $key = array_shift($val);
                     //路由
                     $route    = $val[0];
-                    //路由类型
-                    if(!empty($val[1])){
-                        $val[1] = strtolower($val[1]);
-                        if(strpos($val[1], '|')){
-                            $val[2]['method'] = $val[1];
-                            $son_type = '*';
+                    //如果第二个参数是类型
+                    if(is_string($val[1])){
+                        //子类型
+                        if(!empty($val[1])){
+                            $val[1] = strtolower($val[1]);
+                            if(strpos($val[1], '|')){
+                                $val[2]['method'] = $val[1];
+                                $son_type = '*';
+                            }else{
+                                $son_type = $val[1];
+                            }
                         }else{
-                            $son_type = $val[1];
+                            $son_type = $type;
                         }
+                        //子选项
+                        $son_option = $val[2];
+                        //子模式
+                        $son_pattern = $val[3];
                     }else{
+                        //子类型
                         $son_type = $type;
+                        //子选项
+                        $son_option = $val[1];
+                        //子模式
+                        $son_pattern = $val[2];
                     }
                     //路由参数
-                    $option1  = array_merge($option, isset($val[2])?$val[2]:[]);
+                    $option1  = array_merge($option, isset($son_option)?$son_option:[]);
                     //匹配模式
-                    $pattern1 = array_merge($pattern, isset($val[3]) ? $val[3] : []);
+                    $pattern1 = array_merge($pattern, isset($son_pattern) ? $son_pattern : []);
                 }
                 //设置路由
                 self::setRule($key, $route, $son_type, isset($option1) ? $option1 : $option, isset($pattern1) ? $pattern1 : $pattern, $group);
