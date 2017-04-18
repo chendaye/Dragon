@@ -388,17 +388,25 @@ class Test
     }
 
     static public function route(){
+       // E(substr('qwer', 0, 1),true);
+//        E(preg_match_all('/<(\w+(\??))>/', '<qwer ><sdf><qqqq?=>', $matches));
+//        E($matches,true);
         \Core\Lib\Conf::init('Config.php', '');
         ini_set('date.timezone','Asia/Shanghai');
         RequestHelper::instance()->create('http://username:password@www.dragon-god.com:80/Dragon/Login/login.html?d=888&user=chen&pass=daye','delete',$param = ['id'=>123,'name'=>2]);
 
-        $route = Route::name([1,'sad']);
-        $route = Route::name(1);
-        $route = Route::getBind('command');
-        $route = Route::test('blog/read/:id');
-        $route = Route::test('blog/read/[:id]/:name/:ff');
-        //$route = Route::test('blog/read/<a>');
-        dump($route);
+//        $route = Route::name([1,'sad']);
+//        $route = Route::name(1);
+//        $route = Route::getBind('command');
+//        $route = Route::test('blog/read/:id');
+//        $route = Route::test('blog/read/{%qwer}{ccc}');
+//        $route = Route::test('blog/read/[:id]');
+//        $route = Route::test('blog/read/:name/:ff');
+//E(strpos('%aaa', '%'),true);
+        $route = Route::test('blog/read/:name/[:ff]/{%qwer}/{qqq}/{%ccc}');
+        E(Route::name());
+        E($route,true);
+
         E(substr('$name', 0, -1));
         Route::group('blog',[':id'   => ['Blog/read', [], ['id' => '\d+']], ':name' => ['Blog/read', []]],['method'=>'get','ext'=>'html']);
         exit;

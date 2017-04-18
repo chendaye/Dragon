@@ -331,11 +331,13 @@ class Route
     static protected  function setRule($rule, $route, $type = '*', $option = [], $pattern = [], $group = '')
     {
         if (is_array($rule)) {
-            $name = $rule[0];
-            $rule = $rule[1];
+            $path = $rule[1];   //路由
+            $rule = $rule[0];   //路由规则
         } elseif (is_string($route)) {
-            $name = $route;
+            $path = $route;     //路由
         }
+        E([$path, $rule],true);
+        //是否完整匹配路由规则
         if (!isset($option['complete_match'])) {
             if (Conf::get('route_complete_match')) {
                 $option['complete_match'] = true;
@@ -347,42 +349,73 @@ class Route
             // 是否完整匹配
             $option['complete_match'] = true;
         }
-
-        if ('$' == substr($rule, -1, 1)) {
-            $rule = substr($rule, 0, -1);
-        }
-
-        if ('/' != $rule || $group) {
-            $rule = trim($rule, '/');
-        }
+        //已$结尾，取首字母
+        if ('$' == substr($rule, -1, 1)) $rule = substr($rule, 0, -1);
+        //如果不是根路径，且路径分组存在
+        if ('/' != $rule || $group) $rule = trim($rule, '/');
+        //解析路由变量
         $vars = self::parseVar($rule);
-        if (isset($name)) {
+        //路由不为空
+        if (isset($path)) {
+            //分组拼上路由，类似namespace
+//            '[blog]'     => [
+//                ':id'   => ['Blog/read', ['method' => 'get'], ['id' => '\d+']],
+//                ':name' => ['Blog/read', ['method' => 'post']],
+//            ],
             $key    = $group ? $group . ($rule ? '/' . $rule : '') : $rule;
+            //后缀
             $suffix = isset($option['ext']) ? $option['ext'] : null;
-            self::name($name, [$key, $vars, self::$domain, $suffix]);
+            //完整URL
+            self::name($path, [$key, $vars, self::$domain, $suffix]);
         }
-        if (isset($option['modular'])) {
-            $route = $option['modular'] . '/' . $route;
-        }
+        //模块
+        if (isset($option['modular'])) $route = $option['modular'] . '/' . $route;
+        //有分组
         if ($group) {
-            if ('*' != $type) {
-                $option['method'] = $type;
-            }
+            //路由类型
+            if ($type != '*')$option['method'] = $type;
+
             if (self::$domain) {
-                self::$rules['domain'][self::$domain]['*'][$group]['rule'][] = ['rule' => $rule, 'route' => $route, 'var' => $vars, 'option' => $option, 'pattern' => $pattern];
+                self::$rules['domain'][self::$domain]['*'][$group]['rule'][] = [
+                    'rule' => $rule,
+                    'route' => $route,
+                    'var' => $vars,
+                    'option' => $option,
+                    'pattern' => $pattern
+                ];
             } else {
-                self::$rules['*'][$group]['rule'][] = ['rule' => $rule, 'route' => $route, 'var' => $vars, 'option' => $option, 'pattern' => $pattern];
+                self::$rules['*'][$group]['rule'][] = [
+                    'rule' => $rule,
+                    'route' => $route,
+                    'var' => $vars,
+                    'option' => $option,
+                    'pattern' => $pattern
+                ];
             }
         } else {
-            if ('*' != $type && isset(self::$rules['*'][$rule])) {
-                unset(self::$rules['*'][$rule]);
-            }
+            //type 不是通配的 注销通配规则
+            if ($type != '*' && isset(self::$rules['*'][$rule])) unset(self::$rules['*'][$rule]);
+            //域名存在
             if (self::$domain) {
-                self::$rules['domain'][self::$domain][$type][$rule] = ['rule' => $rule, 'route' => $route, 'var' => $vars, 'option' => $option, 'pattern' => $pattern];
+                //域名下注册路由
+                self::$rules['domain'][self::$domain][$type][$rule] = [
+                    'rule' => $rule,
+                    'route' => $route,
+                    'var' => $vars,
+                    'option' => $option,
+                    'pattern' => $pattern
+                ];
             } else {
-                self::$rules[$type][$rule] = ['rule' => $rule, 'route' => $route, 'var' => $vars, 'option' => $option, 'pattern' => $pattern];
+                //类型下注册路由
+                self::$rules[$type][$rule] = [
+                    'rule' => $rule,
+                    'route' => $route,
+                    'var' => $vars,
+                    'option' => $option,
+                    'pattern' => $pattern
+                ];
             }
-            if ('*' == $type) {
+            if ($type == '*') {
                 // 注册路由快捷方式
                 foreach (['get', 'post', 'put', 'delete', 'patch', 'head', 'options'] as $method) {
                     if (self::$domain) {
@@ -1628,6 +1661,7 @@ class Route
 
     /**
      * 分析路由规则中的变量
+     * 'blog/read/:name/[:ff]/{%qwer}/{qq}'
      * @param $rule
      * @return array
      */
@@ -1637,11 +1671,12 @@ class Route
         $var = [];
         foreach (explode('/', $rule) as $val) {
             $optional = false;
-            if (strpos($val, '<') !== false && preg_match_all('/<(\w+(\??))>/', $val, $matches)) {
+            //匹配包括下划线的任何单词字符 'blog/read/{%qwer}{ccc}'
+            if (strpos($val, '{') !== false && preg_match_all('/{((%?)\w+)}/', $val, $matches)) {
                 foreach ($matches[1] as $name) {
-                    if (strpos($name, '?')) {
-                        //截取？前面的
-                        $name     = substr($name, 0, -1);
+                    if (strpos($name, '%') === 0) {
+                        //截取%后面的变量名
+                        $name     = substr($name, 1);
                         $optional = true;
                     } else {
                         $optional = false;
@@ -1650,15 +1685,16 @@ class Route
                     $var[$name] = $optional ? 2 : 1;
                 }
             }
-
-            if (0 === strpos($val, '[:')) {
+            //'blog/read/[:id]'
+            if (strpos($val, '[:') === 0) {
                 // 可选参数
                 $optional = true;
-                $val      = substr($val, 1, -1);
+                $val = substr($val, 1, -1);
             }
-            if (0 === strpos($val, ':')) {
+            //'blog/read/:name
+            if (strpos($val, ':') === 0) {
                 // URL变量
-                $name       = substr($val, 1);
+                $name = substr($val, 1);
                 $var[$name] = $optional ? 2 : 1;
             }
         }
@@ -1667,7 +1703,13 @@ class Route
 
     static public function test($var)
     {
-       return self::parseVar($var);
+//        self::name(['a'=>'b']);
+//        return self::$rules['name'];
+//        return self::parseVar($var);
+        //Route::rule(['new/:id'=>'News/read','blog/:name'=>['Blog/detail',POST, [], []]， ['new/:id', 'News/read', 'POST', [], []]], '', 'GET', [], [])
+        //self::setRule('new/:id/[:a]/{%b}{c}','News/read','post',['complete_match' => false,'ext'=>'shtml'],['id'=>'\d+'],'test');
+        self::setRule(['new/:id/[:a]/{%b}{c}','News/read'],'','post',['complete_match' => false,'ext'=>'shtml'],['id'=>'\d+'],'test');
+
     }
 }
 ?>
