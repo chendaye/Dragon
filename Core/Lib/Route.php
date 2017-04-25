@@ -24,17 +24,31 @@ class Route
 {
     // 路由规则
     static private $rules = [
+        //get类型路由
         'get'     => [],
+        //post类型路由
         'post'    => [],
+        //put类型路由
         'put'     => [],
+        //delete类型路由
         'delete'  => [],
+        //patch类型路由
         'patch'   => [],
+        //head类型路由
         'head'    => [],
-        'options' => [],
+        //通配类型路由
         '*'       => [],
-        'alias'   => [],
-        'domain'  => [],
+        //路由配置
+        'options' => [],
+        //路由模式
         'pattern' => [],
+        //分组路由
+        'group'   => [],
+        //域名内的路由
+        'domain'  => [],
+        //路由别名
+        'alias'   => [],
+        //每条路由的记录
         'name'    => [],
     ];
 
@@ -67,7 +81,7 @@ class Route
     // 当前子域名绑定
     static private $domainBind;
     static private $domainRule;
-    // 当前域名
+    //路由作用域名
     static private $domain;
     // 当前路由执行过程中的参数
     static private $option = [];
@@ -328,55 +342,42 @@ class Route
      * @param string    $group 所属分组
      * @return void
      */
-    static protected  function setRule($rule, $route, $type = '*', $option = [], $pattern = [], $group = '')
+    static protected  function setRule($route, $rule, $type = '*', $option = [], $pattern = [], $group = '')
     {
-        if (is_array($rule)) {
-            $path = $rule[1];   //路由
-            $rule = $rule[0];   //路由规则
-        } elseif (is_string($route)) {
-            $path = $route;     //路由
-        }
-        E([$path, $rule],true);
         //是否完整匹配路由规则
-        if (!isset($option['complete_match'])) {
-            if (Conf::get('route_complete_match')) {
+        if (!isset($option['complete_match']) || empty($option['complete_match'])) {
+            // 是否完整匹配
+            if (substr($rule, -1, 1) == '$') {
                 $option['complete_match'] = true;
-            } elseif ('$' == substr($rule, -1, 1)) {
-                // 是否完整匹配
+            }elseif (Conf::get('route_complete_match')){
                 $option['complete_match'] = true;
             }
-        } elseif (empty($option['complete_match']) && '$' == substr($rule, -1, 1)) {
-            // 是否完整匹配
-            $option['complete_match'] = true;
         }
         //已$结尾，取首字母
-        if ('$' == substr($rule, -1, 1)) $rule = substr($rule, 0, -1);
+        if (substr($rule, -1, 1) == '$') $rule = substr($rule, 0, -1);
         //如果不是根路径，且路径分组存在
-        if ('/' != $rule || $group) $rule = trim($rule, '/');
+        if ($rule != '/' || $group) $rule = trim($rule, '/');
         //解析路由变量
         $vars = self::parseVar($rule);
+
         //路由不为空
-        if (isset($path)) {
-            //分组拼上路由，类似namespace
-//            '[blog]'     => [
-//                ':id'   => ['Blog/read', ['method' => 'get'], ['id' => '\d+']],
-//                ':name' => ['Blog/read', ['method' => 'post']],
-//            ],
+        if (isset($route)) {
+            //路由标识
             $key    = $group ? $group . ($rule ? '/' . $rule : '') : $rule;
             //后缀
             $suffix = isset($option['ext']) ? $option['ext'] : null;
-            //完整URL
-            self::name($path, [$key, $vars, self::$domain, $suffix]);
+            //每个路由对应的信息
+            self::name($route, [$key, $vars, self::$domain, $suffix]);
         }
-        //模块
-        if (isset($option['modular'])) $route = $option['modular'] . '/' . $route;
+        //模块拼接路由
+        if (isset($option['modular']) && !empty($option['modular'])) $route = $option['modular'] . '/' . $route;
+
         //有分组
         if ($group) {
             //路由类型
-            if ($type != '*')$option['method'] = $type;
-
+            if ($type != '*') $option['method'] = $type;
             if (self::$domain) {
-                self::$rules['domain'][self::$domain]['*'][$group]['rule'][] = [
+                self::$rules['domain'][self::$domain]['group'][$group]['rule'][] = [
                     'rule' => $rule,
                     'route' => $route,
                     'var' => $vars,
@@ -384,7 +385,7 @@ class Route
                     'pattern' => $pattern
                 ];
             } else {
-                self::$rules['*'][$group]['rule'][] = [
+                self::$rules['group'][$group]['rule'][] = [
                     'rule' => $rule,
                     'route' => $route,
                     'var' => $vars,
@@ -1672,7 +1673,7 @@ class Route
         foreach (explode('/', $rule) as $val) {
             $optional = false;
             //匹配包括下划线的任何单词字符 'blog/read/{%qwer}{ccc}'
-            if (strpos($val, '{') !== false && preg_match_all('/{((%?)\w+)}/', $val, $matches)) {
+            if (strpos($val, '{') !== false && preg_match_all('/\{((%?)\w+)\}/', $val, $matches)) {
                 foreach ($matches[1] as $name) {
                     if (strpos($name, '%') === 0) {
                         //截取%后面的变量名
@@ -1708,8 +1709,18 @@ class Route
 //        return self::parseVar($var);
         //Route::rule(['new/:id'=>'News/read','blog/:name'=>['Blog/detail',POST, [], []]， ['new/:id', 'News/read', 'POST', [], []]], '', 'GET', [], [])
         //self::setRule('new/:id/[:a]/{%b}{c}','News/read','post',['complete_match' => false,'ext'=>'shtml'],['id'=>'\d+'],'test');
-        self::setRule(['new/:id/[:a]/{%b}{c}','News/read'],'','post',['complete_match' => false,'ext'=>'shtml'],['id'=>'\d+'],'test');
-
+        self::setRule('News/read', 'new1/:id/[:a]/{%b}/{c}/{%d}/{e}/:name$','post',['complete_match' => false,'ext'=>'shtml','modular'=>'module'],['id'=>'\d+'],'');
+        self::setRule('News/del', 'new2/:id/[:a]/{%b}/{c}/{%d}/{e}/:name$','post',['complete_match' => false,'ext'=>'shtml','modular'=>'module'],['id'=>'\d+'],'group');
+        self::setRule('News/get', 'new3/:id/[:a]/{%b}/{c}/{%d}/{e}/:name$','get',['complete_match' => false,'ext'=>'shtml','modular'=>'module'],['id'=>'\d+'],'group');
+        self::setRule('News/put', 'new4/:id/[:a]/{%b}/{c}/{%d}/{e}/:name$','put',['complete_match' => false,'ext'=>'shtml'],['id'=>'\d+'],'');
+        self::setRule('News/none', 'new5/:id/[:a]/{%b}/{c}/{%d}/{e}/:name$','*',['complete_match' => false,'ext'=>'shtml'],['id'=>'\d+'],'');
+        E(self::$rules,true);
+//        self::$domain =  '123';
+//        self::setRule('News/read', 'new/:id/[:a]/{%b}/{c}/{%d}/{e}/:name$','post',['complete_match' => false,'ext'=>'shtml','modular'=>'module'],['id'=>'\d+'],'');
+//        self::setRule('News/del', 'new/:id/[:a]/{%b}/{c}/{%d}/{e}/:name$','post',['complete_match' => false,'ext'=>'shtml','modular'=>'module'],['id'=>'\d+'],'group');
+//        self::setRule('News/get', 'new/:id/[:a]/{%b}/{c}/{%d}/{e}/:name$','get',['complete_match' => false,'ext'=>'shtml','modular'=>'module'],['id'=>'\d+'],'group');
+//        self::setRule('News/put', 'new/:id/[:a]/{%b}/{c}/{%d}/{e}/:name$','put',['complete_match' => false,'ext'=>'shtml'],['id'=>'\d+'],'');
+//        E(self::$rules,true);
     }
 }
 ?>
