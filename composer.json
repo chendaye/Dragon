@@ -1,0 +1,27 @@
+{
+   "name":"DRAGON",
+    "description":"Dragon's farmwork!",
+    "type":"PHP Farmwork",
+    "keywords":[
+        "PHP",
+        "FARMWORK"
+    ],
+    "require-dev": {
+        "php":">= 5.3.0",
+        "phpunit/phpunit": "4.5.*",
+        "filp/whoops":"*",
+        "symfony/var-dumper":"*",
+        "catfan/medoo":"*",
+        "twig/twig":"*"
+    },
+
+    "repositories":{
+        "packagist":{
+            "type":"composer",
+            "url":"https://packagist.phpcomposer.com"
+
+        }
+
+    }
+
+}
