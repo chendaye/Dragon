@@ -411,21 +411,22 @@ class Test
 //            Route::anyone(':name','blog/read',[],['name'=>'\w+']);
 //        },['method'=>'get','ext'=>'html']);
 
-
-        Route::group('artical',[
-            ':id/[:ccc]'   => ['artical/read', ['method' => 'get'], ['id' => '\d+']],
-            ':name/{%ddd}' => ['artical/read', ['method' => 'post']],
-            [':id/[:a]/{%b}$','News/read',['complete_match' => false,'ext'=>'shtml','modular'=>'module'],['id'=>'\d+']],
-        ]);
+//
+//        Route::group('artical',[
+//            ':id/[:ccc]'   => ['artical/read', ['method' => 'get'], ['id' => '\d+']],
+//            ':name/{%ddd}' => ['artical/read', ['method' => 'post']],
+//            [':id/[:a]/{%b}$','News/read','put',['complete_match' => false,'ext'=>'shtml','modular'=>'module'],['id'=>'\d+']],
+//        ],['modular'=>'mod'],['id'=>'\s+']);
 
 
 //        Route::group('',function(){
-//            Route::anyone('A:id','blog/read',[],['id'=>'\d+']);
-//            Route::anyone('B:name','blog/read',[],['name'=>'\w+']);
+//            //Route::rule('A:id','blog/read','put',[],['id'=>'\d+']);
+//            Route::rule([['new_4/:id/[:a]/{%b}$','News/read' ,['complete_match' => false,'ext'=>'shtml','modular'=>'module', 'method'=>'get|post'],['id'=>'\d+']],],'','put',[],['id'=>'\d+']);
+//            //Route::anyone('B:name','blog/read',[],['name'=>'\w+']);
 //        },['method'=>'get','ext'=>'html']);
 
 
-        //Route::group('',[ 'new/:id'=>'News/read'],['method'=>'get','ext'=>'html']);
+//        Route::group('',[ 'new/:id'=>'News/read','new_3/:name'=>['Blog/detail','head', ['ext'=>'yml'], ['id'=>'\w+']],],['method'=>'get','ext'=>'html']);
 
 
 //        Route::rule([
@@ -446,21 +447,44 @@ class Test
 
 //        Route::domain('com', function(){
 //            Route::anyone('A:id','blog/read',[],['id'=>'\d+']);
-//            Route::anyone('B:name','blog/read',[],['name'=>'\w+']);
+//            Route::rule([ 'new_3/:name'=>['Blog/detail', ['ext'=>'yml','method'=>''], ['id'=>'\w+']],],'','put',[],['name'=>'\w+']);
 //        }, $option = ['complete_match' => true,'ext'=>'xml','modular'=>'User'], $pattern = ['id'=>'\d+']);
 
+
+//        Route::domain('com', [
+//            'new_1/:id'=>'News/read',
+//            'new_2/:name'=>['Blog/detail','put', ['ext'=>'yml'], ['name'=>'\w+']],
+//            'new_7/:name/{%id}'=>['Blog/detail','*', ['ext'=>'yml'], ['name'=>'\w+']],
+//            'new_8/:name'=>['Blog/detail','head|options', ['ext'=>'yml'], ['id'=>'\w+']],
+//            'new_3/:name'=>['Blog/detail', ['ext'=>'yml'], ['id'=>'\w+']],
+//            ['new_4/:id/[:a]/{%b}$','News/read','post',['complete_match' => false,'ext'=>'shtml','modular'=>'module'],['id'=>'\d+']],
+//            '[ggg]'=>[':id/[:ccc]'   => ['artical/read', ['method' => 'get'], ['id' => '\d+']],],
+//        ], $option = ['complete_match' => true,'ext'=>'xml','modular'=>'User'], $pattern = ['id'=>'\d+']);
 
 //        Route::domain([
 //            'com'=>function(){
 //            Route::rule('A:id','blog/read','put',[],['id'=>'\d+']);
 //            Route::anyone('B:name','blog/read',[],['name'=>'\w+']);
 //        },
-//            'cn'=>function(){
-//            Route::anyone('A:id','blog/read',[],['id'=>'\d+']);
-//            Route::anyone('B:name','blog/read',[],['name'=>'\w+']);
-//        }],'' , $option = ['complete_match' => true,'ext'=>'xml','modular'=>'User'], $pattern = ['id'=>'\d+']);
+//            'cn'=>[
+//                'new_1/:id'=>'News/read',
+//                'new_2/:name'=>['Blog/detail','put', ['ext'=>'yml'], ['name'=>'\w+']],
+//                'new_7/:name/{%id}'=>['Blog/detail','*', ['ext'=>'yml'], ['name'=>'\w+']],
+//                'new_8/:name'=>['Blog/detail','head|options', ['ext'=>'yml'], ['id'=>'\w+']],
+//                'new_3/:name'=>['Blog/detail', ['ext'=>'yml'], ['id'=>'\w+']],
+//                ['new_4/:id/[:a]/{%b}$','News/read','post',['complete_match' => false,'ext'=>'shtml','modular'=>'module'],['id'=>'\d+']],
+//                '[ggg]'=>[':id/[:ccc]'   => ['artical/read', ['method' => 'get'], ['id' => '\d+']],],
+//            ],
+//        ],'' , $option = ['complete_match' => true,'ext'=>'xml','modular'=>'User'], $pattern = ['is'=>'\W+']);
 
-        Route::test('blog/read/:name/[:ff]/{%qwer}/{qqq}/{%ccc}');
+//        Route::domain('com','Blog/detail',['ext'=>'yml'],['id'=>'\w+']);
+//
+//        $name = Route::name('artical/read');
+//        E($name, true);
+//        Route::put('new_4/:id/[:a]/{%b}$', 'Blog/detail', ['complete_match' => true,'ext'=>'xml','modular'=>'User'], ['is'=>'\W+']);
+        Route::resource('blog.user.comment','index/comment',['var'=>['blog/:blog_id/user/:user_id/comment'=>8],'except'=>['edit','read']],[]);
+
+        Route::test('');
         exit;
     }
 

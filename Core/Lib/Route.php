@@ -120,26 +120,19 @@ class Route
             }
         } else{
             if ($rule instanceof \Closure) {
-                //设置当前域名
                 self::setDomain($domain);
-                // 如果$rule以匿名函数形式给出，执行闭包
+                //注册域名下的路由
                 call_user_func_array($rule, []);
-                //清空当前域名
                 self::setDomain(null);
             } elseif (is_array($rule)) {
-                //设置当前域名
                 self::setDomain($domain);
-                //匿名函数
                 $func = function () use ($rule) {
-                    // 动态注册域名的路由规则，闭包
                     self::registerRules($rule);
                 };
-                //匿名函数批量处理
+                //group匿名函数注册
                 self::group('', $func, $option, $pattern);
-                //清除当前域名
                 self::setDomain(null);
             } else {
-                //如果$rule非匿名函数，非数组，直接设置部署规则
                 self::$rules['domain'][$domain]['[bind]'] = [$rule, $option, $pattern];
             }
         }
@@ -228,33 +221,30 @@ class Route
             self::resource($rule['__rest__']);
             unset($rule['__rest__']);
         }
-
         self::registerRules($rule, strtolower($type));
     }
 
     /**
-     * 批量注册路由
-     * @param $rules
+     * 批量注册路由(包括分组路由)
+     * @param array $rules
      * @param string $type
      */
     static protected  function registerRules($rules, $type = '*')
     {
         foreach ($rules as $key => $val) {
-            //删除数组中的第一个元素，并返回被删除元素的值
             if (is_numeric($key)) $key = array_shift($val);
-            //路由的值为空，继续下一次循环
             if (empty($val))  continue;
-            //$key = [a]
+            //[a]表分组名
             if (is_string($key) && strpos($key, '[') === 0) {
                 $key = substr($key, 1, -1);
                 //注册分组路由
                 self::group($key, $val);
             } elseif (is_array($val)) {
                 //注册路由
-                self::setRule($key, $val[0], $type, $val[1], isset($val[2]) ? $val[2] : []);
+                self::rule([$key=>$val],'',$type);
             } else {
                 //注册路由
-                self::setRule($key, $val, $type);
+                self::rule($key, $val, $type, [], []);
             }
         }
     }
@@ -304,7 +294,8 @@ class Route
      * @param $pattern
      * @return array  批量注册信息
      */
-    static protected function parseArrayRule($rule, $route, $type, $option, $pattern){
+    static protected function parseArrayRule($rule, $route, $type, $option, $pattern)
+    {
         //路由以'new/:id'=>'News/read'形式给出
         if (!is_array($route))return [$rule, $route, $type, $option, $pattern];
         //路由['new1/:id/[:a]/{%b}$','News/read','post',['complete_match' => false,'ext'=>'shtml','modular'=>'module'],['id'=>'\d+']]
@@ -322,12 +313,12 @@ class Route
             $son_pattern = $route[3];
         }else{
             //子类型
-            $son_type = $type;
+            $son_type = (isset($route[1]['method']) && !empty($route[1]['method']))?self::parseType($route[1]['method']):$type;
             $route[1]['method'] = $son_type;
             //子选项
-            $son_option = $route[1];
+            $son_option = empty($route[1])?[]:$route[1];
             //子模式
-            $son_pattern = $route[2];
+            $son_pattern = empty($route[2])?[]:$route[2];
         }
         //路由参数
         $son_option  = array_merge($option, isset($son_option)?$son_option:[]);
@@ -341,7 +332,8 @@ class Route
      * @param string $type  路由类型
      * @return array|null
      */
-    static protected function parseType($type){
+    static protected function parseType($type)
+    {
         if(empty($type)) return null;
         $type = strtolower($type);
         if (strpos($type, '|')) {
@@ -410,7 +402,8 @@ class Route
      * @param string $group  分组名
      * @param array $vars  路由参数
      */
-    static protected function saveGroupRoute($rule, $route, $option, $pattern, $group, $vars){
+    static protected function saveGroupRoute($rule, $route, $option, $pattern, $group, $vars)
+    {
         //绑定域名
         if (self::$domain) {
             self::$rules['domain'][self::$domain]['group'][$group][$rule] = [
@@ -442,7 +435,8 @@ class Route
      * @param array $pattern  路由模式
      * @param array $vars 路由参数
      */
-    static protected function saveSingleRoute($rule, $route,$type, $option, $pattern, $vars){
+    static protected function saveSingleRoute($rule, $route,$type, $option, $pattern, $vars)
+    {
         //绑定域名
         if (self::$domain) {
             foreach ($type as $item){
@@ -543,47 +537,35 @@ class Route
         $currentGroup = self::getGroup('name');
         //分组名+路由名=完整rule
         if ($currentGroup)  $name = $currentGroup . ($name ? '/' . ltrim($name, '/') : '');
-        if (!empty($name)) {
-            self::groupRoute($routes, $name, $option, $pattern);
-            return;
+
+        //注册分组路由
+        if (!empty($name)) self::groupSet($name, $routes, $option, $pattern);
+        //分组名为空,为普通的路由注册
+        if(empty($name)) {
+            if($routes instanceof \Closure){
+                // 闭包注册
+                $currentOption  = self::getGroup('option');
+                $currentPattern = self::getGroup('pattern');
+                self::setGroup('', array_merge($currentOption, $option), array_merge($currentPattern, $pattern));
+                call_user_func_array($routes, []);
+                self::setGroup($currentGroup, $currentOption, $currentPattern);
+            }else{
+                // 批量注册路由
+                $type = (isset($option['method']) && !empty($option['method']))?$option['method']:'*';
+                self::rule($routes, '', $type, $option, $pattern);
+            }
         }
-        if(empty($name) && $routes instanceof \Closure) {
-            // 闭包注册
-            $currentOption  = self::getGroup('option');
-            $currentPattern = self::getGroup('pattern');
-            self::setGroup('', array_merge($currentOption, $option), array_merge($currentPattern, $pattern));
-            call_user_func_array($routes, []);
-            self::setGroup($currentGroup, $currentOption, $currentPattern);
-            return;
-        }
-        // 批量注册路由
-        self::rule($routes, '', '*', $option, $pattern);
     }
 
     /**
      * 注册分组路由
-     * @param $routes
-     * @param $name
-     * @param $option
-     * @param $pattern
-     */
-    static protected function groupRoute($routes, $name, $option, $pattern){
-        //如果路由以匿名函数形式给出
-        if ($routes instanceof \Closure) {
-            self::isClosureSet($name, $routes, $option, $pattern);
-        } else {
-            self::nonClosureSet($name, $routes, $option, $pattern);
-        }
-    }
-
-    /**
-     * 闭包注册分组路由
      * @param string $name  分组名
      * @param \Closure $routes 匿名函数
      * @param array $option  分组选项
      * @param array $pattern  分组模式
      */
-    static protected function isClosureSet($name, $routes, $option, $pattern){
+    static protected function groupSet($name, $routes, $option, $pattern)
+    {
         //当前分组名
         $currentGroup = self::getGroup('name');
         //当前分组参数信息
@@ -593,62 +575,28 @@ class Route
         //设置当前路由分组信息
         self::setGroup($name, array_merge($currentOption, $option), array_merge($currentPattern, $pattern));
         //闭包,调用Route::rule注册路由，会注册进当前分组
-        call_user_func_array($routes, []);
+        //如果路由以匿名函数形式给出
+        if ($routes instanceof \Closure) {
+            call_user_func_array($routes, []);
+        } else {
+            self::rule($routes, '', '*', $option, $pattern);
+        }
         //还原,等待下一次注册分组
         self::setGroup($currentGroup, $currentOption, $currentPattern);
         //要注册的分组名称非空，注册分组公共信息
         if ($currentGroup != $name) {
-            self::$rules['group'][$name]['route']   = '';
-            self::$rules['group'][$name]['var']     = self::parseVar($name);    //分组的参数
-            self::$rules['group'][$name]['option']  = $option;
-            self::$rules['group'][$name]['pattern'] = $pattern;
-        }
-    }
-
-    /**
-     * 非闭包注册分组路由
-     * @param string $name  分组名
-     * @param mixed $routes  分组路由
-     * @param array $option  分组路由选项
-     * @param array $pattern  分组路由模式
-     */
-    static protected function nonClosureSet($name, $routes, $option, $pattern){
-        $item = [];
-        foreach ($routes as $key => $val) {
-            //如果路由定义是数组
-            if (is_array($val)) {
-                //删除第一个元素并返回
-                if (is_numeric($key))$key = array_shift($val);
-                $route    = $val[0];    //路由
-                $option1  = array_merge($option, isset($val[1]) ? $val[1] : []);    //路由选项
-                $pattern1 = array_merge($pattern, isset($val[2]) ? $val[2] : []);   //路由模式
-            } else {
-                $route = $val;
+            if(empty(self::$domain)){
+                self::$rules['group'][$name]['route']   = '';
+                self::$rules['group'][$name]['var']     = self::parseVar($name);    //分组的参数
+                self::$rules['group'][$name]['option']  = $option;
+                self::$rules['group'][$name]['pattern'] = $pattern;
+            }else{
+                self::$rules['domain'][self::$domain]['group'][$name]['route']   = '';
+                self::$rules['domain'][self::$domain]['group'][$name]['var']     = self::parseVar($name);    //分组的参数
+                self::$rules['domain'][self::$domain]['group'][$name]['option']  = $option;
+                self::$rules['domain'][self::$domain]['group'][$name]['pattern'] = $pattern;
             }
-            //局部选项覆盖全局的
-            $options  = isset($option1) ? $option1 : $option;
-            $patterns = isset($pattern1) ? $pattern1 : $pattern;
-            // 是否完整匹配
-            if (substr($key, -1, 1) == '$') {
-                $options['complete_match'] = true;
-                $key = substr($key, 0, -1);
-            }
-            //去掉反斜杠
-            $key    = trim($key, '/');
-            //路由参数
-            $vars   = self::parseVar($key);
-            //路由数组
-            self::$rules['group'][$name][$key] = ['rule' => $key, 'route' => $route, 'var' => $vars, 'option' => $options, 'pattern' => $patterns];
-            //后缀
-            $suffix = isset($options['ext']) ? $options['ext'] : null;
-            //设置路由标识
-            self::name($route, ['rule' => $name . ($key ? '/' . $key : ''), 'var' => $vars, 'domain' => self::$domain, 'suffix' => $suffix]);
         }
-        //注册分组路由公共信息
-        self::$rules['group'][$name]['route'] = '';
-        self::$rules['group'][$name]['var'] = [];
-        self::$rules['group'][$name]['option'] = $option;
-        self::$rules['group'][$name]['pattern'] = $pattern;
     }
 
     /**
@@ -747,16 +695,18 @@ class Route
     static public  function resource($rule, $route = '', $option = [], $pattern = [])
     {
         if (is_array($rule)) {
+            //key=>rule val=>route
             foreach ($rule as $key => $val) {
-                if (is_array($val)) {
-                    list($val, $option, $pattern) = array_pad($val, 3, []);
-                }
+                //返回3个元素，并将[]插入新元素中
+                if (is_array($val)) list($val, $option, $pattern) = array_pad($val, 3, []);
                 self::resource($key, $val, $option, $pattern);
             }
         } else {
+            //嵌套资源 Route::resource('blog.comment','index/comment');
             if (strpos($rule, '.')) {
                 // 注册嵌套资源路由
                 $array = explode('.', $rule);
+                //删除并返回最后一个元素，即操作方法
                 $last  = array_pop($array);
                 $item  = [];
                 foreach ($array as $val) {
@@ -764,12 +714,12 @@ class Route
                 }
                 $rule = implode('/', $item) . '/' . $last;
             }
-            // 注册资源路由
+            // 注册资源操作方法,路由
             foreach (self::$rest as $key => $val) {
-                if ((isset($option['only']) && !in_array($key, $option['only']))
-                    || (isset($option['except']) && in_array($key, $option['except']))) {
-                    continue;
-                }
+                //限制操作方法
+                if(isset($option['only']) && !in_array($key, $option['only'])) continue;
+                if(isset($option['except']) && in_array($key, $option['except'])) continue;
+                //[1] => /:id 资源参数匹配
                 if (isset($last) && strpos($val[1], ':id') && isset($option['var'][$last])) {
                     $val[1] = str_replace(':id', ':' . $option['var'][$last], $val[1]);
                 } elseif (strpos($val[1], ':id') && isset($option['var'][$rule])) {
