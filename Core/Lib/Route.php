@@ -52,7 +52,7 @@ class Route
 
     // REST路由操作方法定义
     static private $rest = [
-        'index'  => ['get', '', 'index'],
+        'index'  => ['get', '', 'index'], //请求类型  请求操作的参数  请求操作参数
         'create' => ['get', '/create', 'create'],
         'edit'   => ['get', '/:id/edit', 'edit'],
         'read'   => ['get', '/:id', 'read'],
@@ -685,6 +685,8 @@ class Route
 
     /**
      * 注册资源路由
+     * 一个资源  的请求类型(操作)  get(edit/create/read)  put(save/update) delete(delete)，
+     * 每一种操作都要注册响应的路由
      * @access public
      * @param string    $rule 路由规则
      * @param string    $route 路由地址
@@ -695,6 +697,7 @@ class Route
     static public  function resource($rule, $route = '', $option = [], $pattern = [])
     {
         if (is_array($rule)) {
+
             //key=>rule val=>route
             foreach ($rule as $key => $val) {
                 //返回3个元素，并将[]插入新元素中
@@ -712,22 +715,27 @@ class Route
                 foreach ($array as $val) {
                     $item[] = $val . '/:' . (isset($option['var'][$val]) ? $option['var'][$val] : $val . '_id');
                 }
+                //blog/:blog_id/user/:user_id/comment
                 $rule = implode('/', $item) . '/' . $last;
             }
             // 注册资源操作方法,路由
-            foreach (self::$rest as $key => $val) {
+            foreach (self::$rest as $key => $restful) {
                 //限制操作方法
                 if(isset($option['only']) && !in_array($key, $option['only'])) continue;
                 if(isset($option['except']) && in_array($key, $option['except'])) continue;
                 //[1] => /:id 资源参数匹配
-                if (isset($last) && strpos($val[1], ':id') && isset($option['var'][$last])) {
-                    $val[1] = str_replace(':id', ':' . $option['var'][$last], $val[1]);
-                } elseif (strpos($val[1], ':id') && isset($option['var'][$rule])) {
-                    $val[1] = str_replace(':id', ':' . $option['var'][$rule], $val[1]);
+                if (isset($last) && strpos($restful[1], ':id') && isset($option['var'][$last])) {
+                    //restful 方法的参数匹配 首先匹配 末尾方法
+                    $restful[1] = str_replace(':id', ':' . $option['var'][$last], $restful[1]);
+                } elseif (strpos($restful[1], ':id') && isset($option['var'][$rule])) {
+                    //根据路由规则匹配
+                    $restful[1] = str_replace(':id', ':' . $option['var'][$rule], $restful[1]);
                 }
-                $item           = ltrim($rule . $val[1], '/');
+                //路由 拼上 restful 参数
+                $item = ltrim($rule . $restful[1], '/');
+                //restful 参数
                 $option['rest'] = $key;
-                self::rule($item . '$', $route . '/' . $val[2], $val[0], $option, $pattern);
+                self::rule($item . '$', $route . '/' . $restful[2], $restful[0], $option, $pattern);
             }
         }
     }

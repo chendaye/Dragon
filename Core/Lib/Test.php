@@ -482,7 +482,8 @@ class Test
 //        $name = Route::name('artical/read');
 //        E($name, true);
 //        Route::put('new_4/:id/[:a]/{%b}$', 'Blog/detail', ['complete_match' => true,'ext'=>'xml','modular'=>'User'], ['is'=>'\W+']);
-        Route::resource('blog.user.comment','index/comment',['var'=>['blog/:blog_id/user/:user_id/comment'=>8],'except'=>['edit','read']],[]);
+        //Route::resource('blog.comment','index/comment',['var'=>['blog/:blog_id/comment'=>8, 'blog'=>6],'except'=>['edit','read']],[]);
+        Route::resource('blog.comment','index/comment',['var'=>['blog'=>8, 'comment'=>999],'except'=>['edit',]],[]);
 
         Route::test('');
         exit;
