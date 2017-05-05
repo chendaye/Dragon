@@ -1,0 +1,177 @@
+[2017-03-21T18:26:52+08:00:] 192.168.0.53 192.168.0.53 GET /Dragon/Login/login 
+[Runinfo:]www.dragon-god.com/Dragon/Login/login[运行时间：0.007570s] [吞吐率：132.10req/s][内存消耗： 973.69kb][文件加载数：41]
+[log:]array (
+  0 => '175',
+  1 => 15,
+  2 => 1,
+)[log:]array (
+  0 => '165',
+  1 => 17,
+  2 => 0,
+)[sql:]select * from admin[sql:]delete from admin where id=2
+                                
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+[2017-03-21T18:26:53+08:00:] 192.168.0.53 192.168.0.53 GET /Dragon/Login/login 
+[Runinfo:]www.dragon-god.com/Dragon/Login/login[运行时间：0.008591s] [吞吐率：116.40req/s][内存消耗： 973.69kb][文件加载数：41]
+[log:]array (
+  0 => '175',
+  1 => 15,
+  2 => 1,
+)[log:]array (
+  0 => '165',
+  1 => 17,
+  2 => 0,
+)[sql:]select * from admin[sql:]delete from admin where id=2
+                                
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+[2017-03-21T18:26:53+08:00:] 192.168.0.53 192.168.0.53 GET /Dragon/Login/login 
+[Runinfo:]www.dragon-god.com/Dragon/Login/login[运行时间：0.007636s] [吞吐率：130.96req/s][内存消耗： 973.69kb][文件加载数：41]
+[log:]array (
+  0 => '175',
+  1 => 15,
+  2 => 1,
+)[log:]array (
+  0 => '165',
+  1 => 17,
+  2 => 0,
+)[sql:]select * from admin[sql:]delete from admin where id=2
+                                
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+[2017-03-21T18:26:53+08:00:] 192.168.0.53 192.168.0.53 GET /Dragon/Login/login 
+[Runinfo:]www.dragon-god.com/Dragon/Login/login[运行时间：0.007379s] [吞吐率：135.52req/s][内存消耗： 973.69kb][文件加载数：41]
+[log:]array (
+  0 => '175',
+  1 => 15,
+  2 => 1,
+)[log:]array (
+  0 => '165',
+  1 => 17,
+  2 => 0,
+)[sql:]select * from admin[sql:]delete from admin where id=2
+                                
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+[2017-03-21T18:26:53+08:00:] 192.168.0.53 192.168.0.53 GET /Dragon/Login/login 
+[Runinfo:]www.dragon-god.com/Dragon/Login/login[运行时间：0.008283s] [吞吐率：120.73req/s][内存消耗： 973.69kb][文件加载数：41]
+[log:]array (
+  0 => '175',
+  1 => 15,
+  2 => 1,
+)[log:]array (
+  0 => '165',
+  1 => 17,
+  2 => 0,
+)[sql:]select * from admin[sql:]delete from admin where id=2
+                                
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+[2017-03-21T18:26:54+08:00:] 192.168.0.53 192.168.0.53 GET /Dragon/Login/login 
+[Runinfo:]www.dragon-god.com/Dragon/Login/login[运行时间：0.007904s] [吞吐率：126.52req/s][内存消耗： 973.69kb][文件加载数：41]
+[log:]array (
+  0 => '175',
+  1 => 15,
+  2 => 1,
+)[log:]array (
+  0 => '165',
+  1 => 17,
+  2 => 0,
+)[sql:]select * from admin[sql:]delete from admin where id=2
+                                
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+[2017-03-21T18:28:04+08:00:] 192.168.0.53 192.168.0.53 GET /Dragon/Login/login 
+[Runinfo:]www.dragon-god.com/Dragon/Login/login[运行时间：0.007388s] [吞吐率：135.35req/s][内存消耗： 973.96kb][文件加载数：41]
+[sql:]select * from admin[sql:]delete from admin where id=2
+                                
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+[2017-03-21T18:29:16+08:00:] 192.168.0.53 192.168.0.53 GET /Dragon/Login/login 
+[Runinfo:]www.dragon-god.com/Dragon/Login/login[运行时间：0.008039s] [吞吐率：124.39req/s][内存消耗： 974.08kb][文件加载数：41]
+[sql:]select * from admin[sql:]delete from admin where id=2
+                                
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+[2017-03-21T18:29:16+08:00:] 192.168.0.53 192.168.0.53 GET /Dragon/Login/login 
+[Runinfo:]www.dragon-god.com/Dragon/Login/login[运行时间：0.007090s] [吞吐率：141.05req/s][内存消耗： 974.08kb][文件加载数：41]
+[sql:]select * from admin[sql:]delete from admin where id=2
+                                
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+[2017-03-21T18:29:16+08:00:] 192.168.0.53 192.168.0.53 GET /Dragon/Login/login 
+[Runinfo:]www.dragon-god.com/Dragon/Login/login[运行时间：0.008619s] [吞吐率：116.02req/s][内存消耗： 974.08kb][文件加载数：41]
+[sql:]select * from admin[sql:]delete from admin where id=2
+                                
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+[2017-03-21T18:29:17+08:00:] 192.168.0.53 192.168.0.53 GET /Dragon/Login/login 
+[Runinfo:]www.dragon-god.com/Dragon/Login/login[运行时间：0.008059s] [吞吐率：124.08req/s][内存消耗： 974.08kb][文件加载数：41]
+[sql:]select * from admin[sql:]delete from admin where id=2
+                                
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+[2017-03-21T18:29:17+08:00:] 192.168.0.53 192.168.0.53 GET /Dragon/Login/login 
+[Runinfo:]www.dragon-god.com/Dragon/Login/login[运行时间：0.008419s] [吞吐率：118.78req/s][内存消耗： 974.08kb][文件加载数：41]
+[sql:]select * from admin[sql:]delete from admin where id=2
+                                
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+[RecordTime2017-03-21T18:32:44+08:00:] Server:192.168.0.53 Remote:192.168.0.53 Method:GET URI:/Dragon/Login/login 
+[Runinfo:]www.dragon-god.com/Dragon/Login/login[运行时间：0.008382s] [吞吐率：119.30req/s][内存消耗： 973.96kb][文件加载数：41]
+[sql:]select * from admin[sql:]delete from admin where id=2
+                                
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+[RecordTime2017-03-21T18:32:44+08:00:] Server:192.168.0.53 Remote:192.168.0.53 Method:GET URI:/Dragon/Login/login 
+[Runinfo:]www.dragon-god.com/Dragon/Login/login[运行时间：0.007565s] [吞吐率：132.19req/s][内存消耗： 973.96kb][文件加载数：41]
+[sql:]select * from admin[sql:]delete from admin where id=2
+                                
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+[RecordTime2017-03-21T18:32:44+08:00:] Server:192.168.0.53 Remote:192.168.0.53 Method:GET URI:/Dragon/Login/login 
+[Runinfo:]www.dragon-god.com/Dragon/Login/login[运行时间：0.008025s] [吞吐率：124.61req/s][内存消耗： 973.96kb][文件加载数：41]
+[sql:]select * from admin[sql:]delete from admin where id=2
+                                
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+[RecordTime2017-03-21T18:32:45+08:00:] Server:192.168.0.53 Remote:192.168.0.53 Method:GET URI:/Dragon/Login/login 
+[Runinfo:]www.dragon-god.com/Dragon/Login/login[运行时间：0.007386s] [吞吐率：135.39req/s][内存消耗： 973.96kb][文件加载数：41]
+[sql:]select * from admin[sql:]delete from admin where id=2
+                                
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+[RecordTime2017-03-21T18:32:45+08:00:] Server:192.168.0.53 Remote:192.168.0.53 Method:GET URI:/Dragon/Login/login 
+[Runinfo:]www.dragon-god.com/Dragon/Login/login[运行时间：0.008613s] [吞吐率：116.11req/s][内存消耗： 973.96kb][文件加载数：41]
+[sql:]select * from admin[sql:]delete from admin where id=2
+                                
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+[RecordTime2017-03-21T18:32:45+08:00:] Server:192.168.0.53 Remote:192.168.0.53 Method:GET URI:/Dragon/Login/login 
+[Runinfo:]www.dragon-god.com/Dragon/Login/login[运行时间：0.007328s] [吞吐率：136.46req/s][内存消耗： 973.96kb][文件加载数：41]
+[sql:]select * from admin[sql:]delete from admin where id=2
+                                
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+[RecordTime2017-03-21T18:33:53+08:00:] Server:192.168.0.53 Remote:192.168.0.53 Method:GET URI:/Dragon/Login/login 
+[Runinfo:]www.dragon-god.com/Dragon/Login/login[运行时间：0.007119s] [吞吐率：140.47req/s][内存消耗： 973.96kb][文件加载数：41]
+[log:]array (
+  0 => '175',
+  1 => 15,
+  2 => 1,
+)[log:]array (
+  0 => '165',
+  1 => 17,
+  2 => 0,
+)
+                                
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+[RecordTime2017-03-21T18:33:54+08:00:] Server:192.168.0.53 Remote:192.168.0.53 Method:GET URI:/Dragon/Login/login 
+[Runinfo:]www.dragon-god.com/Dragon/Login/login[运行时间：0.007907s] [吞吐率：126.47req/s][内存消耗： 973.96kb][文件加载数：41]
+[log:]array (
+  0 => '175',
+  1 => 15,
+  2 => 1,
+)[log:]array (
+  0 => '165',
+  1 => 17,
+  2 => 0,
+)
+                                
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+[RecordTime2017-03-21T18:33:54+08:00:] Server:192.168.0.53 Remote:192.168.0.53 Method:GET URI:/Dragon/Login/login 
+[Runinfo:]www.dragon-god.com/Dragon/Login/login[运行时间：0.007654s] [吞吐率：130.65req/s][内存消耗： 973.96kb][文件加载数：41]
+[log:]array (
+  0 => '175',
+  1 => 15,
+  2 => 1,
+)[log:]array (
+  0 => '165',
+  1 => 17,
+  2 => 0,
+)
+                                
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
