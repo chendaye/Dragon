@@ -90,7 +90,7 @@ return [
     // 域名部署
     'URL_DOMAIN_DEPLOY'      => false,
     // 域名根，如thinkphp.cn
-    'URL_DOMAIN_ROOT'        => '',
+    'URL_DOMAIN_ROOT'        => 'dragon-god.com',
     // 是否自动转换URL中的控制器和操作名
     'URL_CONVERT'            => true,
     // 默认的访问控制器层

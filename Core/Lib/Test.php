@@ -391,12 +391,13 @@ class Test
      * 路由测试
      */
     static public function route(){
+
        // E(substr('qwer', 0, 1),true);
 //        E(preg_match_all('/<(\w+(\??))>/', '<qwer ><sdf><qqqq?=>', $matches));
 //        E($matches,true);
         \Core\Lib\Conf::init('Config.php', '');
         ini_set('date.timezone','Asia/Shanghai');
-        RequestHelper::instance()->create('http://username:password@www.dragon-god.com:80/Dragon/Login/login.html?d=888&user=chen&pass=daye','delete',$param = ['id'=>123,'name'=>2]);
+        RequestHelper::instance()->create('http://username:password@dragon.www.dragon-god.com:80/Dragon/Login/login.html?d=888&user=chen&pass=daye','delete',$param = ['id'=>123,'name'=>2]);
 
 //        Route::setGroup('Artical', ['complete_match' => false,'ext'=>'shtml','modular'=>'module'], ['id'=>'\d+']);
 
@@ -451,15 +452,25 @@ class Test
 //        }, $option = ['complete_match' => true,'ext'=>'xml','modular'=>'User'], $pattern = ['id'=>'\d+']);
 
 
-//        Route::domain('com', [
-//            'new_1/:id'=>'News/read',
-//            'new_2/:name'=>['Blog/detail','put', ['ext'=>'yml'], ['name'=>'\w+']],
-//            'new_7/:name/{%id}'=>['Blog/detail','*', ['ext'=>'yml'], ['name'=>'\w+']],
-//            'new_8/:name'=>['Blog/detail','head|options', ['ext'=>'yml'], ['id'=>'\w+']],
-//            'new_3/:name'=>['Blog/detail', ['ext'=>'yml'], ['id'=>'\w+']],
-//            ['new_4/:id/[:a]/{%b}$','News/read','post',['complete_match' => false,'ext'=>'shtml','modular'=>'module'],['id'=>'\d+']],
-//            '[ggg]'=>[':id/[:ccc]'   => ['artical/read', ['method' => 'get'], ['id' => '\d+']],],
-//        ], $option = ['complete_match' => true,'ext'=>'xml','modular'=>'User'], $pattern = ['id'=>'\d+']);
+        Route::domain('dragon-god.com:80', [
+            'new_1/:id'=>'News/read',
+            //'new_2/:name'=>['Blog/detail','put', ['ext'=>'yml'], ['name'=>'\w+']],
+            //'new_7/:name/{%id}'=>['Blog/detail','*', ['ext'=>'yml'], ['name'=>'\w+']],
+            'new_8/:name'=>['Blog/detail','head|options', ['ext'=>'yml'], ['id'=>'\w+']],
+            '//new_3/:name'=>['Blog/detail', ['ext'=>'yml'], ['id'=>'\w+']],
+            ['new_4/:id/[:a]/{%b}$','News/read','post',['complete_match' => false,'ext'=>'shtml','modular'=>'module'],['id'=>'\d+']],
+           // '[ggg]'=>[':id/[:ccc]'   => ['artical/read', ['method' => 'get'], ['id' => '\d+']],],
+        ], $option = ['complete_match' => true,'ext'=>'xml','modular'=>'User'], $pattern = ['id'=>'\d+']);
+
+        Route::domain('*.www', [
+            'new_1/:id'=>'News/read',
+            //'new_2/:name'=>['Blog/detail','put', ['ext'=>'yml'], ['name'=>'\w+']],
+            //'new_7/:name/{%id}'=>['Blog/detail','*', ['ext'=>'yml'], ['name'=>'\w+']],
+            'new_8/:name'=>['Blog/detail','head|options', ['ext'=>'yml'], ['id'=>'\w+']],
+            '//new_3/:name'=>['Blog/detail', ['ext'=>'yml'], ['id'=>'\w+']],
+            ['new_4/:id/[:a]/{%b}$','News/read','post',['complete_match' => false,'ext'=>'shtml','modular'=>'module'],['id'=>'\d+']],
+           // '[ggg]'=>[':id/[:ccc]'   => ['artical/read', ['method' => 'get'], ['id' => '\d+']],],
+        ], $option = ['complete_match' => true,'ext'=>'xml','modular'=>'User'], $pattern = ['id'=>'\d+']);
 
 //        Route::domain([
 //            'com'=>function(){
@@ -484,7 +495,26 @@ class Test
 //        Route::put('new_4/:id/[:a]/{%b}$', 'Blog/detail', ['complete_match' => true,'ext'=>'xml','modular'=>'User'], ['is'=>'\W+']);
         //Route::resource('blog.comment','index/comment',['var'=>['blog/:blog_id/comment'=>8, 'blog'=>6],'except'=>['edit','read']],[]);
         //Route::resource('blog.articl.comment','index/comment',['var'=>['blog'=>8, 'articl' => 9, 'comment' => 10],'except'=>['',]],[]);
-        Route::command('A:id','blog/read',[],['id'=>'\d+']);
+       // Route::command('A:id','blog/read',[],['id'=>'\d+']);
+//        Route::alias([
+//                'new_1/:id'=>'News/read',
+//                'new_2/:name'=>['Blog/detail','put', ['ext'=>'yml'], ['name'=>'\w+']],
+//                'new_7/:name/{%id}'=>['Blog/detail','*', ['ext'=>'yml'], ['name'=>'\w+']],
+//                'new_8/:name'=>['Blog/detail','head|options', ['ext'=>'yml'], ['id'=>'\w+']],
+//                'new_3/:name'=>['Blog/detail', ['ext'=>'yml'], ['id'=>'\w+']],
+//                ['new_4/:id/[:a]/{%b}$','News/read','post',['complete_match' => false,'ext'=>'shtml','modular'=>'module'],['id'=>'\d+']],
+//                '[ggg]'=>[':id/[:ccc]'   => ['artical/read', ['method' => 'get'], ['id' => '\d+']],],
+//            ]);
+
+//        Route::alias('new_1/:id', 'Blog/detail', ['ext'=>'yml','allow'=>['index','read','edit','delete']]);
+//        Route::setMethodPrefix('PUT', 'ppt');
+//          Route::rest('create', ['put', ':id', 'create']);
+//        Route::miss('index/index', 'get', ['ext'=>'yml']);
+//        Route::auto('index/index');
+//        E(Route::rules(''));
+        $request = RequestRegistry::getRequest();
+        $ru = 'new_3/:name';
+        Route::checkDomain($request, $ru, 'get');
         Route::test('');
         exit;
     }

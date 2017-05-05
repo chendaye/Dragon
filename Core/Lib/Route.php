@@ -818,8 +818,10 @@ class Route
     static public  function setMethodPrefix($method, $prefix = '')
     {
         if (is_array($method)) {
+            //键名小写
             self::$methodPrefix = array_merge(self::$methodPrefix, array_change_key_case($method));
         } else {
+            //'put' => 'putttt'
             self::$methodPrefix[strtolower($method)] = $prefix;
         }
     }
@@ -834,23 +836,23 @@ class Route
     static public  function rest($name, $resource = [])
     {
         if (is_array($name)) {
-            self::$rest = $resource ? $name : array_merge(self::$rest, $name);
+            self::$rest = array_merge(self::$rest, $name);
         } else {
             self::$rest[$name] = $resource;
         }
     }
 
     /**
-     * 注册未匹配路由规则后的处理
+     * 匹配路由规则失败的路由注册
      * @access public
      * @param string    $route 路由地址
-     * @param string    $method 请求类型
+     * @param string    $type 请求类型
      * @param array     $option 路由参数
      * @return void
      */
-    static public  function miss($route, $method = '*', $option = [])
+    static public  function miss($route, $type = '*', $option = [])
     {
-        self::rule('__miss__', $route, $method, $option, []);
+        self::rule('__miss__', $route, $type, $option, []);
     }
 
     /**
@@ -878,7 +880,7 @@ class Route
             self::$rules = $rules;
         } elseif ($rules) {
             //获取现有路由，或者获取指定路由
-            return true === $rules ? self::$rules : self::$rules[strtolower($rules)];
+            return ($rules === true) ? self::$rules : self::$rules[strtolower($rules)];
         } else {
             //空字符串，销毁 $rules['pattern'], $rules['alias'], $rules['domain'], $rules['name']
             $rules = self::$rules;
@@ -902,82 +904,46 @@ class Route
         // 开启子域名部署 支持二级和三级域名
         if (!empty($rules)) {
             $host = $request->host();
-            if (isset($rules[$host])) {
-                // 完整域名或者IP配置
-                $item = $rules[$host];
-            } else {
-                $rootDomain = Conf::get('URL_DOMAIN_ROOT');
-                if ($rootDomain) {
-                    // 配置域名根 例如 thinkphp.cn 163.com.cn 如果是国家级域名 com.cn net.cn 之类的域名需要配置
-                    $domain = explode('.', rtrim(stristr($host, $rootDomain, true), '.'));
-                } else {
-                    $domain = explode('.', $host, -2);
-                }
-                // 子域名配置
-                if (!empty($domain)) {
-                    // 当前子域名
-                    $subDomain       = implode('.', $domain);
-                    self::$subDomain = $subDomain;
-                    $domain2         = array_pop($domain);
-                    if ($domain) {
-                        // 存在三级域名
-                        $domain3 = array_pop($domain);
-                    }
-                    if ($subDomain && isset($rules[$subDomain])) {
-                        // 子域名配置
-                        $item = $rules[$subDomain];
-                    } elseif (isset($rules['*.' . $domain2]) && !empty($domain3)) {
-                        // 泛三级域名
-                        $item      = $rules['*.' . $domain2];
-                        $panDomain = $domain3;
-                    } elseif (isset($rules['*']) && !empty($domain2)) {
-                        // 泛二级域名
-                        if ('www' != $domain2) {
-                            $item      = $rules['*'];
-                            $panDomain = $domain2;
-                        }
-                    }
-                }
-            }
+            //域名配置
+            $domainInfo = self::getHostRule($rules, $host);
+            $item = $domainInfo['item'];
+            $panDomain = $domainInfo['domain'];
             if (!empty($item)) {
-                if (isset($panDomain)) {
-                    // 保存当前泛域名
-                    $request->route(['__domain__' => $panDomain]);
-                }
+                //保存泛域名 二级 三级 域名
+                if (!is_null($panDomain)) $request->route(['__domain__' => $panDomain]);
                 if (isset($item['[bind]'])) {
                     // 解析子域名部署规则
                     list($rule, $option, $pattern) = $item['[bind]'];
-                    if (!empty($option['https']) && !$request->isSsl()) {
-                        // https检测
-                        throw new HttpException(404, 'must use https request:' . $host);
-                    }
-
+                    // https检测
+                    if (!empty($option['https']) && !$request->isSsl()) throw new HttpException(404, 'must use https request:' . $host);
+                    //路由
                     if (strpos($rule, '?')) {
                         // 传入其它参数
                         $array  = parse_url($rule);
-                        $result = $array['path'];
+                        //路径
+                        $path = $array['path'];
+                        //参数
                         parse_str($array['query'], $params);
                         if (isset($panDomain)) {
                             $pos = array_search('*', $params);
-                            if (false !== $pos) {
-                                // 泛域名作为参数
-                                $params[$pos] = $panDomain;
-                            }
+                            // 泛域名作为参数
+                            if ($pos !== false) $params[$pos] = $panDomain;
                         }
+                        //参数并入 $_GET
                         $_GET = array_merge($_GET, $params);
                     } else {
-                        $result = $rule;
+                        $path = $rule;
                     }
 
-                    if (0 === strpos($result, '\\')) {
+                    if (strpos($path, '\\') === 0) {
                         // 绑定到命名空间 例如 \app\index\behavior
-                        self::$bind = ['type' => 'namespace', 'namespace' => $result];
-                    } elseif (0 === strpos($result, '@')) {
+                        self::$bind = ['type' => 'namespace', 'namespace' => $path];
+                    } elseif (strpos($path, '@') === 0) {
                         // 绑定到类 例如 @app\index\controller\User
-                        self::$bind = ['type' => 'class', 'class' => substr($result, 1)];
+                        self::$bind = ['type' => 'class', 'class' => substr($path, 1)];
                     } else {
                         // 绑定到模块/控制器 例如 index/user
-                        self::$bind = ['type' => 'module', 'module' => $result];
+                        self::$bind = ['type' => 'module', 'module' => $path];
                     }
                     self::$domainBind = true;
                 } else {
@@ -986,6 +952,54 @@ class Route
                 }
             }
         }
+    }
+
+    /**
+     * 获取域名路由配置
+     * @param array $rules  域名路由规则
+     * @param string $host  域名
+     * @return array  域名配置
+     */
+    static protected function getHostRule($rules ,$host){
+        // 完整域名或者IP配置
+        if (isset($rules[$host])) return $rules[$host];
+        //非完整域名
+        $rootDomain = Conf::get('URL_DOMAIN_ROOT');  //根域名
+        if ($rootDomain) {
+            // 配置域名根 例如 thinkphp.cn 163.com.cn 如果是国家级域名 com.cn net.cn 之类的域名需要配置
+            $domain = explode('.', rtrim(stristr($host, $rootDomain, true), '.'));
+        } else {
+            //除了最后两个元素外的所有元素  去掉顶级域名 一级域名
+            $domain = explode('.', $host, -2);
+        }
+        // 子域名不存在
+        if(empty($domain)) return null;
+        // 当前子域名
+        $subDomain = implode('.', $domain);
+        //二级域名三级域名
+        self::$subDomain = $subDomain;
+        //二级域名
+        $domain2  = array_pop($domain);
+        //三级域名
+        if ($domain) $domain3 = array_pop($domain);
+        // 子域名配置
+        if ($subDomain && isset($rules[$subDomain])) {
+            $item = $rules[$subDomain];
+        } elseif (isset($rules['*.' . $domain2]) && !empty($domain3)) {
+            // 泛三级域名 *.www
+            $item = $rules['*.' . $domain2];
+            $panDomain = $domain3;
+        } elseif (isset($rules['*']) && !empty($domain2)) {
+            // 泛二级域名
+            if ($domain2 != 'www') {
+                $item = $rules['*'];
+                $panDomain = $domain2;
+            }
+        }
+        return [
+            'item'    => !empty($item)?$item:[],
+            'domain'  => isset($panDomain)?$panDomain:null,
+        ];
     }
 
     /**
