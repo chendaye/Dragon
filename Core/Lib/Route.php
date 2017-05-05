@@ -52,13 +52,41 @@ class Route
 
     // REST路由操作方法定义
     static private $rest = [
-        'index'  => ['get', '', 'index'], //请求类型  请求操作的参数  请求操作参数
-        'create' => ['get', '/create', 'create'],
-        'edit'   => ['get', '/:id/edit', 'edit'],
-        'read'   => ['get', '/:id', 'read'],
-        'save'   => ['post', '', 'save'],
-        'update' => ['put', '/:id', 'update'],
-        'delete' => ['delete', '/:id', 'delete'],
+        'index'  => [
+            'request' => 'get',
+            'param' =>  '',
+            'operate' =>  'index'
+        ],
+        'create' => [
+            'request' => 'get', 
+            'param' =>  '/create', 
+            'operate' =>  'create'
+        ],
+        'edit'   => [
+            'request' => 'get', 
+            'param' =>  '/:id/edit', 
+            'operate' =>  'edit'
+        ],
+        'read'   => [
+            'request' => 'get', 
+            'param' =>  '/:id', 
+            'operate' =>  'read'
+        ],
+        'save'   => [
+            'request' => 'post', 
+            'param' =>  '', 
+            'operate' =>  'save'
+        ],
+        'update' => [
+            'request' => 'put', 
+            'param' =>  '/:id', 
+            'operate' =>  'update'
+        ],
+        'delete' => [
+            'request' => 'delete', 
+            'param' =>  '/:id', 
+            'operate' =>  'delete'
+        ],
     ];
 
     // 不同请求类型的方法前缀
@@ -697,7 +725,6 @@ class Route
     static public  function resource($rule, $route = '', $option = [], $pattern = [])
     {
         if (is_array($rule)) {
-
             //key=>rule val=>route
             foreach ($rule as $key => $val) {
                 //返回3个元素，并将[]插入新元素中
@@ -707,15 +734,17 @@ class Route
         } else {
             //嵌套资源 Route::resource('blog.comment','index/comment');
             if (strpos($rule, '.')) {
-                // 注册嵌套资源路由
+                // 是否多个资源
                 $array = explode('.', $rule);
-                //删除并返回最后一个元素，即操作方法
+                //获取资源的操作方法
                 $last  = array_pop($array);
                 $item  = [];
+                //拼接资源的路由
                 foreach ($array as $val) {
+                    //拼接资源和参数 blog/:8   articl/:articl_id
                     $item[] = $val . '/:' . (isset($option['var'][$val]) ? $option['var'][$val] : $val . '_id');
                 }
-                //blog/:blog_id/user/:user_id/comment
+                //  blog/:8/articl/:articl_id/comment
                 $rule = implode('/', $item) . '/' . $last;
             }
             // 注册资源操作方法,路由
@@ -723,25 +752,29 @@ class Route
                 //限制操作方法
                 if(isset($option['only']) && !in_array($key, $option['only'])) continue;
                 if(isset($option['except']) && in_array($key, $option['except'])) continue;
-                //[1] => /:id 资源参数匹配
-                if (isset($last) && strpos($restful[1], ':id') && isset($option['var'][$last])) {
-                    //restful 方法的参数匹配 首先匹配 末尾方法
-                    $restful[1] = str_replace(':id', ':' . $option['var'][$last], $restful[1]);
-                } elseif (strpos($restful[1], ':id') && isset($option['var'][$rule])) {
-                    //根据路由规则匹配
-                    $restful[1] = str_replace(':id', ':' . $option['var'][$rule], $restful[1]);
+                //匹配资源操作方法参数
+                if (isset($last) && strpos($restful['param'], ':id') && isset($option['var'][$last])) {
+                    //根据操作方法名 匹配参数  $restful['param'] => /:id
+                    $restful['param'] = str_replace(':id', ':' . $option['var'][$last], $restful['param']);
+                } elseif (strpos($restful['param'], ':id') && isset($option['var'][$rule])) {
+                    //根据路由规则  匹配参数
+                    $restful['param'] = str_replace(':id', ':' . $option['var'][$rule], $restful['param']);
                 }
-                //路由 拼上 restful 参数
-                $item = ltrim($rule . $restful[1], '/');
+                //资源名+资源参数+资源操作方法+操作方法参数 路由标识
+                $resource_rule = ltrim($rule . $restful['param'], '/') .'$';
+                //资源路由
+                $resource_route = $route . '/' . $restful['operate'];
                 //restful 参数
                 $option['rest'] = $key;
-                self::rule($item . '$', $route . '/' . $restful[2], $restful[0], $option, $pattern);
+                //restful 操作信息
+                $option['restful'] = $restful;
+                self::rule($resource_rule, $resource_route, $restful['request'], $option, $pattern);
             }
         }
     }
 
     /**
-     * 注册控制器路由 操作方法对应不同的请求后缀
+     * 注册命令路由 命令的控制器对应不同的请求后缀
      * @access public
      * @param string    $rule 路由规则
      * @param string    $route 路由地址
@@ -749,10 +782,11 @@ class Route
      * @param array     $pattern 变量规则
      * @return void
      */
-    static public  function controller($rule, $route = '', $option = [], $pattern = [])
+    static public  function command($rule, $route = '', $option = [], $pattern = [])
     {
-        foreach (self::$methodPrefix as $type => $val) {
-            self::$type($rule . '/:action', $route . '/' . $val . ':action', $option, $pattern);
+        // 'put' => 'put'
+        foreach (self::$methodPrefix as $type => $method) {
+            self::$type($rule . '/:controller', $route . '/' . $method . ':controller', $option, $pattern);
         }
     }
 

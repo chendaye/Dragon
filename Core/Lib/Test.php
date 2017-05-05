@@ -483,8 +483,8 @@ class Test
 //        E($name, true);
 //        Route::put('new_4/:id/[:a]/{%b}$', 'Blog/detail', ['complete_match' => true,'ext'=>'xml','modular'=>'User'], ['is'=>'\W+']);
         //Route::resource('blog.comment','index/comment',['var'=>['blog/:blog_id/comment'=>8, 'blog'=>6],'except'=>['edit','read']],[]);
-        Route::resource('blog.comment','index/comment',['var'=>['blog'=>8, 'comment'=>999],'except'=>['edit',]],[]);
-
+        //Route::resource('blog.articl.comment','index/comment',['var'=>['blog'=>8, 'articl' => 9, 'comment' => 10],'except'=>['',]],[]);
+        Route::command('A:id','blog/read',[],['id'=>'\d+']);
         Route::test('');
         exit;
     }
