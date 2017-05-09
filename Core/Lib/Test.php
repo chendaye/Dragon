@@ -397,7 +397,7 @@ class Test
 //        E($matches,true);
         \Core\Lib\Conf::init('Config.php', '');
         ini_set('date.timezone','Asia/Shanghai');
-        RequestHelper::instance()->create('http://username:password@dragon.www.dragon-god.com:80/Dragon/Login/login.html?d=888&user=chen&pass=daye','delete',$param = ['id'=>123,'name'=>2]);
+        RequestHelper::instance()->create('http://username:password@three.www.dragon-god.com:80/Dragon/Login/login.html?d=888&user=chen&pass=daye','delete',$param = ['id'=>123,'name'=>2]);
 
 //        Route::setGroup('Artical', ['complete_match' => false,'ext'=>'shtml','modular'=>'module'], ['id'=>'\d+']);
 
@@ -452,25 +452,25 @@ class Test
 //        }, $option = ['complete_match' => true,'ext'=>'xml','modular'=>'User'], $pattern = ['id'=>'\d+']);
 
 
-        Route::domain('dragon-god.com:80', [
-            'new_1/:id'=>'News/read',
-            //'new_2/:name'=>['Blog/detail','put', ['ext'=>'yml'], ['name'=>'\w+']],
-            //'new_7/:name/{%id}'=>['Blog/detail','*', ['ext'=>'yml'], ['name'=>'\w+']],
-            'new_8/:name'=>['Blog/detail','head|options', ['ext'=>'yml'], ['id'=>'\w+']],
-            '//new_3/:name'=>['Blog/detail', ['ext'=>'yml'], ['id'=>'\w+']],
-            ['new_4/:id/[:a]/{%b}$','News/read','post',['complete_match' => false,'ext'=>'shtml','modular'=>'module'],['id'=>'\d+']],
-           // '[ggg]'=>[':id/[:ccc]'   => ['artical/read', ['method' => 'get'], ['id' => '\d+']],],
-        ], $option = ['complete_match' => true,'ext'=>'xml','modular'=>'User'], $pattern = ['id'=>'\d+']);
+//        Route::domain('dragon-god.com:80', [
+//            'new_1/:id'=>'News/read',
+//            //'new_2/:name'=>['Blog/detail','put', ['ext'=>'yml'], ['name'=>'\w+']],
+//            //'new_7/:name/{%id}'=>['Blog/detail','*', ['ext'=>'yml'], ['name'=>'\w+']],
+//            'new_8/:name'=>['Blog/detail','head|options', ['ext'=>'yml'], ['id'=>'\w+']],
+//            '//new_3/:name'=>['Blog/detail', ['ext'=>'yml'], ['id'=>'\w+']],
+//            ['new_4/:id/[:a]/{%b}$','News/read','post',['complete_match' => false,'ext'=>'shtml','modular'=>'module'],['id'=>'\d+']],
+//           // '[ggg]'=>[':id/[:ccc]'   => ['artical/read', ['method' => 'get'], ['id' => '\d+']],],
+//        ], $option = ['complete_match' => true,'ext'=>'xml','modular'=>'User'], $pattern = ['id'=>'\d+']);
 
         Route::domain('*.www', [
             'new_1/:id'=>'News/read',
             //'new_2/:name'=>['Blog/detail','put', ['ext'=>'yml'], ['name'=>'\w+']],
             //'new_7/:name/{%id}'=>['Blog/detail','*', ['ext'=>'yml'], ['name'=>'\w+']],
-            'new_8/:name'=>['Blog/detail','head|options', ['ext'=>'yml'], ['id'=>'\w+']],
+//            'new_8/:name'=>['Blog/detail','head|options', ['ext'=>'yml'], ['id'=>'\w+']],
             '//new_3/:name'=>['Blog/detail', ['ext'=>'yml'], ['id'=>'\w+']],
-            ['new_4/:id/[:a]/{%b}$','News/read','post',['complete_match' => false,'ext'=>'shtml','modular'=>'module'],['id'=>'\d+']],
+//            '[bind]'=>['Blog/detail', ['ext'=>'yml'], ['id'=>'\w+']],
            // '[ggg]'=>[':id/[:ccc]'   => ['artical/read', ['method' => 'get'], ['id' => '\d+']],],
-        ], $option = ['complete_match' => true,'ext'=>'xml','modular'=>'User'], $pattern = ['id'=>'\d+']);
+        ], $option = ['complete_match' => true,'ext'=>'xml','modular'=>'User','[bind]'=>['\app\index\behavior', [],[]]], $pattern = ['id'=>'\d+']);
 
 //        Route::domain([
 //            'com'=>function(){
@@ -488,7 +488,12 @@ class Test
 //            ],
 //        ],'' , $option = ['complete_match' => true,'ext'=>'xml','modular'=>'User'], $pattern = ['is'=>'\W+']);
 
-//        Route::domain('com','Blog/detail',['ext'=>'yml'],['id'=>'\w+']);
+        /*域名绑定 绑定到命名空间*/
+        //Route::domain('*.www','\app\index\behavior?name=*&id=132&sum=100',['ext'=>'yml','method'=>'put'],['id'=>'\w+']);
+        /*域名绑定 绑定到类*/
+//        Route::domain('*.www','@app\index\behavior?name=*&id=132&sum=100',['ext'=>'yml','method'=>'put'],['id'=>'\w+']);
+        /*域名绑定 绑定到模块*/
+//        Route::domain('*.www','index/behavior?name=*&id=132&sum=100',['ext'=>'yml','method'=>'put'],['id'=>'\w+']);
 //
 //        $name = Route::name('artical/read');
 //        E($name, true);
@@ -506,7 +511,8 @@ class Test
 //                '[ggg]'=>[':id/[:ccc]'   => ['artical/read', ['method' => 'get'], ['id' => '\d+']],],
 //            ]);
 
-//        Route::alias('new_1/:id', 'Blog/detail', ['ext'=>'yml','allow'=>['index','read','edit','delete']]);
+
+
 //        Route::setMethodPrefix('PUT', 'ppt');
 //          Route::rest('create', ['put', ':id', 'create']);
 //        Route::miss('index/index', 'get', ['ext'=>'yml']);
@@ -514,7 +520,13 @@ class Test
 //        E(Route::rules(''));
         $request = RequestRegistry::getRequest();
         $ru = 'new_3/:name';
-        Route::checkDomain($request, $ru, 'get');
+       // Route::checkDomain($request, $ru, 'get');
+
+        //Alias  等价Blog/detail  http://serverName/index.php/Alias/edit/id/5  http://serverName/index.php/Blog/detail/edit/id/5
+        //Route::alias('Alias', 'Blog/detail', ['ext'=>'html','allow'=>['index','read','edit','delete']]);
+        //E(explode(',','0,1,2,3,4,5,6',3));
+        Route::alias('Alias', '\Blog\detail', ['ext'=>'html','allow'=>['index','read','edit','delete']]);
+        Route::check($request,'Alias/edit/id/5', $depr = '/', $checkDomain = false);
         Route::test('');
         exit;
     }

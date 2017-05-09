@@ -161,6 +161,7 @@ class Route
                 self::group('', $func, $option, $pattern);
                 self::setDomain(null);
             } else {
+                //域名绑定
                 self::$rules['domain'][$domain]['[bind]'] = [$rule, $option, $pattern];
             }
         }
@@ -906,74 +907,95 @@ class Route
             $host = $request->host();
             //域名配置
             $domainInfo = self::getHostRule($rules, $host);
+            //域名路由配置
             $item = $domainInfo['item'];
+            //二级 三级 域名
             $panDomain = $domainInfo['domain'];
-            if (!empty($item)) {
-                //保存泛域名 二级 三级 域名
-                if (!is_null($panDomain)) $request->route(['__domain__' => $panDomain]);
-                if (isset($item['[bind]'])) {
-                    // 解析子域名部署规则
-                    list($rule, $option, $pattern) = $item['[bind]'];
-                    // https检测
-                    if (!empty($option['https']) && !$request->isSsl()) throw new HttpException(404, 'must use https request:' . $host);
-                    //路由
-                    if (strpos($rule, '?')) {
-                        // 传入其它参数
-                        $array  = parse_url($rule);
-                        //路径
-                        $path = $array['path'];
-                        //参数
-                        parse_str($array['query'], $params);
-                        if (isset($panDomain)) {
-                            $pos = array_search('*', $params);
-                            // 泛域名作为参数
-                            if ($pos !== false) $params[$pos] = $panDomain;
-                        }
-                        //参数并入 $_GET
-                        $_GET = array_merge($_GET, $params);
-                    } else {
-                        $path = $rule;
-                    }
-
-                    if (strpos($path, '\\') === 0) {
-                        // 绑定到命名空间 例如 \app\index\behavior
-                        self::$bind = ['type' => 'namespace', 'namespace' => $path];
-                    } elseif (strpos($path, '@') === 0) {
-                        // 绑定到类 例如 @app\index\controller\User
-                        self::$bind = ['type' => 'class', 'class' => substr($path, 1)];
-                    } else {
-                        // 绑定到模块/控制器 例如 index/user
-                        self::$bind = ['type' => 'module', 'module' => $path];
-                    }
-                    self::$domainBind = true;
-                } else {
-                    self::$domainRule = $item;
-                    $currentRules     = isset($item[$method]) ? $item[$method] : $item['*'];
-                }
+            //域名配置空
+            if(empty($item)) return;
+            //保存泛域名 二级 三级 域名
+            if (!is_null($panDomain)) $request->route(['__domain__' => $panDomain]);
+            if (isset($item['[bind]'])) {
+                //域名绑定
+                self::domainBind($item['[bind]'], $request, $host, $panDomain);
+            } else {
+                //非绑定配置
+                self::$domainRule = $item;
+                $currentRules  = isset($item[$method]) ? $item[$method] : $item['*'];
             }
         }
     }
 
     /**
+     * 域名绑定处理
+     * @param $bind array 域名绑定信息
+     * @param $request  object 请求对象单例
+     * @param $host  string 完整域名
+     * @param $panDomain string 要绑定的 二级  三级 域名
+     */
+    static protected function domainBind($bind, $request, $host, $panDomain)
+    {
+        // 解析子域名部署规则
+        list($rule, $option, $pattern) = $bind;
+        // https检测
+        if (!empty($option['https']) && !$request->isSsl()) throw new HttpException(404, 'must use https request:' . $host);
+        //解析 路由 路径 参数
+        if (strpos($rule, '?')) {
+            // 解析路由
+            $array  = parse_url($rule);
+            //路径
+            $path = $array['path'];
+            //参数
+            parse_str($array['query'], $params);
+            if (!is_null($panDomain)) {
+                //搜索某个键值，并返回对应的键名
+                $pos = array_search('*', $params);
+                // 泛域名作为参数 绑定到次级域名
+                if ($pos !== false) $params[$pos] = $panDomain;
+            }
+            //参数并入 $_GET
+            $_GET = array_merge($_GET, $params);
+        } else {
+            $path = $rule;
+        }
+        //路由绑定
+        if (strpos($path, '\\') === 0) {
+            // 绑定到命名空间 例如 \app\index\behavior
+            self::$bind = ['type' => 'namespace', 'namespace' => $path];
+        } elseif (strpos($path, '@') === 0) {
+            // 绑定到类 例如 @app\index\controller\User
+            self::$bind = ['type' => 'class', 'class' => substr($path, 1)];
+        } else {
+            // 绑定到模块/命令 例如 index/user
+            self::$bind = ['type' => 'module', 'module' => $path];
+        }
+        self::$domainBind = true;
+    }
+
+    /**
      * 获取域名路由配置
+     * 结合框架配置 获取  three.www.dragon-god.com:80 二级  三级 域名  three.www
+     * 首先查找 除开 顶级和一级域名  dragon-god.com 的  下级域名对应的配置  无结果 顺次查找 泛三级域名 *.www  泛二级域名 * 的配置
      * @param array $rules  域名路由规则
      * @param string $host  域名
      * @return array  域名配置
      */
-    static protected function getHostRule($rules ,$host){
+    static protected function getHostRule($rules ,$host)
+    {
         // 完整域名或者IP配置
         if (isset($rules[$host])) return $rules[$host];
         //非完整域名
         $rootDomain = Conf::get('URL_DOMAIN_ROOT');  //根域名
         if ($rootDomain) {
             // 配置域名根 例如 thinkphp.cn 163.com.cn 如果是国家级域名 com.cn net.cn 之类的域名需要配置
-            $domain = explode('.', rtrim(stristr($host, $rootDomain, true), '.'));
+            $domain = explode('.', rtrim(stristr($host, $rootDomain, true), '.')); //搜索字符串在另一字符串中的第一次出现，返回剩余部分
         } else {
             //除了最后两个元素外的所有元素  去掉顶级域名 一级域名
             $domain = explode('.', $host, -2);
         }
+
         // 子域名不存在
-        if(empty($domain)) return null;
+        if(empty($domain)) return [];
         // 当前子域名
         $subDomain = implode('.', $domain);
         //二级域名三级域名
@@ -986,11 +1008,12 @@ class Route
         if ($subDomain && isset($rules[$subDomain])) {
             $item = $rules[$subDomain];
         } elseif (isset($rules['*.' . $domain2]) && !empty($domain3)) {
-            // 泛三级域名 *.www
+            // 泛三级域名 *.www  对应所有三级域名
             $item = $rules['*.' . $domain2];
+            //三级域名
             $panDomain = $domain3;
         } elseif (isset($rules['*']) && !empty($domain2)) {
-            // 泛二级域名
+            // 泛二级域名  对应所有二级域名
             if ($domain2 != 'www') {
                 $item = $rules['*'];
                 $panDomain = $domain2;
@@ -1013,9 +1036,8 @@ class Route
      */
     static public  function check($request, $url, $depr = '/', $checkDomain = false)
     {
-        // 分隔符替换 确保路由定义使用统一的分隔符
+        // 分隔符替换 确保路由定义使用统一的分隔符 |
         $url = str_replace($depr, '|', $url);
-
         if (strpos($url, '|') && isset(self::$rules['alias'][strstr($url, '|', true)])) {
             // 检测路由别名
             $result = self::checkRouteAlias($request, $url, $depr);
@@ -1050,7 +1072,6 @@ class Route
                 return self::parseRule($item, $rule['route'], $url, $rule['option']);
             }
         }
-
         // 路由规则检测
         if (!empty($rules)) {
             return self::checkRoute($request, $rules, $url, $depr);
@@ -1157,31 +1178,29 @@ class Route
     static private function checkRouteAlias($request, $url, $depr)
     {
         $array = explode('|', $url);
+        //获取并删除第一个元素
         $alias = array_shift($array);
         $item  = self::$rules['alias'][$alias];
-
         if (is_array($item)) {
             list($rule, $option) = $item;
-            $action              = $array[0];
-            if (isset($option['allow']) && !in_array($action, explode(',', $option['allow']))) {
-                // 允许操作
-                return false;
-            } elseif (isset($option['except']) && in_array($action, explode(',', $option['except']))) {
-                // 排除操作
-                return false;
-            }
-            if (isset($option['method'][$action])) {
-                $option['method'] = $option['method'][$action];
-            }
+            //模块/命令/控制器 =>  Alias/控制器
+            $ctrl = $array[0];
+            //授权操作
+            if (isset($option['allow']) && !in_array($ctrl, $option['allow'])) return false;
+            //禁止操作
+            if (isset($option['except']) && in_array($ctrl, $option['except'])) return false;
+            //指定控制器
+            if (isset($option['method'][$ctrl])) $option['method'] = $option['method'][$ctrl];
         } else {
             $rule = $item;
         }
+        //拼接控制器 参数
         $bind = implode('|', $array);
         // 参数有效性检查
         if (isset($option) && !self::checkOption($option, $request)) {
             // 路由不匹配
             return false;
-        } elseif (0 === strpos($rule, '\\')) {
+        } elseif (strpos($rule, '\\') === 0) {
             // 路由到类
             return self::bindToClass($bind, substr($rule, 1), $depr);
         } elseif (0 === strpos($rule, '@')) {
@@ -1234,13 +1253,15 @@ class Route
      */
     static public  function bindToClass($url, $class, $depr = '/')
     {
-        $url    = str_replace($depr, '|', $url);
+        $url = str_replace($depr, '|', $url);
+        //截取成2个元素的数组  控制器与参数
         $array  = explode('|', $url, 2);
-        $action = !empty($array[0]) ? $array[0] : Config::get('default_action');
-        if (!empty($array[1])) {
-            self::parseUrlParams($array[1]);
-        }
-        return ['type' => 'method', 'method' => [$class, $action]];
+        //控制器
+        $ctrl = !empty($array[0]) ? $array[0] : Conf::get('default_action');
+        //参数
+        if (!empty($array[1])) self::parseUrlParams($array[1]);
+        E(['type' => 'ctrl', 'ctrl' => [$class, $ctrl]]);
+        return ['type' => 'ctrl', 'ctrl' => [$class, $ctrl]];
     }
 
     /**
@@ -1310,21 +1331,29 @@ class Route
      */
     static private function checkOption($option, $request)
     {
-        if ((isset($option['method']) && is_string($option['method']) && false === stripos($option['method'], $request->method()))
-            || (isset($option['ajax']) && $option['ajax'] && !$request->isAjax()) // Ajax检测
-            || (isset($option['ajax']) && !$option['ajax'] && $request->isAjax()) // 非Ajax检测
-            || (isset($option['pjax']) && $option['pjax'] && !$request->isPjax()) // Pjax检测
-            || (isset($option['pjax']) && !$option['pjax'] && $request->isPjax()) // 非Pjax检测
-            || (isset($option['ext']) && false === stripos('|' . $option['ext'] . '|', '|' . $request->ext() . '|')) // 伪静态后缀检测
-            || (isset($option['deny_ext']) && false !== stripos('|' . $option['deny_ext'] . '|', '|' . $request->ext() . '|'))
-            || (isset($option['domain']) && !in_array($option['domain'], [$_SERVER['HTTP_HOST'], self::$subDomain])) // 域名检测
-            || (isset($option['https']) && $option['https'] && !$request->isSsl()) // https检测
-            || (isset($option['https']) && !$option['https'] && $request->isSsl()) // https检测
-            || (!empty($option['before_behavior']) && false === Hook::exec($option['before_behavior'])) // 行为检测
-            || (!empty($option['callback']) && is_callable($option['callback']) && false === call_user_func($option['callback'])) // 自定义检测
-        ) {
-            return false;
-        }
+        //请求方法检测  查找字符串在另一字符串中最后一次出现的位置（不区分大小写）
+        if((isset($option['method']) && is_string($option['method']) && stripos($option['method'], $request->method()) === false)) return false;
+        // Ajax检测
+        if((isset($option['ajax']) && $option['ajax'] && !$request->isAjax())) return false;
+        // 非Ajax检测
+        if((isset($option['ajax']) && !$option['ajax'] && $request->isAjax())) return false;
+        //Pjax检测
+        if((isset($option['pjax']) && $option['pjax'] && !$request->isPjax())) return false;
+        // 伪静态后缀检测
+        if((isset($option['ext']) && stripos('|' . $option['ext'] . '|', '|' . $request->ext() . '|') === false)) return false;
+        //禁用的伪静态后缀检测
+        if((isset($option['deny_ext']) && stripos('|' . $option['deny_ext'] . '|', '|' . $request->ext() . '|') !== false)) return false;
+        //域名检测
+        if((isset($option['domain']) && !in_array($option['domain'], [$_SERVER['HTTP_HOST'], self::$subDomain]))) return false;
+        //https检测
+        if((isset($option['https']) && $option['https'] && !$request->isSsl())) return false;
+        //非https检测
+        if((isset($option['https']) && !$option['https'] && $request->isSsl())) return false;
+        //行为检测
+        if((!empty($option['before_behavior']) && Hook::exec($option['before_behavior']) === false)) return false;
+        //自定义检测
+        if((!empty($option['callback']) && is_callable($option['callback']) && call_user_func($option['callback']) === false)) return false;
+        //检测通过
         return true;
     }
 
