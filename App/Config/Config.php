@@ -53,7 +53,7 @@ return [
     // 默认命令
     'DEFAULT_COMMAND'       => 'Index',
     // 默认操作命
-    'DEFAULT_ACTION'        => 'index',
+    'DEFAULT_CONTROLLER'        => 'index',
     // 默认的空命令命
     'EMPTY_COMMAND'         => 'Error',
     // 操作方法后缀

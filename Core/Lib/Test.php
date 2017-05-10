@@ -430,7 +430,7 @@ class Test
 //        Route::group('',[ 'new/:id'=>'News/read','new_3/:name'=>['Blog/detail','head', ['ext'=>'yml'], ['id'=>'\w+']],],['method'=>'get','ext'=>'html']);
 
 
-//        Route::rule([
+//       Route::rule([
 //            'new_1/:id'=>'News/read',
 //            'new_2/:name'=>['Blog/detail','put', ['ext'=>'yml'], ['name'=>'\w+']],
 //            'new_7/:name/{%id}'=>['Blog/detail','*', ['ext'=>'yml'], ['name'=>'\w+']],
@@ -462,15 +462,15 @@ class Test
 //           // '[ggg]'=>[':id/[:ccc]'   => ['artical/read', ['method' => 'get'], ['id' => '\d+']],],
 //        ], $option = ['complete_match' => true,'ext'=>'xml','modular'=>'User'], $pattern = ['id'=>'\d+']);
 
-        Route::domain('*.www', [
-            'new_1/:id'=>'News/read',
-            //'new_2/:name'=>['Blog/detail','put', ['ext'=>'yml'], ['name'=>'\w+']],
-            //'new_7/:name/{%id}'=>['Blog/detail','*', ['ext'=>'yml'], ['name'=>'\w+']],
-//            'new_8/:name'=>['Blog/detail','head|options', ['ext'=>'yml'], ['id'=>'\w+']],
-            '//new_3/:name'=>['Blog/detail', ['ext'=>'yml'], ['id'=>'\w+']],
-//            '[bind]'=>['Blog/detail', ['ext'=>'yml'], ['id'=>'\w+']],
-           // '[ggg]'=>[':id/[:ccc]'   => ['artical/read', ['method' => 'get'], ['id' => '\d+']],],
-        ], $option = ['complete_match' => true,'ext'=>'xml','modular'=>'User','[bind]'=>['\app\index\behavior', [],[]]], $pattern = ['id'=>'\d+']);
+//        Route::domain('*.www', [
+//            'new_1/:id'=>'News/read',
+//            //'new_2/:name'=>['Blog/detail','put', ['ext'=>'yml'], ['name'=>'\w+']],
+//            //'new_7/:name/{%id}'=>['Blog/detail','*', ['ext'=>'yml'], ['name'=>'\w+']],
+////            'new_8/:name'=>['Blog/detail','head|options', ['ext'=>'yml'], ['id'=>'\w+']],
+//            '//new_3/:name'=>['Blog/detail', ['ext'=>'yml'], ['id'=>'\w+']],
+////            '[bind]'=>['Blog/detail', ['ext'=>'yml'], ['id'=>'\w+']],
+//           // '[ggg]'=>[':id/[:ccc]'   => ['artical/read', ['method' => 'get'], ['id' => '\d+']],],
+//        ], $option = ['complete_match' => true,'ext'=>'xml','modular'=>'User','[bind]'=>['\app\index\behavior', [],[]]], $pattern = ['id'=>'\d+']);
 
 //        Route::domain([
 //            'com'=>function(){
@@ -489,7 +489,7 @@ class Test
 //        ],'' , $option = ['complete_match' => true,'ext'=>'xml','modular'=>'User'], $pattern = ['is'=>'\W+']);
 
         /*域名绑定 绑定到命名空间*/
-        //Route::domain('*.www','\app\index\behavior?name=*&id=132&sum=100',['ext'=>'yml','method'=>'put'],['id'=>'\w+']);
+        Route::domain('*.www','\app\index\behavior?name=*&id=132&sum=100',['ext'=>'yml','method'=>'put'],['id'=>'\w+']);
         /*域名绑定 绑定到类*/
 //        Route::domain('*.www','@app\index\behavior?name=*&id=132&sum=100',['ext'=>'yml','method'=>'put'],['id'=>'\w+']);
         /*域名绑定 绑定到模块*/
@@ -525,8 +525,19 @@ class Test
         //Alias  等价Blog/detail  http://serverName/index.php/Alias/edit/id/5  http://serverName/index.php/Blog/detail/edit/id/5
         //Route::alias('Alias', 'Blog/detail', ['ext'=>'html','allow'=>['index','read','edit','delete']]);
         //E(explode(',','0,1,2,3,4,5,6',3));
-        Route::alias('Alias', '\Blog\detail', ['ext'=>'html','allow'=>['index','read','edit','delete']]);
-        Route::check($request,'Alias/edit/id/5', $depr = '/', $checkDomain = false);
+
+        //路由到类
+//        Route::alias('Alias', '\Blog\detail', ['ext'=>'html','allow'=>['index','read','edit','delete']]);
+//        Route::check($request,'Alias/edit/id/5', $depr = '/', $checkDomain = false);
+        //路由到命令类
+//        Route::alias('Alias', '@Blog/detail', ['ext'=>'html','allow'=>['index','read','edit','delete']]);
+//        Route::check($request,'Alias/edit/id/5', $depr = '/', $checkDomain = false);
+        //路由到模块
+//        Route::alias('Alias', 'Blog/detail', ['ext'=>'html','allow'=>['index','read','edit','delete']]);
+//        Route::check($request,'Alias/edit/id/5', $depr = '/', $checkDomain = false);
+
+        Route::check($request,'Blog/detail/edit/id/5', $depr = '/', $checkDomain = false);
+
         Route::test('');
         exit;
     }

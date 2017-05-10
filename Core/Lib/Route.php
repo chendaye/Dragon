@@ -1038,25 +1038,21 @@ class Route
     {
         // 分隔符替换 确保路由定义使用统一的分隔符 |
         $url = str_replace($depr, '|', $url);
+        //检查此URL是否是别名，并获取别名对应的配置
         if (strpos($url, '|') && isset(self::$rules['alias'][strstr($url, '|', true)])) {
-            // 检测路由别名
+            // 检测路由是否为别名
             $result = self::checkRouteAlias($request, $url, $depr);
-            if (false !== $result) {
-                return $result;
-            }
+            if ($result !== false) return $result;
         }
+        //此URL restful  操作类型
         $method = strtolower($request->method());
         // 获取当前请求类型的路由规则
         $rules = self::$rules[$method];
-        // 检测域名部署
-        if ($checkDomain) {
-            self::checkDomain($request, $rules, $method);
-        }
+        // 检测域名部署 包括域名绑定  域名配置信息
+        if ($checkDomain) self::checkDomain($request, $rules, $method);
         // 检测URL绑定
         $return = self::checkUrlBind($url, $rules, $depr);
-        if (false !== $return) {
-            return $return;
-        }
+        if ($return !== false) return $return;
         if ('|' != $url) {
             $url = rtrim($url, '|');
         }
@@ -1203,9 +1199,9 @@ class Route
         } elseif (strpos($rule, '\\') === 0) {
             // 路由到类
             return self::bindToClass($bind, substr($rule, 1), $depr);
-        } elseif (0 === strpos($rule, '@')) {
-            // 路由到控制器类
-            return self::bindToController($bind, substr($rule, 1), $depr);
+        } elseif (strpos($rule, '@') === 0) {
+            // 路由到命令类
+            return self::bindToCommand($bind, substr($rule, 1), $depr);
         } else {
             // 路由到模块/控制器
             return self::bindToModule($bind, $rule, $depr);
@@ -1222,6 +1218,7 @@ class Route
      */
     static private function checkUrlBind(&$url, &$rules, $depr = '/')
     {
+        //当前访问路由是否有绑定信息
         if (!empty(self::$bind)) {
             $type = self::$bind['type'];
             $bind = self::$bind[$type];
@@ -1232,9 +1229,9 @@ class Route
                 case 'class':
                     // 绑定到类
                     return self::bindToClass($url, $bind, $depr);
-                case 'controller':
+                case 'command':
                     // 绑定到控制器类
-                    return self::bindToController($url, $bind, $depr);
+                    return self::bindToCommand($url, $bind, $depr);
                 case 'namespace':
                     // 绑定到命名空间
                     return self::bindToNamespace($url, $bind, $depr);
@@ -1257,10 +1254,9 @@ class Route
         //截取成2个元素的数组  控制器与参数
         $array  = explode('|', $url, 2);
         //控制器
-        $ctrl = !empty($array[0]) ? $array[0] : Conf::get('default_action');
-        //参数
+        $ctrl = !empty($array[0]) ? $array[0] : Conf::get('default_controller');
+        //参数  设置请求参数
         if (!empty($array[1])) self::parseUrlParams($array[1]);
-        E(['type' => 'ctrl', 'ctrl' => [$class, $ctrl]]);
         return ['type' => 'ctrl', 'ctrl' => [$class, $ctrl]];
     }
 
@@ -1276,31 +1272,29 @@ class Route
     {
         $url    = str_replace($depr, '|', $url);
         $array  = explode('|', $url, 3);
-        $class  = !empty($array[0]) ? $array[0] : Conf::get('default_controller');
-        $method = !empty($array[1]) ? $array[1] : Conf::get('default_action');
-        if (!empty($array[2])) {
-            self::parseUrlParams($array[2]);
-        }
-        return ['type' => 'method', 'method' => [$namespace . '\\' . Visit::parseName($class, 1), $method]];
+        $class  = !empty($array[0]) ? $array[0] : Conf::get('default_command');
+        $method = !empty($array[1]) ? $array[1] : Conf::get('default_controller');
+        if (!empty($array[2])) self::parseUrlParams($array[2]);
+        return ['type' => 'ctrl', 'ctrl' => [$namespace . '\\' . Visit::parseName($class, 1), $method]];
     }
 
     /**
      * 绑定到控制器类
      * @access public
      * @param string    $url URL地址
-     * @param string    $controller 控制器名 （支持带模块名 index/user ）
+     * @param string    $command 控制器名 （支持带模块名 index/user ）
      * @param string    $depr URL分隔符
      * @return array
      */
-    static public  function bindToController($url, $controller, $depr = '/')
+    static public  function bindToCommand($url, $command, $depr = '/')
     {
-        $url    = str_replace($depr, '|', $url);
+        $url = str_replace($depr, '|', $url);
         $array  = explode('|', $url, 2);
-        $action = !empty($array[0]) ? $array[0] : Conf::get('default_action');
+        $ctrl = !empty($array[0]) ? $array[0] : Conf::get('default_controller');
         if (!empty($array[1])) {
             self::parseUrlParams($array[1]);
         }
-        return ['type' => 'controller', 'controller' => $controller . '/' . $action];
+        return ['type' => 'command', 'command' => $command . '/' . $ctrl];
     }
 
     /**
@@ -1313,9 +1307,9 @@ class Route
      */
     static public  function bindToModule($url, $controller, $depr = '/')
     {
-        $url    = str_replace($depr, '|', $url);
+        $url = str_replace($depr, '|', $url);
         $array  = explode('|', $url, 2);
-        $action = !empty($array[0]) ? $array[0] : Conf::get('default_action');
+        $action = !empty($array[0]) ? $array[0] : Conf::get('default_controller');
         if (!empty($array[1])) {
             self::parseUrlParams($array[1]);
         }
@@ -1751,7 +1745,6 @@ class Route
     /**
      * 解析URL地址中的参数Request对象
      * @access private
-     * @param string    $rule 路由规则
      * @param array     $var 变量
      * @return void
      */
@@ -1759,10 +1752,12 @@ class Route
     {
         if ($url) {
             if (Conf::get('url_param_type')) {
+                //按顺序解析参数 [0] => id [1] => 5
                 $var += explode('|', $url);
             } else {
+                //按成对解析参数  [id] => 5  执行一个正则表达式搜索并且使用一个回调函数进行替处理
                 preg_replace_callback('/(\w+)\|([^\|]+)/', function ($match) use (&$var) {
-                    $var[$match[1]] = strip_tags($match[2]);
+                    $var[$match[1]] = strip_tags($match[2]);    //strip_tags() 函数剥去字符串中的 HTML、XML 以及 PHP 的标签
                 }, $url);
             }
         }
