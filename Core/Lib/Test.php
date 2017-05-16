@@ -535,7 +535,6 @@ class Test
         //路由到模块
 //        Route::alias('Alias', 'Blog/detail', ['ext'=>'html','allow'=>['index','read','edit','delete']]);
 //        Route::check($request,'Alias/edit/id/5', $depr = '/', $checkDomain = false);
-
         Route::check($request,'Blog/detail/edit/id/5', $depr = '/', $checkDomain = false);
 
         Route::test('');

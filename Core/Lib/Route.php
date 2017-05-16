@@ -1050,13 +1050,14 @@ class Route
         $rules = self::$rules[$method];
         // 检测域名部署 包括域名绑定  域名配置信息
         if ($checkDomain) self::checkDomain($request, $rules, $method);
-        // 检测URL绑定
+        // 检测当前的URL是否绑定
         $return = self::checkUrlBind($url, $rules, $depr);
+        //已绑定返回绑定信息
         if ($return !== false) return $return;
-        if ('|' != $url) {
-            $url = rtrim($url, '|');
-        }
+        //取出左侧分隔符
+        if ($url != '|') $url = rtrim($url, '|');
         $item = str_replace('|', '/', $url);
+        E($item);
         if (isset($rules[$item])) {
             // 静态路由规则检测
             $rule = $rules[$item];
