@@ -1056,16 +1056,16 @@ class Route
         if ($return !== false) return $return;
         //取出左侧分隔符
         if ($url != '|') $url = rtrim($url, '|');
+        //替换分割符
         $item = str_replace('|', '/', $url);
-        E($item);
         if (isset($rules[$item])) {
             // 静态路由规则检测
             $rule = $rules[$item];
-            if (true === $rule) {
-                $rule = self::getRouteExpress($item);
-            }
+            if ($rule === true)$rule = self::getRouteExpress($item);
             if (!empty($rule['route']) && self::checkOption($rule['option'], $request)) {
-                self::setOption($rule['option']);
+                self::setOption($rule
+
+                ['option']);
                 return self::parseRule($item, $rule['route'], $url, $rule['option']);
             }
         }
